@@ -1,0 +1,37 @@
+{
+  "name": "calories-express-v1",
+  "version": "2.6.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@expo/metro-runtime": "~57.0.15",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "expo": "~57.0.22",
+    "expo-image-manipulator": "~57.0.17",
+    "expo-image-picker": "~57.0.17",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "^19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-svg": "^15.15.4",
+    "react-native-web": "^0.21.2",
+    "react-native-webview": "13.16.1"
+  },
+  "devDependencies": {
+    "@expo/ngrok": "^4.1.0",
+    "@types/react": "~19.2.2",
+    "gh-pages": "^6.3.0",
+    "react-test-renderer": "19.2.3",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "check": "tsc --noEmit",
+    "test:logic": "tsc --ignoreConfig --module commonjs --target es2022 --esModuleInterop --resolveJsonModule --skipLibCheck --outDir .test-dist src/types.ts src/data/catalog.ts src/domain/calories.ts src/domain/energy.ts src/domain/experience.ts src/domain/foods.ts src/domain/activity.ts src/services/products.ts src/domain/activity-energy.ts src/domain/coaching.ts src/domain/food-search.ts src/domain/recipes.ts src/domain/labels.ts src/services/ocr/page.ts src/domain/date.ts src/domain/weight.ts src/domain/meals.ts src/domain/stories.ts src/domain/persistence.ts src/domain/onboarding.ts src/domain/food-images.ts src/data/food-names.ts src/data/illustrations.ts && node scripts/test-domain.cjs && node --test scripts/test-v14.cjs && node --test scripts/test-v15.cjs && node --test scripts/test-v16.cjs && node --test scripts/test-v17.cjs && node --test scripts/test-v18.cjs && node --test scripts/test-v19.cjs && node --test scripts/test-v20.cjs && node --test scripts/test-v21.cjs && node scripts/check-jsx-text.cjs",
+    "test:activity-ui": "node --test scripts/test-activity-ui.cjs"
+  },
+  "private": true
+}

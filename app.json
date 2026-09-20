@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Calories Express",
+    "slug": "calories-express-v1",
+    "version": "2.6.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "caloriesexpress",
+    "description": "Repas, produits, objectifs, activité, poids et Jaws animé.",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.caloriesexpress.app"
+    },
+    "android": {
+      "package": "com.caloriesexpress.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#E9E3FF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choisis une photo du tableau nutritionnel pour saisir ton aliment.",
+          "cameraPermission": "Photographie le tableau nutritionnel pour lire les valeurs de ton aliment.",
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}

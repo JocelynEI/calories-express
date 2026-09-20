@@ -1,0 +1,18 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- V1.9 — direction claire. Le baromètre de l'accueil et le bol, sur un fond
+       lavande très pâle : parmi les icônes sombres d'un écran d'accueil, c'est
+       la clarté qui fait ressortir celle-ci. Lisible jusqu'à 32 px. -->
+  <defs>
+    <linearGradient id="bg" x1="0.1" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E9E3FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="238" fill="url(#bg)"/>
+  <rect x="3" y="3" width="1018" height="1018" rx="235" fill="none" stroke="#D5CCFF" stroke-width="6"/>
+  <circle fill="none" cx="512" cy="512" r="326" stroke="#D5CCFF" stroke-width="100" stroke-linecap="round" stroke-dasharray="1536 513" transform="rotate(135 512 512)"/>
+  <circle fill="none" cx="512" cy="512" r="326" stroke="#5B3FE0" stroke-width="100" stroke-linecap="round" stroke-dasharray="952 1097" transform="rotate(135 512 512)"/>
+  <circle cx="512" cy="352" r="48" fill="#0F857D"/>
+  <rect x="326" y="450" width="372" height="54" rx="27" fill="#1D1B4B"/>
+  <path d="M362 504 A 150 150 0 0 0 662 504 Z" fill="#1D1B4B"/>
+</svg>
