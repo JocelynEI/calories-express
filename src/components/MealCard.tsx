@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { shortTime } from '../domain/date';
-import { colors, MAX_FONT_SCALE, radii, shadows } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, shadows, typeScale } from '../theme';
 import { Meal } from '../types';
 import { AppIcon } from './AppIcon';
 import { MotionPressable } from './Motion';
@@ -134,10 +134,13 @@ export function MealCard({ meal, onRemove, onEdit, compact = false }: Props) {
  * identiques : dans le journal, on ne les distinguait plus.
  */
 function toneFor(moment: Meal['moment']) {
-  if (moment === 'Petit-déjeuner') return { pale: colors.goldPale, ink: colors.goldText };
-  if (moment === 'Goûter' || moment === 'Snack') return { pale: colors.aquaPale, ink: colors.aqua };
-  if (moment === 'Dîner') return { pale: colors.violetPale, ink: colors.violet };
-  return { pale: colors.leafPale, ink: colors.leaf };
+  // V2.7 — les catégories du brief : petit-déjeuner orangé, déjeuner vert,
+  // dîner violet doux, collation menthe. L'aplat est la couleur pastel exacte
+  // du brief ; la pastille et les icônes prennent son encre lisible.
+  if (moment === 'Petit-déjeuner') return { pale: colors.warmPale, ink: colors.warmInk };
+  if (moment === 'Goûter' || moment === 'Snack') return { pale: colors.mintPale, ink: colors.mintInk };
+  if (moment === 'Dîner') return { pale: colors.purplePale, ink: colors.purpleInk };
+  return { pale: colors.greenPale, ink: colors.greenInk };
 }
 
 const styles = StyleSheet.create({
@@ -148,20 +151,21 @@ const styles = StyleSheet.create({
   cover: { height: 132, alignItems: 'center', justifyContent: 'center' },
   photo: { width: '100%', height: '100%' },
   photoShade: { ...StyleSheet.absoluteFillObject, backgroundColor: '#11152B1A' },
-  moment: { position: 'absolute', left: 12, top: 12, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
-  momentText: { color: colors.white, fontSize: 11, fontWeight: '800', letterSpacing: 0.3 },
+  moment: { position: 'absolute', left: 12, top: 12, borderRadius: radii.pill, paddingHorizontal: 11, paddingVertical: 5 },
+  momentText: { color: colors.white, fontSize: 12, lineHeight: 16, fontFamily: fonts.semibold },
 
   body: { flexDirection: 'row', alignItems: 'flex-end', gap: 12, padding: 13 },
   bodyText: { flex: 1, minWidth: 0 },
-  description: { color: colors.ink, fontSize: 16, fontWeight: '800', lineHeight: 21, letterSpacing: -0.2 },
-  meta: { color: colors.muted, fontSize: 12, fontWeight: '600', marginTop: 3, lineHeight: 17 },
+  // Brief : « Card Title » 16 px semi-gras, « Caption » 12 px.
+  description: { color: colors.ink, ...typeScale.cardTitle },
+  meta: { color: colors.muted, ...typeScale.caption, marginTop: 3 },
   right: { alignItems: 'flex-end', minWidth: 50 },
-  calories: { color: colors.ink, fontSize: 19, fontWeight: '800', letterSpacing: -0.4 },
-  kcal: { color: colors.muted, fontSize: 11, fontWeight: '700' },
+  calories: { color: colors.ink, fontSize: 20, lineHeight: 24, fontFamily: fonts.extrabold, letterSpacing: -0.4 },
+  kcal: { color: colors.muted, fontSize: 12, lineHeight: 16, fontFamily: fonts.medium },
 
   compactRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10 },
-  thumb: { width: 62, height: 62, borderRadius: 18, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
+  thumb: { width: 62, height: 62, borderRadius: radii.input, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
   thumbPhoto: { width: 62, height: 62 },
 
-  remove: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.coralPale, marginTop: 4 },
+  remove: { width: 44, height: 44, borderRadius: radii.input, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.coralPale, marginTop: 4 },
 });

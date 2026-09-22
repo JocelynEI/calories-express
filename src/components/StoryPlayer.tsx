@@ -3,7 +3,7 @@ import { Animated, Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { SCENE_DURATION, Story, StoryAccent } from '../domain/stories';
 import { useExperience } from '../state/ExperienceContext';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, MAX_FONT_SCALE, radii, fonts } from '../theme';
 import { AppIcon } from './AppIcon';
 import { MotionPressable } from './Motion';
 import { StorySceneArt } from './StoryScene';
@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
   barTrack: { flex: 1, height: 4, borderRadius: 2, backgroundColor: '#FFFFFFAA', overflow: 'hidden' },
   barFill: { height: 4, borderRadius: 2 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12 },
-  eyebrow: { fontSize: 12, fontWeight: '800', letterSpacing: 1.4 },
-  title: { color: colors.ink, fontSize: 20, fontWeight: '800', letterSpacing: -0.3, marginTop: 3 },
+  eyebrow: { fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.4 },
+  title: { color: colors.ink, fontSize: 20, fontFamily: fonts.extrabold, letterSpacing: -0.3, marginTop: 3 },
   roundButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
 
   stageWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 250 },
@@ -237,22 +237,22 @@ const styles = StyleSheet.create({
   tapRight: { position: 'absolute', top: 0, bottom: 0, right: -18, width: '46%' },
 
   copyCard: { backgroundColor: colors.card, borderRadius: radii.large, padding: 18, gap: 7 },
-  sceneStep: { fontSize: 12, fontWeight: '800', letterSpacing: 1.2 },
-  headline: { color: colors.ink, fontSize: 24, fontWeight: '800', letterSpacing: -0.5, lineHeight: 30 },
-  caption: { color: colors.inkSoft, fontSize: 16, lineHeight: 23, fontWeight: '500' },
+  sceneStep: { fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.2 },
+  headline: { color: colors.ink, fontSize: 24, fontFamily: fonts.extrabold, letterSpacing: -0.5, lineHeight: 30 },
+  caption: { color: colors.inkSoft, fontSize: 16, lineHeight: 23, fontFamily: fonts.medium },
 
   controls: { flexDirection: 'row', gap: 10, paddingVertical: 14 },
   secondaryButton: { minHeight: 52, flexGrow: 1, flexBasis: 0, borderRadius: 16, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFFCC' },
-  secondaryText: { fontSize: 15, fontWeight: '800' },
+  secondaryText: { fontSize: 15, fontFamily: fonts.extrabold },
   primaryButton: { minHeight: 52, flexGrow: 1.4, flexBasis: 0, borderRadius: 16, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  primaryText: { color: colors.white, fontSize: 15, fontWeight: '800', flexShrink: 1 },
+  primaryText: { color: colors.white, fontSize: 15, fontFamily: fonts.extrabold, flexShrink: 1 },
   disabled: { opacity: 0.4 },
 
   endContent: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: 14, paddingBottom: 30 },
   endBadge: { width: 62, height: 62, borderRadius: 31, alignItems: 'center', justifyContent: 'center' },
-  endTitle: { color: colors.ink, fontSize: 24, fontWeight: '800', letterSpacing: -0.5, textAlign: 'center' },
-  endCopy: { color: colors.inkSoft, fontSize: 16, lineHeight: 23, textAlign: 'center', maxWidth: 330 },
+  endTitle: { color: colors.ink, fontSize: 24, fontFamily: fonts.extrabold, letterSpacing: -0.5, textAlign: 'center' },
+  endCopy: { color: colors.inkSoft, fontSize: 16, fontFamily: fonts.medium, lineHeight: 23, textAlign: 'center', maxWidth: 330 },
   sourceRow: { minHeight: 44, justifyContent: 'center' },
-  sourceText: { fontSize: 14, fontWeight: '700', textDecorationLine: 'underline' },
+  sourceText: { fontSize: 14, fontFamily: fonts.bold, textDecorationLine: 'underline' },
   endActions: { flexDirection: 'row', gap: 10, alignSelf: 'stretch', marginTop: 6 },
 });

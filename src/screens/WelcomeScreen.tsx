@@ -9,7 +9,7 @@ import { greeting } from '../domain/experience';
 import { longDayLabel } from '../domain/date';
 import { useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
-import { colors, MAX_FONT_SCALE, radii, shadows } from '../theme';
+import { colors, MAX_FONT_SCALE, radii, shadows, fonts } from '../theme';
 
 /**
  * V2.2 — l'ouverture de l'application.
@@ -151,20 +151,20 @@ const styles = StyleSheet.create({
 
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 12 },
   brandRow: { alignItems: 'center' },
-  brand: { color: colors.violet, fontSize: 12, fontWeight: '800', letterSpacing: 2.2 },
+  brand: { color: colors.violet, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 2.2 },
   markWrap: { alignItems: 'center', justifyContent: 'center' },
 
-  day: { color: colors.muted, fontSize: 12, fontWeight: '800', letterSpacing: 1.5, textAlign: 'center' },
-  greeting: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: '800', letterSpacing: -0.9, textAlign: 'center', marginTop: 6 },
+  day: { color: colors.muted, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.5, textAlign: 'center' },
+  greeting: { color: colors.ink, fontSize: 32, lineHeight: 38, fontFamily: fonts.extrabold, letterSpacing: -0.9, textAlign: 'center', marginTop: 6 },
 
   jawsRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   bubble: { flex: 1, backgroundColor: colors.card, borderRadius: 18, borderBottomLeftRadius: 6, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: colors.line, ...shadows.card },
-  bubbleText: { color: colors.inkSoft, fontSize: 15, lineHeight: 21, fontWeight: '600' },
+  bubbleText: { color: colors.inkSoft, fontSize: 15, lineHeight: 21, fontFamily: fonts.semibold },
 
   parade: { alignItems: 'center', opacity: 0.95 },
 
   footer: { paddingHorizontal: 24, paddingBottom: 18, gap: 10 },
   start: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, minHeight: 58, borderRadius: radii.large, backgroundColor: colors.violet, ...shadows.raised },
-  startText: { color: colors.white, fontSize: 17, fontWeight: '800' },
-  footNote: { color: colors.muted, fontSize: 12, lineHeight: 17, textAlign: 'center' },
+  startText: { color: colors.white, fontSize: 17, fontFamily: fonts.extrabold },
+  footNote: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, lineHeight: 17, textAlign: 'center' },
 });

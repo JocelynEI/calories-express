@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { useExperience } from '../state/ExperienceContext';
 
 export function MacroBar({ label, value, target, color, partial = false }: { label: string; value: number; target: number; color: string; partial?: boolean }) {
@@ -26,9 +26,9 @@ export function MacroBar({ label, value, target, color, partial = false }: { lab
 const styles = StyleSheet.create({
   row: { gap: 7 },
   heading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  label: { color: colors.inkSoft, fontSize: 13, fontWeight: '600' },
-  value: { color: colors.muted, fontSize: 12 },
-  strong: { color: colors.inkSoft, fontWeight: '700' },
+  label: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.semibold },
+  value: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium },
+  strong: { color: colors.inkSoft, fontFamily: fonts.bold },
   track: { height: 6, backgroundColor: colors.line, borderRadius: 4, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 4 },
 });

@@ -1,3 +1,109 @@
+# V2.7 — 22 septembre 2026
+
+Refonte à partir du moodboard et du design system « Calories Express ».
+Cette version pose les fondations pour toute l'application, et reprend en
+détail l'accueil et le journal. Les autres écrans héritent déjà des couleurs,
+de la police et des rayons ; ils seront repris un par un ensuite.
+
+Elle part de la V2.6 publiée sur GitHub, pour ne rien perdre de ses
+retouches — notamment la composition « Ton repère du jour » de l'accueil.
+
+## La palette : exacte, et lisible
+
+Toutes les couleurs du brief sont reprises au code près. Mais trois accents
+sont illisibles comme couleur de texte :
+
+| Couleur du brief | Contraste sur blanc | Minimum lisible |
+| --- | --- | --- |
+| Menthe `#00C4CC` | 2,2:1 | 4,5:1 |
+| Orangé `#EAC15C` | 1,7:1 | 4,5:1 |
+| Vert `#4CAF50` | 2,8:1 | 4,5:1 |
+
+La règle retenue : **la couleur exacte pour tout ce qui est aplat** — fonds,
+jauge, pastilles, barres — **et une encre de la même teinte pour le texte**,
+assombrie juste assez pour passer 4,5:1 sur sa pastille comme sous un texte
+blanc :
+
+| Accent | Aplat (brief) | Pastel (brief) | Encre du texte |
+| --- | --- | --- | --- |
+| Menthe | `#00C4CC` | `#E6F8F8` | `#007A7F` |
+| Orangé | `#EAC15C` | `#FFF9EB` | `#906C13` |
+| Vert | `#4CAF50` | `#EBF7ED` | `#367B38` |
+| Violet doux | `#8C62FF` | `#F3EFFF` | `#7643FF` |
+
+Le brun doré obtenu pour l'orangé est d'ailleurs celui de la pastille
+« Petit-déjeuner » dessinée sur le moodboard.
+
+Les anciennes clés de couleur sont conservées et pointent vers la nouvelle
+palette : les écrans pas encore repris changent de couleurs sans rien casser.
+
+## Plus Jakarta Sans
+
+Chargée au démarrage, en cinq graisses. Les fichiers font partie de
+l'application : aucun réseau n'est nécessaire. Tant qu'ils ne sont pas prêts,
+l'écran reste d'un fond uni, pour éviter un texte qui changerait de police
+sous les yeux. En cas d'échec, l'application s'ouvre avec la police du système.
+
+Avec une police chargée, Android ignore la graisse demandée : chaque graisse
+doit être nommée comme une famille à part. **Les 220 graisses de
+l'application ont été converties par programme**, en passant par l'analyseur
+syntaxique de TypeScript plutôt que par des remplacements de texte. Un
+garde-fou refuse désormais toute graisse écrite à l'ancienne.
+
+La hiérarchie du brief est dans le thème : 28 px pour « Bonjour Jocelyn »,
+20 px pour les titres de section, 16 px pour les titres de carte, 32 px pour
+les grands chiffres, 14 px pour le texte, 12 px pour les légendes. Les textes
+de 10 et 11 px introduits en V2.6 remontent à 12.
+
+## L'accueil et le journal
+
+- **La jauge** passe de 270° à 240°. Au centre, le total consommé en grand et
+  « sur 2 100 kcal » dessous, comme le brief le demande. La pastille d'état
+  (« Dans ton repère »…) loge dans l'ouverture de l'arc. Ce qu'il reste
+  s'affiche juste dessous, dans la ligne de chiffres.
+- **Les en-têtes de section** passent à 20 px. À cette taille, le titre et son
+  chiffre-clé ne tenaient plus côte à côte sur un téléphone : le premier
+  aperçu coupait « 790 kcal restantes » en deux lignes. Le chiffre passe donc
+  sous le titre.
+- **Les cartes de repas** : pastille du moment en pilule, titre 16 px
+  semi-gras, légende 12 px, calories en gras à droite, et les quatre couleurs
+  du brief par moment de la journée.
+- **Le bloc Jaws** : bulle blanche sur violet très clair, ombre douce.
+- **Boutons et pilules** : rayons du brief.
+
+## Corrigé au passage
+
+- Sur la version web, « Effacer mon profil » ne faisait rien : la fenêtre de
+  confirmation utilisée n'existe que sur téléphone. Le navigateur demande
+  désormais sa propre confirmation.
+
+## Un défaut dans mes propres vérifications
+
+En préparant cette version, j'ai découvert que mon contrôle des références
+TypeScript pointait vers un dossier renommé depuis la V2.2. Il ne vérifiait
+donc plus rien, et les journaux des V2.2 à V2.5 affirment à tort qu'il était
+passé.
+
+Le contrôle a été refait : il échoue désormais bruyamment s'il n'a presque
+rien analysé. Relancé sur la V2.5 et sur la V2.6, il ne trouve aucune erreur :
+rien de caché ne s'était glissé. Sur la V2.7, il a immédiatement attrapé une
+accolade en trop, corrigée avant livraison.
+
+## Vérifications
+
+- 128 vérifications automatiques, dont 8 nouvelles sur le design system :
+  couleurs exactes, lisibilité de chaque encre, hiérarchie typographique,
+  rayons et ombre, chargement des cinq graisses, jauge à 240°, couleurs des
+  moments, confirmation web.
+- Garde-fous : textes bruts, API dépréciées, graisses — sur 46 fichiers.
+- Références TypeScript : 70 fichiers analysés, aucune erreur.
+- Aperçus de l'accueil et du journal rendus avant livraison. **La police n'a
+  pas pu y être chargée** (accès à Google Fonts fermé dans mon environnement) :
+  ils montrent la mise en page, les couleurs et la hiérarchie, avec une police
+  de remplacement plus large que Plus Jakarta Sans.
+
+---
+
 # V2.6 — 20 septembre 2026
 
 ## Premium visuel

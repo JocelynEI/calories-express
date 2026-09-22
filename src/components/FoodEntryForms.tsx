@@ -3,7 +3,7 @@ import { Linking, StyleSheet, Switch, Text, View } from 'react-native';
 import { normalizeText } from '../domain/calories';
 import { portionIssue, readNumber, scaleReference } from '../domain/foods';
 import { useApp } from '../state/AppContext';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { FoodReference, RecognizedFood, SavedFood } from '../types';
 import { Action, Choice, Field, form } from './FormControls';
 import { MotionPressable } from './Motion';
@@ -59,10 +59,10 @@ export function SourceLink({ url = 'https://world.openfoodfacts.org', label = 'S
   return <View><MotionPressable accessibilityRole="link" onPress={() => { void Linking.openURL(url).catch(() => setError(true)); }} style={{ minHeight: 44, justifyContent: 'center' }}><Text style={styles.link}>{label} ↗</Text></MotionPressable>{error && <Text style={form.muted}>Le lien n’a pas pu s’ouvrir.</Text>}</View>;
 }
 const styles = StyleSheet.create({
-  link: { color: colors.sageDark, fontSize: 12, fontWeight: '700', lineHeight: 18 },
-  total: { color: colors.navy, fontSize: 20, fontWeight: '800' },
+  link: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.bold, lineHeight: 18 },
+  total: { color: colors.navy, fontSize: 20, fontFamily: fonts.extrabold },
   switchRow: { flexDirection: 'row', gap: 12, alignItems: 'center' },
   result: { borderTopColor: colors.line, borderTopWidth: 1, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56 },
-  resultName: { color: colors.ink, fontSize: 13, lineHeight: 19, fontWeight: '700' },
-  arrow: { color: colors.sageDark, fontSize: 26 },
+  resultName: { color: colors.ink, fontSize: 13, lineHeight: 19, fontFamily: fonts.bold },
+  arrow: { color: colors.sageDark, fontSize: 26, fontFamily: fonts.medium },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { fonts } from '../theme';
 
 /**
  * Filet de sécurité.
@@ -91,13 +92,13 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: BACKGROUND },
   content: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 14 },
   badge: { width: 54, height: 54, borderRadius: 27, backgroundColor: GOLD_PALE, alignItems: 'center', justifyContent: 'center' },
-  badgeText: { color: GOLD_TEXT, fontSize: 28, fontWeight: '800' },
-  title: { color: INK, fontSize: 26, fontWeight: '800', letterSpacing: -0.6, lineHeight: 32 },
-  copy: { color: INK_SOFT, fontSize: 16, lineHeight: 23 },
+  badgeText: { color: GOLD_TEXT, fontSize: 28, fontFamily: fonts.extrabold },
+  title: { color: INK, fontSize: 26, fontFamily: fonts.extrabold, letterSpacing: -0.6, lineHeight: 32 },
+  copy: { color: INK_SOFT, fontSize: 16, fontFamily: fonts.medium, lineHeight: 23 },
   button: { backgroundColor: VIOLET, borderRadius: 16, minHeight: 52, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   pressed: { opacity: 0.75 },
-  buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  detailLabel: { color: MUTED, fontSize: 12, fontWeight: '800', letterSpacing: 1.1, marginTop: 10 },
-  detail: { color: INK_SOFT, fontSize: 13, lineHeight: 19, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: LINE, padding: 12 },
-  hint: { color: MUTED, fontSize: 13, lineHeight: 18 },
+  buttonText: { color: '#FFFFFF', fontSize: 16, fontFamily: fonts.extrabold },
+  detailLabel: { color: MUTED, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.1, marginTop: 10 },
+  detail: { color: INK_SOFT, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, backgroundColor: CARD, borderRadius: 14, borderWidth: 1, borderColor: LINE, padding: 12 },
+  hint: { color: MUTED, fontSize: 13, fontFamily: fonts.medium, lineHeight: 18 },
 });

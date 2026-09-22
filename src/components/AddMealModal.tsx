@@ -7,7 +7,7 @@ import { itemQuantityLabel, portionIssue, readNumber, scaleReference } from '../
 import { newMealId } from '../domain/meals';
 import { useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
-import { colors, MAX_FONT_SCALE } from '../theme';
+import { colors, MAX_FONT_SCALE, fonts } from '../theme';
 import { Meal, MealMoment, RecognizedFood } from '../types';
 import { Action, Choice, form } from './FormControls';
 import { UnifiedFoodSearch } from './UnifiedFoodSearch';
@@ -210,15 +210,15 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background, width: '100%', maxWidth: 520, alignSelf: 'center' },
   root: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingHorizontal: 20, paddingVertical: 12 },
-  title: { fontSize: 23, fontWeight: '800', color: colors.navy, letterSpacing: -0.4 },
-  day: { fontSize: 13, fontWeight: '600', color: colors.muted, marginTop: 3 },
+  title: { fontSize: 23, fontFamily: fonts.extrabold, color: colors.navy, letterSpacing: -0.4 },
+  day: { fontSize: 13, fontFamily: fonts.semibold, color: colors.muted, marginTop: 3 },
   close: { width: 44, height: 44, backgroundColor: colors.white, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  closeText: { color: colors.ink, fontSize: 28 },
+  closeText: { color: colors.ink, fontSize: 28, fontFamily: fonts.medium },
   content: { padding: 18, paddingBottom: 35, gap: 16 },
   moments: { gap: 8 },
   selected: { borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 8, gap: 7 },
   quantity: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   remove: { minHeight: 44, justifyContent: 'center' },
-  link: { fontSize: 13, fontWeight: '800', color: colors.sageDark },
-  total: { fontSize: 27, color: colors.navy, fontWeight: '800', letterSpacing: -0.6 },
+  link: { fontSize: 13, fontFamily: fonts.extrabold, color: colors.sageDark },
+  total: { fontSize: 27, color: colors.navy, fontFamily: fonts.extrabold, letterSpacing: -0.6 },
 });

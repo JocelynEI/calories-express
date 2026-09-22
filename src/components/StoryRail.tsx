@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 import { SceneArt, Story, storyLengthLabel } from '../domain/stories';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, MAX_FONT_SCALE, radii, fonts } from '../theme';
 import { AppIcon } from './AppIcon';
 import { MotionPressable } from './Motion';
 import { ACCENTS } from './StoryPlayer';
@@ -96,11 +96,11 @@ const styles = StyleSheet.create({
   cardWide: { width: '100%', minHeight: 0 },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   duration: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: radii.pill, paddingHorizontal: 8, paddingVertical: 4 },
-  durationText: { fontSize: 12, fontWeight: '800' },
+  durationText: { fontSize: 12, fontFamily: fonts.extrabold },
   cardBody: { gap: 4 },
-  theme: { fontSize: 12, fontWeight: '800', letterSpacing: 1.1 },
-  cardTitle: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: '800', letterSpacing: -0.2 },
-  cardSummary: { color: colors.inkSoft, fontSize: 14, lineHeight: 20, marginTop: 2 },
+  theme: { fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.1 },
+  cardTitle: { color: colors.ink, fontSize: 16, lineHeight: 21, fontFamily: fonts.extrabold, letterSpacing: -0.2 },
+  cardSummary: { color: colors.inkSoft, fontSize: 14, fontFamily: fonts.medium, lineHeight: 20, marginTop: 2 },
   seen: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  seenText: { color: colors.muted, fontSize: 12, fontWeight: '700' },
+  seenText: { color: colors.muted, fontSize: 12, fontFamily: fonts.bold },
 });

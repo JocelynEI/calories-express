@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AppIcon, IconName } from './AppIcon';
 import { FoodArt } from './FoodArt';
 import { FoodName } from '../data/illustrations';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, typeScale } from '../theme';
 
 /**
  * V2.5 — l'en-tête d'un bloc thématique.
@@ -42,10 +42,15 @@ export function SectionHeader({ icon, tone, pale, title, meta, art }: Props) {
       <View style={[styles.icon, { backgroundColor: tone }]}>
         <AppIcon name={icon} size={17} color={colors.white} strokeWidth={2.1} />
       </View>
-      <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.title, { color: tone }]} numberOfLines={1}>{title}</Text>
-      {meta ? (
-        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.meta, { color: tone }]} numberOfLines={1}>{meta}</Text>
-      ) : null}
+      {/* V2.7 : le chiffre-clé passe sous le titre. À 20 px (taille du brief),
+          titre et chiffre ne tenaient plus côte à côte sur un téléphone :
+          l'un ou l'autre finissait coupé par des points de suspension. */}
+      <View style={styles.texts}>
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.title, { color: tone }]} numberOfLines={1}>{title}</Text>
+        {meta ? (
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.meta, { color: tone }]} numberOfLines={1}>{meta}</Text>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -63,7 +68,9 @@ const styles = StyleSheet.create({
   },
   artWrap: { position: 'absolute', right: -26, top: -10, opacity: 0.45 },
   artInner: { transform: [{ rotate: '-12deg' }] },
-  icon: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 17, fontWeight: '800', letterSpacing: -0.3, flexShrink: 1 },
-  meta: { flex: 1, fontSize: 12, fontWeight: '800', textAlign: 'right' },
+  icon: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  // Brief : « Section Header » 20 px, gras.
+  texts: { flex: 1, minWidth: 0 },
+  title: { ...typeScale.section },
+  meta: { fontSize: 12, lineHeight: 16, fontFamily: fonts.semibold, opacity: 0.9 },
 });

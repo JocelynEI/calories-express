@@ -94,3 +94,20 @@ if (deprecated.length) {
   process.exit(1);
 }
 console.log('Aucune API dépréciée importée.');
+
+/* ------------------------------------------------ la police (V2.7) */
+
+// Avec Plus Jakarta Sans chargée, Android ignore `fontWeight` : chaque graisse
+// est une famille à part (fonts.bold, fonts.semibold…). Un seul fontWeight
+// oublié afficherait ce texte dans la police du système, sans erreur visible.
+const weights = [];
+for (const file of files) {
+  fs.readFileSync(file, 'utf8').split('\n').forEach((line, index) => {
+    if (/\bfontWeight\s*:/.test(line)) weights.push(`${path.relative(ROOT, file)}:${index + 1}`);
+  });
+}
+if (weights.length) {
+  console.error(`\nfontWeight utilisé au lieu d'une famille Plus Jakarta Sans :\n  ${weights.join('\n  ')}`);
+  process.exit(1);
+}
+console.log('Toutes les graisses passent par la famille Plus Jakarta Sans.');

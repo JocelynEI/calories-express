@@ -10,7 +10,7 @@ import { dailyEnergyPlan } from '../domain/activity-energy';
 import { dayLabel, shiftDay } from '../domain/date';
 import { mealDay, mealsForDay, totalCalories } from '../domain/meals';
 import { useApp } from '../state/AppContext';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, shadows, typeScale } from '../theme';
 import { Meal } from '../types';
 
 /**
@@ -152,45 +152,45 @@ const styles = StyleSheet.create({
   emptyArt: { height: 100, justifyContent: 'center' },
   parade: { alignItems: 'center', opacity: 0.9 },
   content: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 38, gap: 14 },
-  eyebrow: { color: colors.sageDark, fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
-  title: { color: colors.ink, fontSize: 28, fontWeight: '800', letterSpacing: -0.6, marginTop: 2 },
+  eyebrow: { color: colors.violet, fontSize: 12, lineHeight: 16, fontFamily: fonts.bold, letterSpacing: 1.5 },
+  title: { color: colors.ink, ...typeScale.display, marginTop: 2 },
 
   navCard: { backgroundColor: colors.card, borderRadius: radii.medium, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 6, paddingVertical: 6, alignSelf: 'flex-start' },
 
   chips: { gap: 8, paddingRight: 20 },
   chip: { minHeight: 40, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radii.pill, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card },
-  chipActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  chipText: { color: colors.inkSoft, fontSize: 13, fontWeight: '700' },
+  chipActive: { backgroundColor: colors.violet, borderColor: colors.violet },
+  chipText: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.bold },
   chipTextActive: { color: colors.white },
 
-  summary: { flexDirection: 'row', alignItems: 'flex-end', gap: 12, backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, padding: 16 },
-  summaryLabel: { color: colors.muted, fontSize: 12, fontWeight: '700' },
-  summaryValue: { color: colors.ink, fontSize: 28, fontWeight: '800', letterSpacing: -0.8, marginTop: 4 },
-  summaryUnit: { color: colors.muted, fontSize: 13, fontWeight: '600' },
+  summary: { flexDirection: 'row', alignItems: 'flex-end', gap: 12, backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, padding: 16, ...shadows.card },
+  summaryLabel: { color: colors.muted, ...typeScale.caption },
+  summaryValue: { color: colors.ink, ...typeScale.numeric, marginTop: 2 },
+  summaryUnit: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium, letterSpacing: 0 },
   summaryRight: { alignItems: 'flex-end' },
-  targetValue: { color: colors.sageDark, fontSize: 15, fontWeight: '800', marginTop: 5 },
+  targetValue: { color: colors.violet, fontSize: 16, lineHeight: 22, fontFamily: fonts.bold, marginTop: 4 },
 
   sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 4 },
-  sectionTitle: { color: colors.ink, fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
+  sectionTitle: { color: colors.ink, fontSize: 20, fontFamily: fonts.extrabold, letterSpacing: -0.3 },
   addSmall: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 48, paddingHorizontal: 14, borderRadius: radii.pill, backgroundColor: colors.violetPale },
-  addSmallText: { color: colors.violet, fontSize: 13, fontWeight: '800' },
+  addSmallText: { color: colors.violet, fontSize: 13, fontFamily: fonts.extrabold },
 
   list: { gap: 10 },
   entry: { gap: 8 },
   confirm: { backgroundColor: colors.coralPale, borderRadius: radii.medium, padding: 12, gap: 10 },
-  confirmText: { color: '#8E241D', fontSize: 13, lineHeight: 19, fontWeight: '600' },
+  confirmText: { color: '#8E241D', fontSize: 13, lineHeight: 19, fontFamily: fonts.semibold },
   confirmRow: { flexDirection: 'row', gap: 8 },
   confirmButton: { flex: 1, minHeight: 46, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   keep: { backgroundColor: colors.white },
-  keepText: { color: colors.inkSoft, fontSize: 14, fontWeight: '800' },
+  keepText: { color: colors.inkSoft, fontSize: 14, fontFamily: fonts.extrabold },
   destroy: { backgroundColor: colors.coral },
-  destroyText: { color: colors.white, fontSize: 14, fontWeight: '800' },
+  destroyText: { color: colors.white, fontSize: 14, fontFamily: fonts.extrabold },
 
   empty: { backgroundColor: colors.card, borderRadius: radii.large, alignItems: 'center', padding: 28, borderWidth: 1, borderColor: colors.line, gap: 8 },
   emptyIcon: { width: 56, height: 56, borderRadius: 19, backgroundColor: colors.violetPale, alignItems: 'center', justifyContent: 'center' },
-  emptyTitle: { color: colors.ink, fontSize: 17, fontWeight: '800', marginTop: 6, textAlign: 'center' },
-  emptyCopy: { color: colors.muted, fontSize: 13, lineHeight: 19, textAlign: 'center', maxWidth: 280 },
+  emptyTitle: { color: colors.ink, fontSize: 17, fontFamily: fonts.extrabold, marginTop: 6, textAlign: 'center' },
+  emptyCopy: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, textAlign: 'center', maxWidth: 280 },
 
   method: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.goldPale, borderRadius: radii.medium, padding: 14, marginTop: 8 },
-  methodText: { flex: 1, color: '#6F4E07', fontSize: 13, lineHeight: 19, fontWeight: '500' },
+  methodText: { flex: 1, color: '#6F4E07', fontSize: 13, lineHeight: 19, fontFamily: fonts.medium },
 });

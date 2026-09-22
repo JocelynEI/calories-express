@@ -2,6 +2,14 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import {
+  useFonts,
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { ActivityModal } from './src/components/ActivityModal';
 import { AddMealModal } from './src/components/AddMealModal';
 import { BottomNav, TabName } from './src/components/BottomNav';
@@ -17,7 +25,7 @@ import { FeedbackToast } from './src/components/FeedbackToast';
 import { StoryPlayer } from './src/components/StoryPlayer';
 import { ExperienceProvider, useExperience } from './src/state/ExperienceContext';
 import { AppProvider, useApp } from './src/state/AppContext';
-import { colors, MAX_FONT_SCALE } from './src/theme';
+import { colors, MAX_FONT_SCALE, fonts } from './src/theme';
 import { Meal } from './src/types';
 import { MealCoachPopup } from './src/components/MealCoachPopup';
 import { canShowMealPrompt, mealEncouragement, MealEncouragement } from './src/domain/coaching';
@@ -43,6 +51,20 @@ const TAB_LABELS: Record<TabName, string> = {
 };
 
 export default function App() {
+  // V2.7 — Plus Jakarta Sans. Les fichiers de police font partie de
+  // l'application : aucun réseau n'est nécessaire pour les charger. Tant
+  // qu'ils ne sont pas prêts, on n'affiche qu'un fond uni plutôt qu'un texte
+  // qui changerait de police sous les yeux. En cas d'échec, l'application
+  // s'ouvre quand même, avec la police du système.
+  const [fontsLoaded, fontError] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
+  });
+  if (!fontsLoaded && !fontError) return <View style={styles.fontGate} />;
+
   return (
     // Ce filet-ci est au-dessus des fournisseurs : il rattrape aussi une erreur
     // venant d'eux. `ErrorBoundary` n'utilise donc aucun contexte.
@@ -218,9 +240,10 @@ function AppShell() {
 }
 
 const styles = StyleSheet.create({
+  fontGate: { flex: 1, backgroundColor: colors.background },
   viewport: { flex: 1, backgroundColor: colors.background, alignItems: 'center' },
   app: { flex: 1, width: '100%', maxWidth: 480, backgroundColor: colors.background, overflow: 'hidden', ...(Platform.OS === 'web' ? { boxShadow: '0 0 40px rgba(16,46,45,.12)' } : {}) },
   screen: { flex: 1 },
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  storageWarning: { paddingHorizontal: 14, paddingVertical: 10, color: '#6F4E07', backgroundColor: colors.goldPale, fontSize: 13, lineHeight: 18, fontWeight: '600' },
+  storageWarning: { paddingHorizontal: 14, paddingVertical: 10, color: '#6F4E07', backgroundColor: colors.goldPale, fontSize: 13, lineHeight: 18, fontFamily: fonts.semibold },
 });

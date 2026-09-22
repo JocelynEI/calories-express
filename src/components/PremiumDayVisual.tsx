@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { FoodArt } from './FoodArt';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, typeScale } from '../theme';
 import { useExperience } from '../state/ExperienceContext';
 
 type Props = {
@@ -103,14 +103,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.visualMint,
   },
   copy: { flex: 1, minWidth: 0, zIndex: 2, paddingRight: 4 },
-  eyebrow: { color: colors.violet, fontSize: 10, lineHeight: 14, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.visualInk, fontSize: 21, lineHeight: 25, fontWeight: '800', letterSpacing: -0.6, marginTop: 6 },
-  subtitle: { color: colors.inkSoft, fontSize: 13, lineHeight: 18, fontWeight: '600', marginTop: 5, maxWidth: 190 },
+  // V2.7 : rien sous 12 px (brief, « Caption »).
+  eyebrow: { color: colors.violet, fontSize: 12, lineHeight: 16, fontFamily: fonts.bold, letterSpacing: 1.1 },
+  title: { color: colors.visualInk, ...typeScale.section, marginTop: 6 },
+  subtitle: { color: colors.inkSoft, fontSize: 13, lineHeight: 18, fontFamily: fonts.medium, marginTop: 5, maxWidth: 190 },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 11 },
   goalBadge: { backgroundColor: colors.white, borderRadius: radii.pill, paddingHorizontal: 9, paddingVertical: 6 },
-  goalText: { color: colors.visualInk, fontSize: 11, fontWeight: '800' },
+  goalText: { color: colors.visualInk, fontSize: 12, lineHeight: 16, fontFamily: fonts.bold },
   targetBadge: { backgroundColor: colors.visualMint, borderRadius: radii.pill, paddingHorizontal: 9, paddingVertical: 6 },
-  targetText: { color: '#236B50', fontSize: 11, fontWeight: '800' },
+  targetText: { color: colors.mintInk, fontSize: 12, lineHeight: 16, fontFamily: fonts.bold },
   artStage: { width: 148, height: 142, alignItems: 'center', justifyContent: 'center', marginRight: -4 },
   artHalo: { position: 'absolute', width: 124, height: 124, borderRadius: 62, backgroundColor: colors.white, opacity: 0.76 },
   plateArt: { position: 'absolute', right: 4, bottom: 1 },

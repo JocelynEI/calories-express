@@ -8,7 +8,7 @@ import { kcal } from '../domain/energy';
 import { readNumber } from '../domain/foods';
 import { useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { ActivityKind, ActivitySession, ReportedDayEnergy } from '../types';
 import { Action, Choice, Field, form } from './FormControls';
 import { GuideCard } from './GuideCard';
@@ -111,4 +111,4 @@ export function ActivityModal({ onClose, onSettings, initialTab = 'journal', ini
     </KeyboardAvoidingView></SafeAreaView></SafeAreaProvider>}
   </Modal>;
 }
-const styles = StyleSheet.create({ safe: { flex: 1, width: '100%', maxWidth: 520, alignSelf: 'center', backgroundColor: colors.background }, header: { paddingHorizontal: 20, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, eyebrow: { color: colors.sageDark, fontSize: 12, fontWeight: '800', letterSpacing: 1.2 }, title: { color: colors.navy, fontSize: 26, fontWeight: '800', marginTop: 4 }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22, backgroundColor: colors.white }, cross: { color: colors.ink, fontSize: 27 }, tabs: { flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingBottom: 10 }, content: { padding: 18, paddingBottom: 36, gap: 16 }, duration: { color: colors.sageDark, fontSize: 12, fontWeight: '800', letterSpacing: 1.4 }, note: { backgroundColor: colors.aquaPale, padding: 16, borderRadius: 18, gap: 8 }, energy: { fontSize: 32, color: colors.navy, fontWeight: '800' } });
+const styles = StyleSheet.create({ safe: { flex: 1, width: '100%', maxWidth: 520, alignSelf: 'center', backgroundColor: colors.background }, header: { paddingHorizontal: 20, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, eyebrow: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.2 }, title: { color: colors.navy, fontSize: 26, fontFamily: fonts.extrabold, marginTop: 4 }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22, backgroundColor: colors.white }, cross: { color: colors.ink, fontSize: 27, fontFamily: fonts.medium }, tabs: { flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingBottom: 10 }, content: { padding: 18, paddingBottom: 36, gap: 16 }, duration: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.4 }, note: { backgroundColor: colors.aquaPale, padding: 16, borderRadius: 18, gap: 8 }, energy: { fontSize: 32, color: colors.navy, fontFamily: fonts.extrabold } });

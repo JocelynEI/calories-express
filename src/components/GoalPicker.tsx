@@ -5,7 +5,7 @@ import { goalMismatch, kcal } from '../domain/energy';
 import { readNumber } from '../domain/foods';
 import { useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { Goal } from '../types';
 import { Action, Choice, Field, form } from './FormControls';
 import { GuideCard } from './GuideCard';
@@ -25,7 +25,7 @@ export function GoalPicker({ onClose, embedded = false }: { onClose: () => void;
   const save = () => { if (issue) { setError(issue); return; } updateProfile(draft); onClose(); };
   const body = <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, maxWidth: 520, width: '100%', alignSelf: 'center' }}><KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 18, paddingBottom: 36 }}>
-        <Text style={{ fontSize: 26, color: colors.navy, fontWeight: '800' }}>Changer mon objectif</Text>
+        <Text style={{ fontSize: 26, color: colors.navy, fontFamily: fonts.extrabold }}>Changer mon objectif</Text>
         <GuideCard compact message="Choisis la direction qui te convient aujourd’hui. Ton nouveau repère s’appliquera au baromètre, en conservant ton journal." />
         <View style={form.card}><Text style={form.title}>Mon objectif</Text>{(Object.keys(GOAL_LABELS) as Goal[]).map(g => <Choice key={g} label={GOAL_LABELS[g]} selected={goal === g} onPress={() => { setGoal(g); setError(''); }} />)}</View>
         <View style={form.card}><Text style={form.title}>Mon repère alimentaire</Text><Choice label="Calculer avec mon profil" selected={mode === 'automatic'} onPress={() => setMode('automatic')} /><Choice label="Choisir une valeur en kcal" selected={mode === 'manual'} onPress={() => setMode('manual')} />

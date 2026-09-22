@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { dailyEnergyPlan } from '../domain/activity-energy';
 import { kcal } from '../domain/energy';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { Action, form } from './FormControls';
 
 type Plan = ReturnType<typeof dailyEnergyPlan>;
@@ -26,4 +26,4 @@ export function ActivityBalance({ plan, profileCompleted, onSettings }: { plan: 
   </View>;
 }
 function Row({ label, value }: { label: string; value: string }) { return <View style={styles.row}><Text style={[form.copy, { flex: 1 }]}>{label}</Text><Text style={form.label}>{value}</Text></View>; }
-const styles = StyleSheet.create({ total: { color: colors.navy, fontSize: 34, fontWeight: '800' }, eyebrow: { color: colors.sageDark, fontSize: 12, fontWeight: '800', letterSpacing: 1.1 }, row: { flexDirection: 'row', gap: 12, alignItems: 'center' }, impact: { backgroundColor: colors.violetPale, borderRadius: 14, padding: 13, gap: 6 } });
+const styles = StyleSheet.create({ total: { color: colors.navy, fontSize: 34, fontFamily: fonts.extrabold }, eyebrow: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.1 }, row: { flexDirection: 'row', gap: 12, alignItems: 'center' }, impact: { backgroundColor: colors.violetPale, borderRadius: 14, padding: 13, gap: 6 } });

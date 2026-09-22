@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G, Line, Path } from 'react-native-svg';
 import { StoryScene as Scene } from '../domain/stories';
-import { colors, MAX_FONT_SCALE } from '../theme';
+import { colors, MAX_FONT_SCALE, fonts } from '../theme';
 import { GuideAvatar } from './GuideAvatar';
 
 /**
@@ -541,50 +541,50 @@ function JawsScene({ progress, accent }: SceneProps) {
 const styles = StyleSheet.create({
   stage: { width: W, height: H, alignItems: 'center', justifyContent: 'center' },
   center: { width: W, height: H, alignItems: 'center', justifyContent: 'center' },
-  sceneLabel: { fontSize: 13, fontWeight: '700', textAlign: 'center', marginTop: 8 },
+  sceneLabel: { fontSize: 13, fontFamily: fonts.bold, textAlign: 'center', marginTop: 8 },
 
   clockDot: { position: 'absolute', minWidth: 42, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: colors.white, borderWidth: 2, alignItems: 'center' },
-  clockDotText: { fontSize: 12, fontWeight: '800' },
+  clockDotText: { fontSize: 12, fontFamily: fonts.extrabold },
   clockCaption: { position: 'absolute', bottom: 4 },
 
   barsWrap: { width: W - 12, gap: 16, paddingHorizontal: 6 },
   barRow: { gap: 7 },
   barHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
-  barLabel: { color: colors.inkSoft, fontSize: 13, fontWeight: '600', flexShrink: 1 },
-  barValue: { fontSize: 15, fontWeight: '800' },
+  barLabel: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.semibold, flexShrink: 1 },
+  barValue: { fontSize: 15, fontFamily: fonts.extrabold },
   barTrack: { height: 14, borderRadius: 7, backgroundColor: colors.track, overflow: 'hidden' },
   barFill: { height: 14, borderRadius: 7 },
   gapPill: { alignSelf: 'center', borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, marginTop: 2 },
-  gapText: { fontSize: 12, fontWeight: '800' },
+  gapText: { fontSize: 12, fontFamily: fonts.extrabold },
 
   ringCore: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
-  ringValue: { color: colors.ink, fontSize: 40, fontWeight: '800', letterSpacing: -1.4 },
-  ringUnit: { color: colors.muted, fontSize: 13, fontWeight: '600', marginTop: 2 },
+  ringValue: { color: colors.ink, fontSize: 40, fontFamily: fonts.extrabold, letterSpacing: -1.4 },
+  ringUnit: { color: colors.muted, fontSize: 13, fontFamily: fonts.semibold, marginTop: 2 },
 
   labelCard: { width: W - 16, backgroundColor: colors.card, borderRadius: 18, borderWidth: 1, borderColor: colors.line, paddingVertical: 10, paddingHorizontal: 6 },
   labelHead: { flexDirection: 'row', paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: colors.line },
-  labelHeadText: { color: colors.muted, fontWeight: '800' },
+  labelHeadText: { color: colors.muted, fontFamily: fonts.extrabold },
   labelRow: { flexDirection: 'row', paddingVertical: 9 },
-  labelCell: { flex: 1, textAlign: 'center', color: colors.ink, fontSize: 13, fontWeight: '700' },
-  labelFirst: { flex: 1.2, textAlign: 'left', paddingLeft: 8, color: colors.inkSoft, fontWeight: '600' },
+  labelCell: { flex: 1, textAlign: 'center', color: colors.ink, fontSize: 13, fontFamily: fonts.bold },
+  labelFirst: { flex: 1.2, textAlign: 'left', paddingLeft: 8, color: colors.inkSoft, fontFamily: fonts.semibold },
   labelFrame: { position: 'absolute', top: 4, bottom: 34, width: '31%', borderWidth: 2.5, borderRadius: 12 },
   labelFoot: { alignItems: 'center', paddingTop: 4 },
 
   walkLane: { alignItems: 'center' },
   legs: { position: 'absolute', top: 48, left: 0 },
   ground: { width: 210, height: 3, borderRadius: 2, backgroundColor: colors.line, marginTop: 6 },
-  stepsValue: { color: colors.ink, fontSize: 32, fontWeight: '800', letterSpacing: -1, marginTop: 12 },
-  stepsUnit: { color: colors.muted, fontSize: 15, fontWeight: '600' },
+  stepsValue: { color: colors.ink, fontSize: 32, fontFamily: fonts.extrabold, letterSpacing: -1, marginTop: 12 },
+  stepsUnit: { color: colors.muted, fontSize: 15, fontFamily: fonts.semibold },
   splitTrack: { width: W - 40, marginTop: 12, flexDirection: 'row', gap: 4, flexWrap: 'wrap' },
   splitPart: { height: 12, borderRadius: 6 },
   splitLegend: { width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginTop: 7 },
-  splitLeft: { color: colors.muted, fontSize: 12, fontWeight: '600' },
-  splitRight: { fontSize: 12, fontWeight: '800' },
+  splitLeft: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold },
+  splitRight: { fontSize: 12, fontFamily: fonts.extrabold },
 
   dot: { position: 'absolute', width: 8, height: 8, borderRadius: 4 },
 
   plateTag: { position: 'absolute', width: 84, alignItems: 'center', backgroundColor: colors.white, borderRadius: 999, paddingVertical: 4, borderWidth: 1, borderColor: colors.line },
-  plateTagText: { color: colors.inkSoft, fontSize: 12, fontWeight: '700' },
+  plateTagText: { color: colors.inkSoft, fontSize: 12, fontFamily: fonts.bold },
 
   star: { position: 'absolute', width: 7, height: 7, borderRadius: 4 },
 
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
   breathHalo: { position: 'absolute', width: 170, height: 170, borderRadius: 85, opacity: 0.12 },
   breathCore: { position: 'absolute', width: 132, height: 132, borderRadius: 66, borderWidth: 3 },
   breathLabel: { alignItems: 'center' },
-  breathText: { fontSize: 26, fontWeight: '800' },
+  breathText: { fontSize: 26, fontFamily: fonts.extrabold },
 
   jawsHalo: { position: 'absolute', width: 186, height: 186, borderRadius: 93 },
   jaws: { width: 196, height: 196 },

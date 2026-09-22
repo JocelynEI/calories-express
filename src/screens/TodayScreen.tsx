@@ -10,7 +10,7 @@ import { DayNavigator, PastDayBanner } from '../components/DayNavigator';
 import { FoodMotion } from '../components/FoodMotion';
 import { macroTargets } from '../domain/calories';
 import { useApp } from '../state/AppContext';
-import { colors, MAX_FONT_SCALE, radii, shadows } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, shadows, typeScale } from '../theme';
 import { Entrance, MotionPressable } from '../components/Motion';
 import { greeting } from '../domain/experience';
 import { EnergyPlanCard } from '../components/EnergyEducation';
@@ -89,7 +89,7 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           mieux vaut pas de titre qu'un titre au-dessus du vide. La carte de
           Jaws, juste au-dessus, dit déjà quoi faire. */}
       {!issue && (
-      <Section icon="target" tone={colors.violet} pale={colors.violetPale} art="pomme" title="Ma journée" meta={profileCompleted ? `${Math.abs(remaining).toLocaleString('fr-FR')} kcal ${remaining >= 0 ? 'restantes' : 'au-dessus'}` : undefined}>
+      <Section icon="target" tone={colors.violet} pale={colors.violetPale} art="pomme" title="Ma journée">
         <Entrance delay={60} style={styles.hero}>
           <PremiumDayVisual
             goalLabel={profileCompleted ? GOAL_LABELS[profile.goal] : 'À personnaliser'}
@@ -119,7 +119,12 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           <CalorieGauge consumed={consumed} target={target} />
 
           <View style={styles.stats}>
-            <Stat label="Mangé" value={consumed.toLocaleString('fr-FR')} />
+            {/* V2.7 : le consommé est au centre de la jauge ; ici, ce qu'il reste. */}
+            <Stat
+              label={remaining < 0 ? 'Au-dessus' : 'Restant'}
+              value={Math.abs(remaining).toLocaleString('fr-FR')}
+              tone={remaining < 0 ? colors.warmInk : colors.ink}
+            />
             <View style={styles.statDivider} />
             <Stat label={isDemo || !profileCompleted ? 'Exemple' : 'Repère'} value={target.toLocaleString('fr-FR')} />
             <View style={styles.statDivider} />
@@ -296,46 +301,46 @@ const styles = StyleSheet.create({
 
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   headerText: { flexShrink: 1, minWidth: 0 },
-  title: { color: colors.ink, fontSize: 26, lineHeight: 32, fontWeight: '800', letterSpacing: -0.6 },
+  title: { color: colors.ink, ...typeScale.display },
   avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: colors.white, fontSize: 15, fontWeight: '800' },
+  avatarText: { color: colors.white, fontSize: 15, fontFamily: fonts.extrabold },
 
   guideWrap: { marginTop: 2 },
 
-  hero: { backgroundColor: colors.card, borderRadius: 28, borderWidth: 1, borderColor: colors.line, padding: 16, gap: 12, ...shadows.card },
+  hero: { backgroundColor: colors.card, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.line, padding: 18, gap: 14, ...shadows.card },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  goalChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.violetPale, paddingLeft: 13, paddingRight: 9, paddingVertical: 9, borderRadius: radii.pill },
-  goalChipText: { color: colors.violet, fontSize: 13, fontWeight: '800' },
+  goalChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.purplePale, paddingLeft: 14, paddingRight: 10, paddingVertical: 9, borderRadius: radii.pill },
+  goalChipText: { color: colors.violet, fontSize: 13, fontFamily: fonts.extrabold },
   infoButton: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
 
   stats: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 12 },
   stat: { flex: 1, gap: 2, paddingHorizontal: 2 },
   statDivider: { width: 1, backgroundColor: colors.track, marginHorizontal: 8 },
-  statLabel: { color: colors.muted, fontSize: 12, fontWeight: '600' },
-  statValue: { fontSize: 17, fontWeight: '800' },
+  statLabel: { color: colors.muted, ...typeScale.caption },
+  statValue: { fontSize: 18, lineHeight: 24, fontFamily: fonts.extrabold, letterSpacing: -0.3 },
 
   macros: { flexDirection: 'row', gap: 10, borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 12 },
   macro: { flex: 1, gap: 6 },
-  macroValue: { color: colors.ink, fontSize: 14, fontWeight: '800' },
-  macroTarget: { color: colors.muted, fontSize: 12, fontWeight: '600' },
-  macroTrack: { height: 5, borderRadius: 3, backgroundColor: colors.line, overflow: 'hidden' },
-  macroFill: { height: 5, borderRadius: 3 },
-  macroLabel: { color: colors.muted, fontSize: 12, fontWeight: '600' },
+  macroValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontFamily: fonts.bold },
+  macroTarget: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold },
+  macroTrack: { height: 6, borderRadius: radii.pill, backgroundColor: colors.track, overflow: 'hidden' },
+  macroFill: { height: 6, borderRadius: radii.pill },
+  macroLabel: { color: colors.muted, ...typeScale.caption },
 
-  note: { color: colors.inkSoft, fontSize: 13, lineHeight: 19, borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 11 },
+  note: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 11 },
 
   explain: { gap: 8 },
-  explainLine: { color: colors.violet, fontSize: 14, fontWeight: '800' },
+  explainLine: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold },
 
-  primary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 56, borderRadius: 18, backgroundColor: colors.violet, ...shadows.raised },
-  primaryText: { color: colors.white, fontSize: 16, fontWeight: '800' },
+  primary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 56, borderRadius: radii.large, backgroundColor: colors.violet, ...shadows.raised },
+  primaryText: { color: colors.white, fontSize: 16, lineHeight: 22, fontFamily: fonts.bold },
 
   repeatRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   repeatOuter: { flexGrow: 1, flexBasis: 150 },
   repeatChip: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 52, borderRadius: radii.medium, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 12, paddingVertical: 8 },
   repeatBody: { flex: 1, minWidth: 0 },
-  repeatTitle: { color: colors.ink, fontSize: 13, fontWeight: '700' },
-  repeatMeta: { color: colors.muted, fontSize: 12, fontWeight: '600', marginTop: 2 },
+  repeatTitle: { color: colors.ink, fontSize: 13, fontFamily: fonts.bold },
+  repeatMeta: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, marginTop: 2 },
 
   section: { gap: 10, marginTop: 4 },
   sectionBody: { gap: 12 },
@@ -344,18 +349,18 @@ const styles = StyleSheet.create({
   empty: { alignItems: 'center', backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 18, paddingTop: 6, paddingBottom: 20 },
   emptyArt: { height: 104, justifyContent: 'center' },
   emptyBody: { alignItems: 'center', gap: 4 },
-  emptyTitle: { color: colors.ink, fontSize: 16, fontWeight: '800', textAlign: 'center' },
-  emptyCopy: { color: colors.muted, fontSize: 13, lineHeight: 18, textAlign: 'center' },
+  emptyTitle: { color: colors.ink, fontSize: 16, fontFamily: fonts.extrabold, textAlign: 'center' },
+  emptyCopy: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium, lineHeight: 18, textAlign: 'center' },
   emptyCta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, backgroundColor: colors.violetPale, borderRadius: radii.pill, paddingHorizontal: 14, paddingVertical: 9 },
-  emptyCtaText: { color: colors.violet, fontSize: 14, fontWeight: '800' },
+  emptyCtaText: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold },
 
   activity: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, padding: 14 },
   activityIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.aquaPale, alignItems: 'center', justifyContent: 'center' },
   activityBody: { flex: 1, minWidth: 0 },
-  activityTitle: { color: colors.ink, fontSize: 15, fontWeight: '700' },
-  activityMeta: { color: colors.aqua, fontSize: 13, fontWeight: '700', marginTop: 3, lineHeight: 18 },
-  activityWarn: { color: colors.goldText, fontSize: 12, fontWeight: '700', marginTop: 3 },
+  activityTitle: { color: colors.ink, fontSize: 15, fontFamily: fonts.bold },
+  activityMeta: { color: colors.aqua, fontSize: 13, fontFamily: fonts.bold, marginTop: 3, lineHeight: 18 },
+  activityWarn: { color: colors.goldText, fontSize: 12, fontFamily: fonts.bold, marginTop: 3 },
 
 
-  legal: { color: colors.muted, fontSize: 12, lineHeight: 17, textAlign: 'center', marginTop: 4 },
+  legal: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, lineHeight: 17, textAlign: 'center', marginTop: 4 },
 });

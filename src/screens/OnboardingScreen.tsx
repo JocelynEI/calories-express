@@ -14,7 +14,7 @@ import {
 } from '../domain/onboarding';
 import { DEFAULT_PROFILE, useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
-import { colors, MAX_FONT_SCALE, radii, shadows } from '../theme';
+import { colors, MAX_FONT_SCALE, radii, shadows, fonts } from '../theme';
 import { Profile } from '../types';
 
 /**
@@ -558,68 +558,68 @@ const styles = StyleSheet.create({
   barTrack: { height: 6, borderRadius: 3, backgroundColor: colors.violetEdge, overflow: 'hidden' },
   barFill: { height: 6, borderRadius: 3, backgroundColor: colors.violet },
   skip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 10 },
-  skipText: { color: colors.muted, fontSize: 14, fontWeight: '700' },
+  skipText: { color: colors.muted, fontSize: 14, fontFamily: fonts.bold },
 
   content: { paddingHorizontal: 22, paddingTop: 10, paddingBottom: 26, gap: 16 },
   says: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bubble: { flex: 1, backgroundColor: colors.card, borderRadius: 18, borderBottomLeftRadius: 6, paddingHorizontal: 14, paddingVertical: 11, borderWidth: 1, borderColor: colors.line },
-  bubbleText: { color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontWeight: '600' },
+  bubbleText: { color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontFamily: fonts.semibold },
 
-  title: { color: colors.ink, fontSize: 30, lineHeight: 36, fontWeight: '800', letterSpacing: -0.8 },
-  subtitle: { color: colors.inkSoft, fontSize: 16, lineHeight: 23, marginTop: 8 },
+  title: { color: colors.ink, fontSize: 30, lineHeight: 36, fontFamily: fonts.extrabold, letterSpacing: -0.8 },
+  subtitle: { color: colors.inkSoft, fontSize: 16, fontFamily: fonts.medium, lineHeight: 23, marginTop: 8 },
 
   block: { gap: 10, marginTop: 4 },
 
   markWrap: { alignItems: 'center', justifyContent: 'center', alignSelf: 'center', width: RING, height: RING },
   markCore: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
-  markValue: { color: colors.ink, fontSize: 42, lineHeight: 46, fontWeight: '800', letterSpacing: -1.5 },
-  markUnit: { color: colors.muted, fontSize: 14, fontWeight: '600', marginTop: 2 },
+  markValue: { color: colors.ink, fontSize: 42, lineHeight: 46, fontFamily: fonts.extrabold, letterSpacing: -1.5 },
+  markUnit: { color: colors.muted, fontSize: 14, fontFamily: fonts.semibold, marginTop: 2 },
 
   promise: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: colors.card, borderRadius: radii.medium, borderWidth: 1, borderColor: colors.line, padding: 13 },
   promiseIcon: { width: 34, height: 34, borderRadius: 12, backgroundColor: colors.violetPale, alignItems: 'center', justifyContent: 'center' },
-  promiseText: { flex: 1, color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontWeight: '600' },
+  promiseText: { flex: 1, color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontFamily: fonts.semibold },
 
-  nameInput: { backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: '#C9CEDC', color: colors.ink, fontSize: 18, fontWeight: '700', paddingHorizontal: 16, paddingVertical: 15 },
+  nameInput: { backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: '#C9CEDC', color: colors.ink, fontSize: 18, fontFamily: fonts.bold, paddingHorizontal: 16, paddingVertical: 15 },
   preview: { backgroundColor: colors.violetPale, borderRadius: radii.medium, padding: 14 },
-  previewLabel: { color: colors.violet, fontSize: 12, fontWeight: '800', letterSpacing: 1.1 },
-  previewValue: { color: colors.violetInk, fontSize: 24, fontWeight: '800', letterSpacing: -0.5, marginTop: 5 },
+  previewLabel: { color: colors.violet, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.1 },
+  previewValue: { color: colors.violetInk, fontSize: 24, fontFamily: fonts.extrabold, letterSpacing: -0.5, marginTop: 5 },
 
   choice: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderRadius: radii.medium, borderWidth: 1.5, borderColor: colors.line, padding: 15, minHeight: 68 },
   choiceOn: { borderColor: colors.violet, backgroundColor: colors.violetPale },
   radio: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: '#C9CEDC', alignItems: 'center', justifyContent: 'center' },
   radioOn: { backgroundColor: colors.violet, borderColor: colors.violet },
   choiceBody: { flex: 1 },
-  choiceLabel: { color: colors.ink, fontSize: 16, fontWeight: '700' },
-  choiceLabelOn: { color: colors.violetInk, fontWeight: '800' },
-  choiceDetail: { color: colors.muted, fontSize: 13, lineHeight: 18, marginTop: 3 },
+  choiceLabel: { color: colors.ink, fontSize: 16, fontFamily: fonts.bold },
+  choiceLabelOn: { color: colors.violetInk, fontFamily: fonts.extrabold },
+  choiceDetail: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium, lineHeight: 18, marginTop: 3 },
 
-  label: { color: colors.muted, fontSize: 12, fontWeight: '800', letterSpacing: 1, marginBottom: 7 },
+  label: { color: colors.muted, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1, marginBottom: 7 },
   segmented: { flexDirection: 'row', gap: 8 },
   segmentOuter: { flex: 1 },
   segment: { minHeight: 52, borderRadius: 14, borderWidth: 1.5, borderColor: colors.line, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   segmentOn: { backgroundColor: colors.navy, borderColor: colors.navy },
-  segmentText: { color: colors.inkSoft, fontSize: 15, fontWeight: '700' },
+  segmentText: { color: colors.inkSoft, fontSize: 15, fontFamily: fonts.bold },
   segmentTextOn: { color: colors.white },
 
   numberRow: { marginTop: 4 },
   numberBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1.5, borderColor: '#C9CEDC', paddingHorizontal: 14 },
   numberBoxError: { borderColor: colors.coral },
-  numberInput: { flex: 1, color: colors.ink, fontSize: 20, fontWeight: '800', paddingVertical: 13 },
-  numberUnit: { color: colors.muted, fontSize: 14, fontWeight: '700' },
-  fieldError: { color: colors.coral, fontSize: 13, lineHeight: 18, marginTop: 6 },
+  numberInput: { flex: 1, color: colors.ink, fontSize: 20, fontFamily: fonts.extrabold, paddingVertical: 13 },
+  numberUnit: { color: colors.muted, fontSize: 14, fontFamily: fonts.bold },
+  fieldError: { color: colors.coral, fontSize: 13, fontFamily: fonts.medium, lineHeight: 18, marginTop: 6 },
 
   breakdown: { backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 16, ...shadows.card },
   breakdownRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 14 },
   breakdownDivider: { borderTopWidth: 1, borderTopColor: colors.track },
-  breakdownLabel: { flex: 1, color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontWeight: '600' },
-  breakdownValue: { color: colors.ink, fontSize: 16, fontWeight: '800' },
-  resultNote: { color: colors.muted, fontSize: 13, lineHeight: 19, marginTop: 8 },
+  breakdownLabel: { flex: 1, color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontFamily: fonts.semibold },
+  breakdownValue: { color: colors.ink, fontSize: 16, fontFamily: fonts.extrabold },
+  resultNote: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, marginTop: 8 },
 
-  error: { color: '#8E241D', backgroundColor: colors.coralPale, borderRadius: 14, padding: 14, fontSize: 14, lineHeight: 20, fontWeight: '600' },
+  error: { color: '#8E241D', backgroundColor: colors.coralPale, borderRadius: 14, padding: 14, fontSize: 14, lineHeight: 20, fontFamily: fonts.semibold },
 
   footer: { paddingHorizontal: 22, paddingTop: 8, paddingBottom: 12, gap: 8 },
   primary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, minHeight: 58, borderRadius: 18, backgroundColor: colors.violet, ...shadows.raised },
   primaryDone: { backgroundColor: colors.aqua, shadowColor: colors.aqua },
-  primaryText: { color: colors.white, fontSize: 17, fontWeight: '800' },
-  footNote: { color: colors.muted, fontSize: 12, lineHeight: 17, textAlign: 'center' },
+  primaryText: { color: colors.white, fontSize: 17, fontFamily: fonts.extrabold },
+  footNote: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, lineHeight: 17, textAlign: 'center' },
 });

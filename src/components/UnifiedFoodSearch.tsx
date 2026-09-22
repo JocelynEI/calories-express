@@ -5,7 +5,7 @@ import { portionIssue, ProductCandidate, productToFood, readNumber, scaleReferen
 import { searchProducts } from '../services/products';
 import { FoodThumb } from './FoodThumb';
 import { useApp } from '../state/AppContext';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { RecognizedFood, SavedFood } from '../types';
 import { ManualFoodForm, SourceLink } from './FoodEntryForms';
 import { Action, Choice, Field, form } from './FormControls';
@@ -105,11 +105,11 @@ function Result({ name, detail, imageUrl, onPress }: { name: string; detail: str
   </MotionPressable>;
 }
 const styles = StyleSheet.create({
-  eyebrow: { color: colors.sageDark, fontSize: 12, letterSpacing: 1.2, fontWeight: '800' },
+  eyebrow: { color: colors.sageDark, fontSize: 12, letterSpacing: 1.2, fontFamily: fonts.extrabold },
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, justifyContent: 'space-between' },
-  badge: { color: colors.sageDark, backgroundColor: colors.aquaPale, padding: 6, borderRadius: 8, fontWeight: '800', fontSize: 12 },
+  badge: { color: colors.sageDark, backgroundColor: colors.aquaPale, padding: 6, borderRadius: 8, fontFamily: fonts.extrabold, fontSize: 12 },
   result: { borderTopColor: colors.line, borderTopWidth: 1, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 58 },
-  arrow: { color: colors.sageDark, fontSize: 26 },
-  linkButton: { minHeight: 44, justifyContent: 'center' }, link: { color: colors.sageDark, fontSize: 12, fontWeight: '700' },
-  estimate: { backgroundColor: colors.violetPale, borderRadius: 16, padding: 16, gap: 4 }, total: { color: colors.navy, fontSize: 27, fontWeight: '800' },
+  arrow: { color: colors.sageDark, fontSize: 26, fontFamily: fonts.medium },
+  linkButton: { minHeight: 44, justifyContent: 'center' }, link: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.bold },
+  estimate: { backgroundColor: colors.violetPale, borderRadius: 16, padding: 16, gap: 4 }, total: { color: colors.navy, fontSize: 27, fontFamily: fonts.extrabold },
 });

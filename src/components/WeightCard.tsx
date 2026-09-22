@@ -5,7 +5,7 @@ import { dayDistance, dayLabel, shiftDay } from '../domain/date';
 import { readNumber } from '../domain/foods';
 import { movingAverage, trendSentence, weightTrend } from '../domain/weight';
 import { useApp } from '../state/AppContext';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, MAX_FONT_SCALE, radii, fonts } from '../theme';
 import { WeightEntry } from '../types';
 import { AppIcon } from './AppIcon';
 import { MotionPressable } from './Motion';
@@ -172,30 +172,30 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, padding: 16, gap: 12 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   headIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.violetPale, alignItems: 'center', justifyContent: 'center' },
-  title: { color: colors.ink, fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
-  subtitle: { color: colors.muted, fontSize: 12, fontWeight: '600', marginTop: 2 },
+  title: { color: colors.ink, fontSize: 20, fontFamily: fonts.extrabold, letterSpacing: -0.3 },
+  subtitle: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, marginTop: 2 },
   heroWrap: { flexDirection: 'row', alignItems: 'baseline', gap: 3 },
-  hero: { color: colors.ink, fontSize: 28, fontWeight: '800', letterSpacing: -0.8 },
-  heroUnit: { color: colors.muted, fontSize: 13, fontWeight: '700' },
+  hero: { color: colors.ink, fontSize: 28, fontFamily: fonts.extrabold, letterSpacing: -0.8 },
+  heroUnit: { color: colors.muted, fontSize: 13, fontFamily: fonts.bold },
 
   chartWrap: { minHeight: CHART_HEIGHT + 22, justifyContent: 'center' },
   chartEmpty: { height: CHART_HEIGHT, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background, borderRadius: radii.medium },
-  chartEmptyText: { color: colors.muted, fontSize: 13, fontWeight: '600', textAlign: 'center', paddingHorizontal: 20 },
-  axisLabel: { position: 'absolute', color: colors.violet, fontSize: 12, fontWeight: '800' },
-  axisFoot: { position: 'absolute', bottom: 0, color: colors.muted, fontSize: 12, fontWeight: '600' },
+  chartEmptyText: { color: colors.muted, fontSize: 13, fontFamily: fonts.semibold, textAlign: 'center', paddingHorizontal: 20 },
+  axisLabel: { position: 'absolute', color: colors.violet, fontSize: 12, fontFamily: fonts.extrabold },
+  axisFoot: { position: 'absolute', bottom: 0, color: colors.muted, fontSize: 12, fontFamily: fonts.semibold },
 
-  trend: { color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontWeight: '500' },
+  trend: { color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
 
   formRow: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
   inputWrap: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#C9CEDC', borderRadius: 13, paddingHorizontal: 12, backgroundColor: colors.white },
-  input: { flex: 1, color: colors.ink, fontSize: 16, fontWeight: '700', paddingVertical: 12 },
-  inputSuffix: { color: colors.muted, fontSize: 13, fontWeight: '700' },
+  input: { flex: 1, color: colors.ink, fontSize: 16, fontFamily: fonts.bold, paddingVertical: 12 },
+  inputSuffix: { color: colors.muted, fontSize: 13, fontFamily: fonts.bold },
   saveOuter: { minWidth: 104 },
   save: { minHeight: 48, borderRadius: 13, backgroundColor: colors.violet, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-  saveText: { color: colors.white, fontSize: 14, fontWeight: '800' },
-  formHint: { color: colors.muted, fontSize: 12, lineHeight: 17, marginTop: -4 },
-  error: { color: '#8E241D', backgroundColor: colors.coralPale, borderRadius: 12, padding: 12, fontSize: 13, lineHeight: 19 },
-  saved: { color: colors.aqua, fontSize: 13, fontWeight: '700' },
+  saveText: { color: colors.white, fontSize: 14, fontFamily: fonts.extrabold },
+  formHint: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, lineHeight: 17, marginTop: -4 },
+  error: { color: '#8E241D', backgroundColor: colors.coralPale, borderRadius: 12, padding: 12, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19 },
+  saved: { color: colors.aqua, fontSize: 13, fontFamily: fonts.bold },
   forget: { minHeight: 44, justifyContent: 'center' },
-  forgetText: { color: colors.muted, fontSize: 13, fontWeight: '700', textDecorationLine: 'underline' },
+  forgetText: { color: colors.muted, fontSize: 13, fontFamily: fonts.bold, textDecorationLine: 'underline' },
 });

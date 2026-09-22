@@ -10,7 +10,7 @@ import { dayLabel, shiftDay, shortDayLabel } from '../domain/date';
 import { mealsForDay, totalCalories } from '../domain/meals';
 import { orderedStories, Story } from '../domain/stories';
 import { useApp } from '../state/AppContext';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, MAX_FONT_SCALE, radii, fonts } from '../theme';
 
 const CHART_HEIGHT = 168;
 
@@ -169,40 +169,40 @@ function Legend({ color, title, copy, dashed = false }: { color: string; title: 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40, gap: 14 },
-  eyebrow: { color: colors.sageDark, fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
-  title: { color: colors.ink, fontSize: 28, fontWeight: '800', letterSpacing: -0.6, marginTop: 2, marginBottom: 2 },
+  eyebrow: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.5 },
+  title: { color: colors.ink, fontSize: 28, fontFamily: fonts.extrabold, letterSpacing: -0.6, marginTop: 2, marginBottom: 2 },
 
   card: { backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, padding: 16, gap: 10 },
   cardHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  cardTitle: { color: colors.ink, fontSize: 20, fontWeight: '800', letterSpacing: -0.3 },
-  cardSub: { color: colors.muted, fontSize: 12, fontWeight: '600', marginTop: 3, lineHeight: 17 },
+  cardTitle: { color: colors.ink, fontSize: 20, fontFamily: fonts.extrabold, letterSpacing: -0.3 },
+  cardSub: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, marginTop: 3, lineHeight: 17 },
   targetPill: { backgroundColor: colors.sagePale, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radii.pill },
-  targetPillText: { color: colors.sageDark, fontSize: 12, fontWeight: '800' },
-  average: { color: colors.ink, fontSize: 26, fontWeight: '800', letterSpacing: -0.6 },
-  averageUnit: { color: colors.muted, fontSize: 13, fontWeight: '600' },
+  targetPillText: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold },
+  average: { color: colors.ink, fontSize: 26, fontFamily: fonts.extrabold, letterSpacing: -0.6 },
+  averageUnit: { color: colors.muted, fontSize: 13, fontFamily: fonts.semibold },
 
   chart: { minHeight: CHART_HEIGHT + 30 },
   bars: { flexDirection: 'row', gap: 6, alignItems: 'flex-end' },
   columnOuter: { flex: 1 },
   column: { alignItems: 'center', gap: 8 },
   plot: { height: CHART_HEIGHT, width: '100%', alignItems: 'center', justifyContent: 'flex-end' },
-  barValue: { color: colors.muted, fontSize: 12, fontWeight: '700', marginBottom: 5 },
-  dayLabel: { color: colors.muted, fontSize: 12, fontWeight: '600', textTransform: 'capitalize' },
-  dayLabelActive: { color: colors.navy, fontWeight: '800' },
+  barValue: { color: colors.muted, fontSize: 12, fontFamily: fonts.bold, marginBottom: 5 },
+  dayLabel: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, textTransform: 'capitalize' },
+  dayLabelActive: { color: colors.navy, fontFamily: fonts.extrabold },
 
   insight: { flexDirection: 'row', gap: 12, backgroundColor: colors.goldPale, borderRadius: radii.large, padding: 15, borderWidth: 1, borderColor: '#EFDDBE' },
   insightIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
-  insightTitle: { color: colors.ink, fontSize: 15, fontWeight: '800' },
-  insightText: { color: '#6F4E07', fontSize: 13, lineHeight: 19, marginTop: 4, fontWeight: '500' },
+  insightTitle: { color: colors.ink, fontSize: 15, fontFamily: fonts.extrabold },
+  insightText: { color: '#6F4E07', fontSize: 13, lineHeight: 19, marginTop: 4, fontFamily: fonts.medium },
 
-  sectionTitle: { color: colors.ink, fontSize: 20, fontWeight: '800', letterSpacing: -0.3, marginTop: 10 },
+  sectionTitle: { color: colors.ink, fontSize: 20, fontFamily: fonts.extrabold, letterSpacing: -0.3, marginTop: 10 },
   legend: { backgroundColor: colors.card, borderRadius: radii.large, padding: 16, borderWidth: 1, borderColor: colors.line },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   legendDot: { width: 16, height: 16, borderRadius: 4 },
   legendDash: { width: 22, borderTopWidth: 2, borderStyle: 'dashed' },
-  legendTitle: { color: colors.ink, fontSize: 14, fontWeight: '800' },
-  legendCopy: { color: colors.muted, fontSize: 13, lineHeight: 19, marginTop: 3 },
+  legendTitle: { color: colors.ink, fontSize: 14, fontFamily: fonts.extrabold },
+  legendCopy: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, marginTop: 3 },
   divider: { height: 1, backgroundColor: colors.line, marginVertical: 13 },
 
-  legal: { color: colors.muted, fontSize: 12, lineHeight: 18, marginTop: 6 },
+  legal: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, lineHeight: 18, marginTop: 6 },
 });

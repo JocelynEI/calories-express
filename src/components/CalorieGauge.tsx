@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { gaugeMessage } from '../domain/calories';
-import { colors, MAX_FONT_SCALE } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, typeScale } from '../theme';
 import { useExperience } from '../state/ExperienceContext';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -10,19 +10,25 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 type Props = { consumed: number; target: number };
 
 /**
- * V1.8 — le grand nombre est désormais ce qu'il reste, pas ce qui a été saisi.
+ * V2.7 — la jauge du design system.
  *
- * C'est la question qu'on se pose en ouvrant l'application à midi. Le total
- * saisi reste lisible juste en dessous du baromètre, dans la ligne de chiffres.
- * Au-dessus du repère, l'écart est annoncé sans jugement.
+ * Un arc de 240° — l'ouverture en bas, de 120°, accueille la pastille d'état.
+ * Au centre, le total consommé en grand, le repère juste dessous : c'est la
+ * lecture demandée par le brief (« 1 310 sur 2 100 kcal »). Ce qu'il reste
+ * n'a pas disparu : il est annoncé dans l'en-tête du bloc « Ma journée » et
+ * dans la ligne de chiffres sous la jauge.
+ *
+ * La progression est toujours violette. Au-dessus du repère, l'arc reste
+ * plein et c'est la pastille qui le dit, sans jugement.
  */
 export function CalorieGauge({ consumed, target }: Props) {
   const { reducedMotion } = useExperience();
   const size = 200;
   const center = size / 2;
-  const radius = 80;
-  const activeLength = 2 * Math.PI * radius * 0.75;
-  const arcPath = describeArc(center, center, radius, 135, 405);
+  const radius = 82;
+  // 240° : de 150° (bas gauche) à 390° (bas droite), dans le sens horaire.
+  const activeLength = 2 * Math.PI * radius * (240 / 360);
+  const arcPath = describeArc(center, center, radius, 150, 390);
   const ratio = target > 0 ? consumed / target : 0;
   const visualRatio = Math.max(0, Math.min(1, ratio));
   const progress = useRef(new Animated.Value(reducedMotion ? visualRatio : 0)).current;
@@ -30,21 +36,17 @@ export function CalorieGauge({ consumed, target }: Props) {
   const remaining = Math.round(target - consumed);
   const over = remaining < 0;
 
-  const counter = useRef(new Animated.Value(Math.abs(remaining))).current;
-  const [displayed, setDisplayed] = useState(Math.abs(remaining));
+  const shownValue = Math.max(0, Math.round(consumed));
+  const counter = useRef(new Animated.Value(shownValue)).current;
+  const [displayed, setDisplayed] = useState(shownValue);
 
-  const toneColor = useMemo(() => ({
-    navy: colors.violet,
-    sage: colors.aqua,
-    gold: colors.gold,
-  })[status.tone], [status.tone]);
-
-  // Sur la pastille teintée à 10 %, le trait ne suffit pas : le libellé prend
-  // une variante plus foncée pour rester lisible.
-  const toneText = useMemo(() => ({
-    navy: colors.violet,
-    sage: '#0B5F59',
-    gold: colors.goldText,
+  // La pastille prend la couleur de l'état ; son texte, l'encre lisible de
+  // cette couleur (voir le thème : les accents du brief sont illisibles en
+  // texte, leurs encres passent 4,5:1).
+  const tone = useMemo(() => ({
+    navy: { pale: colors.purplePale, ink: colors.violet },
+    sage: { pale: colors.mintPale, ink: colors.mintInk },
+    gold: { pale: colors.warmPale, ink: colors.warmInk },
   })[status.tone], [status.tone]);
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export function CalorieGauge({ consumed, target }: Props) {
   }, [progress, visualRatio, reducedMotion]);
 
   useEffect(() => {
-    const value = Math.abs(remaining);
+    const value = shownValue;
     if (reducedMotion) { counter.setValue(value); setDisplayed(value); return; }
     // Le compteur est arrondi à un pas : sans cela, monter jusqu'à 2 000 en
     // 620 ms provoquerait des centaines de rendus de l'écran d'accueil.
@@ -71,7 +73,7 @@ export function CalorieGauge({ consumed, target }: Props) {
     const animation = Animated.timing(counter, { toValue: value, duration: 620, useNativeDriver: false, isInteraction: false });
     animation.start(({ finished }) => { if (finished) setDisplayed(value); });
     return () => { animation.stop(); counter.removeListener(listener); };
-  }, [remaining, counter, reducedMotion]);
+  }, [shownValue, counter, reducedMotion]);
 
   const dashOffset = progress.interpolate({ inputRange: [0, 1], outputRange: [activeLength, 0] });
 
@@ -82,24 +84,25 @@ export function CalorieGauge({ consumed, target }: Props) {
   return (
     <View style={styles.wrapper} accessible accessibilityLabel={label}>
       <Svg width={size} height={size}>
-        <Path d={arcPath} fill="none" stroke={colors.track} strokeWidth={14} strokeLinecap="round" />
+        <Path d={arcPath} fill="none" stroke={colors.track} strokeWidth={16} strokeLinecap="round" />
         <AnimatedPath
           d={arcPath}
-          fill="none" stroke={toneColor} strokeWidth={14}
+          fill="none" stroke={colors.violet} strokeWidth={16}
           strokeLinecap="round" strokeDasharray={`${activeLength} ${activeLength}`}
           strokeDashoffset={dashOffset as never}
         />
       </Svg>
       <View style={styles.content} pointerEvents="none">
         <Text maxFontSizeMultiplier={1.35} style={styles.value}>
-          {over ? '+' : ''}{displayed.toLocaleString('fr-FR')}
+          {displayed.toLocaleString('fr-FR')}
         </Text>
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.unit}>
-          {target <= 0 ? 'repère à définir' : over ? 'kcal au-dessus' : 'kcal restantes'}
+          {target <= 0 ? 'repère à définir' : `sur ${target.toLocaleString('fr-FR')} kcal`}
         </Text>
-        <View style={[styles.statusPill, { backgroundColor: `${toneColor}1A` }]}>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.status, { color: toneText }]}>{status.label}</Text>
-        </View>
+      </View>
+      {/* La pastille loge dans l'ouverture de 120° en bas de l'arc. */}
+      <View style={[styles.statusPill, { backgroundColor: tone.pale }]} pointerEvents="none">
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.status, { color: tone.ink }]} numberOfLines={1}>{status.label}</Text>
       </View>
     </View>
   );
@@ -117,9 +120,9 @@ function describeArc(cx: number, cy: number, radius: number, startAngle: number,
 
 const styles = StyleSheet.create({
   wrapper: { width: 200, height: 200, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
-  content: { position: 'absolute', width: 150, alignItems: 'center' },
-  value: { color: colors.ink, fontSize: 44, lineHeight: 48, fontWeight: '800', letterSpacing: -1.6 },
-  unit: { color: colors.muted, fontSize: 14, fontWeight: '600', marginTop: 1 },
-  statusPill: { borderRadius: 999, paddingHorizontal: 11, paddingVertical: 6, marginTop: 10 },
-  status: { fontSize: 12, fontWeight: '800' },
+  content: { position: 'absolute', width: 150, alignItems: 'center', marginTop: -8 },
+  value: { color: colors.ink, ...typeScale.numeric, fontSize: 36, lineHeight: 42 },
+  unit: { color: colors.muted, fontSize: 13, lineHeight: 18, fontFamily: fonts.medium, marginTop: 2 },
+  statusPill: { position: 'absolute', bottom: 6, maxWidth: 150, borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 6 },
+  status: { fontSize: 12, lineHeight: 16, fontFamily: fonts.bold },
 });

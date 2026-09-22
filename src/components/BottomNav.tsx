@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useExperience } from '../state/ExperienceContext';
-import { colors, MAX_FONT_SCALE } from '../theme';
+import { colors, MAX_FONT_SCALE, fonts } from '../theme';
 import { AppIcon, IconName } from './AppIcon';
 
 export type TabName = 'today' | 'journal' | 'progress' | 'profile';
@@ -81,11 +81,11 @@ const styles = StyleSheet.create({
   indicator: { position: 'absolute', top: 0, height: 3, borderRadius: 2, backgroundColor: colors.violet },
   bar: { minHeight: 82, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-around', paddingTop: 12, paddingBottom: 6, paddingHorizontal: 4 },
   item: { flex: 1, alignItems: 'center', gap: 5, minHeight: 58 },
-  label: { color: colors.muted, fontSize: 12, fontWeight: '500', textAlign: 'center' },
-  activeLabel: { color: colors.violet, fontWeight: '700' },
+  label: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, textAlign: 'center' },
+  activeLabel: { color: colors.violet, fontFamily: fonts.bold },
   activeDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.aqua },
   centerSlot: { flex: 1, alignItems: 'center', marginTop: -31 },
   addButton: { width: 58, height: 58, borderRadius: 20, backgroundColor: colors.violet, alignItems: 'center', justifyContent: 'center', borderWidth: 5, borderColor: colors.background, shadowColor: colors.violet, shadowOffset: { width: 0, height: 7 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 7 },
-  addLabel: { color: colors.violet, fontSize: 12, fontWeight: '700', marginTop: 5 },
+  addLabel: { color: colors.violet, fontSize: 12, fontFamily: fonts.bold, marginTop: 5 },
   pressed: { opacity: 0.65 },
 });

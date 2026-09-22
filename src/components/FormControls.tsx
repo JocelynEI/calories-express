@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { MotionPressable } from './Motion';
 
 export function Action({ label, onPress, secondary = false, disabled = false }: { label: string; onPress: () => void; secondary?: boolean; disabled?: boolean }) {
@@ -14,20 +14,20 @@ export function Choice({ label, selected, onPress }: { label: string; selected: 
 }
 export const form = StyleSheet.create({
   card: { backgroundColor: colors.card, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: colors.line, gap: 13 },
-  title: { fontSize: 17, fontWeight: '800', color: colors.navy },
-  copy: { color: colors.inkSoft, fontSize: 13, lineHeight: 19 },
-  muted: { color: colors.muted, fontSize: 12, lineHeight: 17 },
-  label: { fontSize: 12, fontWeight: '700', color: colors.inkSoft },
-  input: { borderWidth: 1, borderColor: '#C9CEDC', borderRadius: 12, backgroundColor: colors.white, minHeight: 46, paddingHorizontal: 12, paddingVertical: 10, color: colors.ink, fontSize: 15 },
+  title: { fontSize: 17, fontFamily: fonts.extrabold, color: colors.navy },
+  copy: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19 },
+  muted: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, lineHeight: 17 },
+  label: { fontSize: 12, fontFamily: fonts.bold, color: colors.inkSoft },
+  input: { borderWidth: 1, borderColor: '#C9CEDC', borderRadius: 12, backgroundColor: colors.white, minHeight: 46, paddingHorizontal: 12, paddingVertical: 10, color: colors.ink, fontSize: 15, fontFamily: fonts.medium },
   button: { minHeight: 46, borderRadius: 13, paddingHorizontal: 14, paddingVertical: 12, backgroundColor: colors.violet, justifyContent: 'center', alignItems: 'center' },
-  buttonText: { fontSize: 13, fontWeight: '800', color: colors.white, textAlign: 'center' },
+  buttonText: { fontSize: 13, fontFamily: fonts.extrabold, color: colors.white, textAlign: 'center' },
   secondary: { backgroundColor: colors.violetPale },
   secondaryText: { color: colors.sageDark },
   row: { flexDirection: 'row', gap: 8, alignItems: 'center', flexWrap: 'wrap' },
   choice: { borderColor: '#C9CEDC', borderWidth: 1, backgroundColor: colors.white, borderRadius: 12, minHeight: 44, paddingHorizontal: 12, paddingVertical: 11, justifyContent: 'center' },
   choiceActive: { backgroundColor: colors.navy, borderColor: colors.navy },
-  choiceText: { color: colors.inkSoft, fontSize: 12, fontWeight: '600' },
+  choiceText: { color: colors.inkSoft, fontSize: 12, fontFamily: fonts.semibold },
   choiceTextActive: { color: colors.white },
-  error: { backgroundColor: '#FFF1D9', color: '#75510D', padding: 12, borderRadius: 12, fontSize: 13, lineHeight: 18 },
-  success: { color: '#096B5B', backgroundColor: colors.aquaPale, borderRadius: 12, padding: 12, fontSize: 13, lineHeight: 18 },
+  error: { backgroundColor: '#FFF1D9', color: '#75510D', padding: 12, borderRadius: 12, fontSize: 13, fontFamily: fonts.medium, lineHeight: 18 },
+  success: { color: '#096B5B', backgroundColor: colors.aquaPale, borderRadius: 12, padding: 12, fontSize: 13, fontFamily: fonts.medium, lineHeight: 18 },
 });

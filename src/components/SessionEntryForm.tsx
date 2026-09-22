@@ -5,7 +5,7 @@ import { ACTIVITY_EFFORTS, normallyIncludedInSteps, sessionEnergy, sessionEnergy
 import { kcal } from '../domain/energy';
 import { readNumber } from '../domain/foods';
 import { useApp } from '../state/AppContext';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { ActivityEffort, ActivityKind, ActivitySession } from '../types';
 import { Action, Choice, Field, form } from './FormControls';
 
@@ -62,4 +62,4 @@ export function SessionEntryForm({ day, entry, idea, onSave, onCancel, onDirty }
     <Action secondary label={entry ? 'Annuler la modification' : 'Effacer cette saisie'} onPress={onCancel} />
   </View>;
 }
-const styles = StyleSheet.create({ result: { borderRadius: 18, padding: 16, backgroundColor: colors.aquaPale, gap: 7 }, number: { color: colors.navy, fontSize: 30, fontWeight: '800' }, eyebrow: { color: colors.inkSoft, fontSize: 12, letterSpacing: 1, fontWeight: '800' }, toggle: { flexDirection: 'row', alignItems: 'center', gap: 12 } });
+const styles = StyleSheet.create({ result: { borderRadius: 18, padding: 16, backgroundColor: colors.aquaPale, gap: 7 }, number: { color: colors.navy, fontSize: 30, fontFamily: fonts.extrabold }, eyebrow: { color: colors.inkSoft, fontSize: 12, letterSpacing: 1, fontFamily: fonts.extrabold }, toggle: { flexDirection: 'row', alignItems: 'center', gap: 12 } });

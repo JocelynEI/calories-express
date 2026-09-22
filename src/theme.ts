@@ -1,66 +1,92 @@
-// V1.8 — Les clés de couleur de la V1.7 sont conservées pour ne rien casser
-// dans les écrans qui ne sont pas réécrits. Seules les valeurs changent, afin
-// que chaque couleur portant du texte atteigne le contraste WCAG AA (4,5:1),
-// et 3:1 pour les traits et icônes. Les teintes vives d'origine restent
-// disponibles sous les clés « Bright » pour les aplats décoratifs.
+// V2.7 — design system « Calories Express » (Modern Soft UI).
 //
-// Ratios mesurés sur le fond #F5F7FC et sur la carte #FFFFFF :
-//   muted 5,8 · inkSoft 9,7 · violet 6,5 · sageDark 8,0 · aqua 4,5
-//   gold 4,1 (trait/icône) · goldText 5,5 · coral 6,0
+// Deux familles de couleurs, et une règle pour choisir :
+//
+// - Les couleurs du brief, **exactes**, pour tout ce qui est aplat : fonds de
+//   carte, jauge, pastilles, icônes posées sur fond clair. Clés `…Fill`/`…Pale`
+//   et les clés historiques qui ne portent pas de texte.
+// - Leurs **encres**, calculées pour le texte. Trois accents du brief sont
+//   illisibles comme texte : cyan 2,2:1, jaune 1,7:1, vert 2,8:1, pour un
+//   minimum de 4,5:1. Chaque encre est la même teinte, assombrie juste assez
+//   pour passer 4,5:1 sur sa pastille ET sous un texte blanc. Le brun doré
+//   obtenu pour le jaune est d'ailleurs celui de la pastille « Petit-déjeuner »
+//   du moodboard.
+//
+// Les clés de la V1.7 sont conservées pour ne rien casser dans les écrans qui
+// ne sont pas encore repris : seules leurs valeurs changent.
+//
+// Contrastes mesurés (texte sur fond) :
+//   ink 15,2 sur l'écran · muted 4,7 sur carte, 4,4 sur l'écran
+//   violet 5,9 · mintInk 4,7 · warmInk 4,6 · greenInk 4,7 · purpleInk 4,6
 export const colors = {
-  reference: '#25364B',
-  intake: '#1660B8',
-  today: '#A85C07',
-  protein: '#1660B8',
-  carbs: '#A85C07',
-  fat: '#9C2C71',
-  background: '#F5F7FC',
-  card: '#FFFFFF',
-  ink: '#15162B',
-  inkSoft: '#3E435C',
-  muted: '#5A6076',
-  line: '#E4E7F2',
-  track: '#ECEFF7',
-  sage: '#8B87F5',
-  sageDark: '#4A2FD0',
-  sagePale: '#EFEEFF',
-  gold: '#A8720A',
-  goldText: '#8A6209',
-  goldBright: '#F2B84B',
-  goldPale: '#FFF7E4',
+  // ---- Brief : couleurs exactes ----------------------------------------------
+  violet: '#5B48E8',        // Primary Violet — CTA, jauge
+  navy: '#1A1B4B',          // Primary Dark — titres majeurs, badges
+  mintFill: '#00C4CC',      // Mint / Fresh Cyan — aplat
+  mintPale: '#E6F8F8',
+  warmFill: '#EAC15C',      // Warm Orange — aplat
+  warmPale: '#FFF9EB',
+  greenFill: '#4CAF50',     // Soft Green — aplat
+  greenPale: '#EBF7ED',
+  purpleFill: '#8C62FF',    // Soft Purple — aplat
+  purplePale: '#F3EFFF',
+  background: '#F5F7FB',    // Background Light
+  card: '#FFFFFF',          // Surface White
+  ink: '#1E2022',           // Text Main
+  muted: '#6C757D',         // Text Muted
+  white: '#FFFFFF',
+
+  // ---- Encres : les mêmes teintes, lisibles en texte -------------------------
+  mintInk: '#007A7F',
+  warmInk: '#906C13',
+  greenInk: '#367B38',
+  purpleInk: '#7643FF',
+
+  // ---- Neutres dérivés -------------------------------------------------------
+  inkSoft: '#43484D',       // corps de texte long, entre ink et muted
+  line: '#E9ECF2',
+  track: '#EDEFF5',
+
+  // ---- Clés historiques, remappées sur le design system ----------------------
+  reference: '#1A1B4B',
+  intake: '#5B48E8',
+  today: '#906C13',
+  protein: '#5B48E8',
+  carbs: '#EAC15C',
+  fat: '#00C4CC',
+  sage: '#8C62FF',
+  sageDark: '#5B48E8',
+  sagePale: '#F3EFFF',
+  gold: '#906C13',
+  goldText: '#906C13',
+  goldBright: '#EAC15C',
+  goldPale: '#FFF9EB',
   coral: '#B93027',
   coralBright: '#F26D64',
   coralPale: '#FFF0EF',
-  navy: '#1D1B4B',
-  aqua: '#0F857D',
-  aquaBright: '#21BEB2',
-  aquaPale: '#E6FAF7',
-  violet: '#5B3FE0',
-  violetInk: '#2E2266',
-  violetPale: '#F0EDFF',
-  violetEdge: '#DCD5FF',
-  // V2.6 — surfaces éditoriales pour les visuels premium. Elles restent
-  // séparées des couleurs fonctionnelles afin de ne pas modifier le sens des
-  // indicateurs déjà utilisés dans le journal.
-  visualPale: '#F2F0FF',
-  visualInk: '#2F285F',
-  visualMint: '#D9F2E9',
-  visualWarm: '#FFF7E9',
-  // V2.5 — un vert pour le déjeuner. Les quatre moments de la journée
-  // partageaient deux violets presque identiques : dans le journal, on ne
-  // distinguait plus un déjeuner d'un dîner. Contraste mesuré : 4,8:1 sur
-  // blanc pour le texte, l'aplat ne porte que de la couleur.
-  leaf: '#2F7A3C',
-  leafPale: '#E8F6EA',
-  white: '#FFFFFF',
-  shadow: '#26235D24',
+  aqua: '#007A7F',
+  aquaBright: '#00C4CC',
+  aquaPale: '#E6F8F8',
+  violetInk: '#1A1B4B',
+  violetPale: '#F3EFFF',
+  violetEdge: '#DDD5FF',
+  leaf: '#367B38',
+  leafPale: '#EBF7ED',
+  visualPale: '#F3EFFF',
+  visualInk: '#1A1B4B',
+  visualMint: '#E6F8F8',
+  visualWarm: '#FFF9EB',
+  shadow: '#000000',
 } as const;
 
+// Brief : cartes 20 px, pilules 100 px, champs de saisie 16 px.
 export const radii = {
   small: 12,
-  medium: 18,
-  large: 26,
-  pill: 999,
+  input: 16,
+  medium: 16,
+  large: 20,
+  xl: 24,
+  pill: 100,
 } as const;
 
 export const spacing = {
@@ -71,28 +97,48 @@ export const spacing = {
   xl: 32,
 } as const;
 
-// Six tailles, au lieu des vingt et une de la V1.7. Rien sous 12.
-// Toute nouvelle vue se sert dans cette échelle et nulle part ailleurs.
+/**
+ * V2.7 — Plus Jakarta Sans, une famille par graisse.
+ *
+ * Avec une police chargée, Android ignore `fontWeight` : il faut nommer la
+ * famille de la graisse voulue. Aucune vue ne doit donc écrire `fontWeight` —
+ * un garde-fou automatique le vérifie.
+ */
+export const fonts = {
+  regular: 'PlusJakartaSans_400Regular',
+  medium: 'PlusJakartaSans_500Medium',
+  semibold: 'PlusJakartaSans_600SemiBold',
+  bold: 'PlusJakartaSans_700Bold',
+  extrabold: 'PlusJakartaSans_800ExtraBold',
+} as const;
+
+// Hiérarchie du brief. Rien sous 12.
 export const typeScale = {
-  hero: { fontSize: 44, lineHeight: 48, fontWeight: '800' as const, letterSpacing: -1.6 },
-  title: { fontSize: 28, lineHeight: 34, fontWeight: '800' as const, letterSpacing: -0.6 },
-  section: { fontSize: 20, lineHeight: 26, fontWeight: '800' as const, letterSpacing: -0.3 },
-  body: { fontSize: 16, lineHeight: 23, fontWeight: '600' as const },
-  secondary: { fontSize: 14, lineHeight: 20, fontWeight: '500' as const },
-  caption: { fontSize: 12, lineHeight: 17, fontWeight: '600' as const },
+  numeric: { fontSize: 32, lineHeight: 38, fontFamily: fonts.extrabold, letterSpacing: -1 },   // 1 310
+  display: { fontSize: 28, lineHeight: 34, fontFamily: fonts.bold, letterSpacing: -0.6 },      // Bonjour Jocelyn
+  section: { fontSize: 20, lineHeight: 26, fontFamily: fonts.bold, letterSpacing: -0.3 },      // Mes repas
+  cardTitle: { fontSize: 16, lineHeight: 22, fontFamily: fonts.semibold },                      // Porridge…
+  body: { fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
+  caption: { fontSize: 12, lineHeight: 17, fontFamily: fonts.regular },                         // Petit-déjeuner · 08:10
+  // Anciennes clés, pour les vues pas encore reprises.
+  hero: { fontSize: 44, lineHeight: 48, fontFamily: fonts.extrabold, letterSpacing: -1.6 },
+  title: { fontSize: 28, lineHeight: 34, fontFamily: fonts.bold, letterSpacing: -0.6 },
+  secondary: { fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
 } as const;
 
 // Un texte trop petit ne devient pas lisible en grossissant à l'infini :
 // au-delà de ce facteur les cartes cassent. Les vues le passent à <Text>.
 export const MAX_FONT_SCALE = 1.6;
 
+// Brief : « Soft Elevation » 0 8 24 rgba(0,0,0,0.04). Sur iOS, shadowRadius
+// correspond à peu près à la moitié du flou CSS ; Android n'a qu'une élévation.
 export const shadows = {
   card: {
     shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
   raised: {
     shadowColor: colors.violet,

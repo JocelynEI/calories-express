@@ -4,7 +4,7 @@ import { searchFoods } from '../domain/food-search';
 import { portionIssue, readNumber, scaleReference } from '../domain/foods';
 import { burgerIngredients, isBurgerQuery, makeRecipe, RecipeIngredient } from '../domain/recipes';
 import { useApp } from '../state/AppContext';
-import { colors } from '../theme';
+import { colors, fonts } from '../theme';
 import { RecognizedFood } from '../types';
 import { Action, Choice, Field, form } from './FormControls';
 import { MotionPressable } from './Motion';
@@ -38,7 +38,7 @@ export function RecipeBuilder({ initialName, onAdd, onCancel }: { initialName: s
       {!items.length && <Choice label="Partir du burger maison au bœuf" selected={false} onPress={() => { setName('Burger maison au bœuf'); editItems(burgerIngredients().map(i => ({ ...i, quantity: String(i.quantity) }))); }} />}
     </View>
     <View style={form.card}><Field label="Toute la recette donne combien de portions ?" numeric value={servings} onChange={v => { setServings(v); setConfirmed(false); }} /><Field label="Combien de ces portions as-tu mangées ?" numeric value={eaten} onChange={setEaten} />
-      {preview && <><Text style={{ fontSize: 28, color: colors.navy, fontWeight: '800' }}>≈ {preview.calories.estimated} kcal</Text><Text style={form.muted}>pour {eaten} portion(s) · les valeurs dépendent de la cuisson et des ingrédients</Text></>}
+      {preview && <><Text style={{ fontSize: 28, color: colors.navy, fontFamily: fonts.extrabold }}>≈ {preview.calories.estimated} kcal</Text><Text style={form.muted}>pour {eaten} portion(s) · les valeurs dépendent de la cuisson et des ingrédients</Text></>}
       <Choice label="J’ai vérifié les ingrédients, la cuisson et les quantités" selected={confirmed} onPress={() => setConfirmed(!confirmed)} />
       <View style={form.row}><Text style={[form.copy, { flex: 1 }]}>Mémoriser ma recette</Text><Switch accessibilityLabel="Mémoriser ma recette" value={remember} onValueChange={setRemember} /></View>
       {error ? <Text accessibilityRole="alert" style={form.error}>{error}</Text> : null}

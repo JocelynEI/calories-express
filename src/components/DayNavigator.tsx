@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { dayDistance, dayLabel, shiftDay } from '../domain/date';
 import { useApp } from '../state/AppContext';
-import { colors, MAX_FONT_SCALE, radii } from '../theme';
+import { colors, MAX_FONT_SCALE, radii, fonts } from '../theme';
 import { AppIcon } from './AppIcon';
 import { MotionPressable } from './Motion';
 
@@ -78,10 +78,10 @@ const styles = StyleSheet.create({
   arrow: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   arrowOff: { opacity: 0.6 },
   labelWrap: { minWidth: 0, flexShrink: 1 },
-  label: { color: colors.inkSoft, fontSize: 14, fontWeight: '700' },
-  labelCompact: { fontSize: 13 },
+  label: { color: colors.inkSoft, fontSize: 14, fontFamily: fonts.bold },
+  labelCompact: { fontSize: 13, fontFamily: fonts.medium },
   back: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 10, marginLeft: 4, borderRadius: radii.pill, backgroundColor: colors.violetPale },
-  backText: { color: colors.violet, fontSize: 12, fontWeight: '800' },
+  backText: { color: colors.violet, fontSize: 12, fontFamily: fonts.extrabold },
   banner: { flexDirection: 'row', alignItems: 'center', gap: 9, backgroundColor: colors.goldPale, borderRadius: radii.medium, paddingHorizontal: 13, paddingVertical: 11 },
-  bannerText: { flex: 1, color: '#6F4E07', fontSize: 13, lineHeight: 19, fontWeight: '600' },
+  bannerText: { flex: 1, color: '#6F4E07', fontSize: 13, lineHeight: 19, fontFamily: fonts.semibold },
 });
