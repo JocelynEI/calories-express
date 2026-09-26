@@ -1,6 +1,13 @@
-# Calories Express — V3.0
+# Calories Express — V3.1
 
 Version de test Expo Go · 26 septembre 2026.
+
+## Ce qui change en V3.1 — un journal de test, pour la version web
+
+- **Voir ce que font les testeurs sans leur demander.** Chaque action importante écrit une ligne dans un tableur Google : écran ouvert, repas ajouté ou abandonné, séance estimée puis enregistrée, profil commencé puis terminé.
+- **Jamais de contenu.** Aliments, quantités, calories, poids, âge, objectif, prénom, photos : rien de tout cela ne peut sortir de l'application, et le code le rend impossible plutôt que de le promettre.
+- **Rien sans accord** : une question à l'ouverture, un refus aussi facile qu'un oui, et un interrupteur dans Profil pour changer d'avis.
+- **Éteint par défaut** : sans adresse dans `src/config/test-journal.ts`, l'application se comporte exactement comme la V3.0. Mise en place dans `docs/JOURNAL_DE_TEST.md`.
 
 ## Ce qui change en V3.0 — on remplit soi-même, rien n'est prérempli
 

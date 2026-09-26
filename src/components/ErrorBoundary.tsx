@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { track } from '../services/test-journal';
 import { fonts } from '../theme';
 
 /**
@@ -41,6 +42,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
     // et les premières lignes s'affichent sur le téléphone pour pouvoir
     // nommer le composant fautif sans rebrancher le Mac.
     console.error('Calories Express — erreur de rendu', error, info?.componentStack);
+    // V3.1 — une ligne dans le journal de test, sans le message d'erreur :
+    // il peut contenir n'importe quoi, y compris une valeur saisie.
+    track('erreur-affichee');
     this.setState({ stack: (info?.componentStack ?? '').trim() });
   }
 

@@ -1,3 +1,5 @@
+import { TelemetryConsent } from './telemetry';
+
 /**
  * V2.2 — préférence d'animation à trois états.
  *
@@ -21,8 +23,14 @@ export type ExperienceSettings = {
    * revenir après un effacement du profil. Voir `shouldShowOnboarding`.
    */
   onboardingDone: boolean;
+  /**
+   * V3.1 — accord pour le journal de test (version web uniquement).
+   * `unknown` tant que la question n'a pas été posée ; la réponse se change à
+   * tout moment depuis le Profil.
+   */
+  testJournal: TelemetryConsent;
 };
-export const DEFAULT_EXPERIENCE: ExperienceSettings = { motion: 'system', welcome: true, activityPrompts: true, onboardingDone: false };
+export const DEFAULT_EXPERIENCE: ExperienceSettings = { motion: 'system', welcome: true, activityPrompts: true, onboardingDone: false, testJournal: 'unknown' };
 
 export function readExperienceSettings(value: unknown): ExperienceSettings {
   const data = value && typeof value === 'object' ? value as Record<string, unknown> : {};
@@ -36,6 +44,8 @@ export function readExperienceSettings(value: unknown): ExperienceSettings {
     welcome: typeof data.welcome === 'boolean' ? data.welcome : true,
     activityPrompts: typeof data.activityPrompts === 'boolean' ? data.activityPrompts : true,
     onboardingDone: typeof data.onboardingDone === 'boolean' ? data.onboardingDone : false,
+    // Une sauvegarde d'avant la V3.1 n'a pas répondu : la question sera posée.
+    testJournal: data.testJournal === 'yes' || data.testJournal === 'no' ? data.testJournal : 'unknown',
   };
 }
 

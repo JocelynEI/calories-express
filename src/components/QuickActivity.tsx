@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ACTIVITY_LABELS, ACTIVITY_PHRASES } from '../domain/activity';
 import {
   ASSUMED_WEIGHT_KG, DEFAULT_EFFORT, normallyIncludedInSteps, resolveWeight, sessionEnergy, validActivityWeight,
 } from '../domain/activity-energy';
 import { Praise, sessionPraise } from '../domain/praise';
+import { track } from '../services/test-journal';
 import { useApp } from '../state/AppContext';
 import { colors, fonts, MAX_FONT_SCALE, radii, shadows, typeScale } from '../theme';
 import { ActivityKind, ActivitySession } from '../types';
@@ -80,6 +81,7 @@ export function QuickActivity({ day, onProfile, onDetails }: Props) {
   const start = () => {
     setEditing(true);
     setError('');
+    track('activite-commencee');
     // Le premier blanc s'ouvre sans qu'on ait à le toucher : le geste suivant
     // est évident, et « remplir » commence vraiment après le bouton.
     setOpen('kind');
@@ -92,11 +94,22 @@ export function QuickActivity({ day, onProfile, onDetails }: Props) {
   } : null;
   const estimate = draft ? sessionEnergy(draft, profileWeight) : null;
 
+  // Une seule ligne par phrase complétée : sinon un simple changement de
+  // durée en enverrait une à chaque appui.
+  const estimated = useRef(false);
+  useEffect(() => {
+    if (!estimate) { estimated.current = false; return; }
+    if (estimated.current) return;
+    estimated.current = true;
+    track('seance-estimee');
+  }, [estimate]);
+
   const save = () => {
     if (!draft || !estimate) { setError('Choisis une activité et une durée pour estimer la séance.'); return; }
     const record: ActivitySession = { ...draft, id: `activity-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` };
     try {
       recordActivity(record);
+      track('seance-enregistree');
       setPraise(sessionPraise({
         kind: record.kind, minutes: record.minutes, activeKcal: estimate.activeKcal, assumedWeight: estimate.assumedWeight,
         journal: { ...activity, sessions: [record, ...activity.sessions] }, day, id: record.id,

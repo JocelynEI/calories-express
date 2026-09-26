@@ -4,6 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { foodFromLabel, LabelBasis, LabelDetection, parseLabelText, pieceWeightFromPack } from '../domain/labels';
 import { readNumber, scaleReference } from '../domain/foods';
+import { track } from '../services/test-journal';
 import { useApp } from '../state/AppContext';
 import { colors, fonts } from '../theme';
 import { RecognizedFood } from '../types';
@@ -45,6 +46,9 @@ export function LabelFoodForm({ initialName, onAdd, onCancel }: { initialName: s
   };
   const acceptText = (text: string) => {
     setBusy(false); setBase64(''); setRaw(text); const result = parseLabelText(text); setDetected(result);
+    // V3.1 — le journal de test retient qu'une étiquette a été lue, jamais ce
+    // qu'elle contenait.
+    track('etiquette-scannee');
     if (result.energies.length === 1) setEnergy(String(result.energies[0].value));
     if (result.only100g) setBasis('100g');
     if (result.gramsPerPiece) setGrams(String(Math.round(result.gramsPerPiece * 100) / 100));

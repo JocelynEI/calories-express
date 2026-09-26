@@ -7,6 +7,7 @@ import { calculateBmr } from '../domain/calories';
 import { useApp } from '../state/AppContext';
 import { colors, radii, fonts } from '../theme';
 import { ActivityLevel, Goal, Profile, SexForFormula } from '../types';
+import { TEST_JOURNAL_URL } from '../config/test-journal';
 import { useExperience } from '../state/ExperienceContext';
 import { Entrance, MotionPressable } from '../components/Motion';
 import { EnergyPlanCard } from '../components/EnergyEducation';
@@ -29,6 +30,7 @@ const activityLevels: { id: ActivityLevel; label: string }[] = [
 // Progression. Elles figuraient ici, sur l'accueil et sur la progression.
 export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onReplayWelcome: () => void; onReplayOnboarding: () => void }) {
   const { settings, setSetting, reducedMotion, motionExplanation } = useExperience();
+  const journalConfigured = Platform.OS === 'web' && TEST_JOURNAL_URL.trim().startsWith('https://');
   const { profile, activity, today, profileCompleted, updateProfile, resetProfile, restoreDemo, exportData } = useApp();
   const [draft, setDraft] = useState(profile);
   const [saved, setSaved] = useState(false);
@@ -242,6 +244,26 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
         </View>
         <View style={styles.settingRow}><View style={styles.settingBody}><Text style={styles.settingLabel}>Accueil au lancement</Text><Text style={styles.settingCopy}>Un bonjour à chaque ouverture complète.</Text></View><Switch accessibilityLabel="Accueil au lancement" value={settings.welcome} onValueChange={value => setSetting('welcome', value)} trackColor={{ true: colors.violet, false: colors.line }} /></View>
         <View style={styles.settingRow}><View style={styles.settingBody}><Text style={styles.settingLabel}>Conseils après un repas</Text><Text style={styles.settingCopy}>Une invitation douce à bouger ou à récupérer. Deux maximum par jour, espacées d’au moins 3 heures.</Text></View><Switch accessibilityLabel="Conseils après un repas" value={settings.activityPrompts} onValueChange={value => setSetting('activityPrompts', value)} trackColor={{ true: colors.violet, false: colors.line }} /></View>
+        {/* V3.1 — le journal de test. L'interrupteur n'apparaît que sur le
+            site et seulement si un journal est configuré : ailleurs, il n'y
+            aurait rien à régler. */}
+        {journalConfigured ? (
+          <View style={styles.settingRow}>
+            <View style={styles.settingBody}>
+              <Text style={styles.settingLabel}>Aider au test</Text>
+              <Text style={styles.settingCopy}>
+                Envoie les boutons que tu utilises et les écrans que tu ouvres, sous un numéro tiré au sort.
+                Jamais tes aliments, ton poids ni tes calories. L’application fonctionne pareil si tu refuses.
+              </Text>
+            </View>
+            <Switch
+              accessibilityLabel="Aider au test en envoyant mes actions anonymes"
+              value={settings.testJournal === 'yes'}
+              onValueChange={value => setSetting('testJournal', value ? 'yes' : 'no')}
+              trackColor={{ true: colors.violet, false: colors.line }}
+            />
+          </View>
+        ) : null}
         <Text style={styles.settingCopy}>Jaws te guide avec des bulles de texte. Passe au conseil suivant quand tu le souhaites.</Text>
         <MotionPressable onPress={onReplayWelcome} accessibilityRole="button" style={styles.replayButton}><AppIcon name="sparkle" size={17} color={colors.violet} /><Text style={styles.replayText}>Rejouer l’accueil</Text></MotionPressable>
       </View>

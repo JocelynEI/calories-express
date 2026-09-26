@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -31,6 +31,10 @@ import { MealCoachPopup } from './src/components/MealCoachPopup';
 import { canShowMealPrompt, mealEncouragement, MealEncouragement } from './src/domain/coaching';
 import { orderedStories, Story } from './src/domain/stories';
 import { shouldShowOnboarding } from './src/domain/onboarding';
+import { shouldAskConsent } from './src/domain/telemetry';
+import { TEST_JOURNAL_URL } from './src/config/test-journal';
+import { setTestJournalConsent, track } from './src/services/test-journal';
+import { TestJournalConsent } from './src/components/TestJournalConsent';
 import appConfig from './app.json';
 
 /**
@@ -42,6 +46,14 @@ import appConfig from './app.json';
  * éventuelles erreurs, et tranche la question en une seconde.
  */
 console.log(`----- Calories Express ${appConfig.expo.version} ----- (si le numéro n'est pas celui que tu viens d'installer, c'est l'ancien dossier qui tourne)`);
+
+/** Les noms d'écrans du journal de test, tenus à part de l'affichage. */
+const SCREEN_EVENTS: Record<TabName, string> = {
+  today: 'ecran-accueil',
+  journal: 'ecran-journal',
+  progress: 'ecran-progression',
+  profile: 'ecran-profil',
+};
 
 const TAB_LABELS: Record<TabName, string> = {
   today: 'Aujourd’hui',
@@ -100,20 +112,44 @@ function AppShell() {
   const [notice, setNotice] = useState(false);
   const dismissNotice = useCallback(() => setNotice(false), []);
 
+  /* V3.1 — le journal de test. Il ne s'active que sur le site, avec l'accord
+     de la personne et une adresse configurée ; partout ailleurs, `track` ne
+     fait rien du tout. */
+  const askConsent = shouldAskConsent({ consent: settings.testJournal, platform: Platform.OS, url: TEST_JOURNAL_URL });
+  useEffect(() => { setTestJournalConsent(settings.testJournal); }, [settings.testJournal]);
+  useEffect(() => { if (settings.testJournal === 'yes') track('premiere-ouverture'); }, [settings.testJournal]);
+  useEffect(() => { track(SCREEN_EVENTS[tab]); }, [tab]);
+  // Le nombre de séances au moment où la fenêtre s'ouvre : il dit, à la
+  // fermeture, si la visite a servi à quelque chose ou non.
+  const sessionsWhenOpened = useRef(0);
+
   useEffect(() => {
     if (ready && !settings.welcome) setWelcomeDismissed(true);
   }, [ready, settings.welcome]);
 
   const clearOverlays = () => { setSuggestion(null); setNotice(false); };
-  const openAdd = () => { clearOverlays(); setEditingMeal(null); setAddVisible(true); };
+  const openAdd = () => { clearOverlays(); setEditingMeal(null); track('ouvre-ajout-repas'); setAddVisible(true); };
   const openEdit = (meal: Meal) => { clearOverlays(); setEditingMeal(meal); setAddVisible(true); };
   const closeAdd = () => { setAddVisible(false); setEditingMeal(null); };
   const changeTab = (next: TabName) => { clearOverlays(); setTab(next); };
-  const openActivity = () => { clearOverlays(); setActivityIdea(null); setActivityVisible(true); };
+  const openActivity = () => {
+    clearOverlays(); setActivityIdea(null);
+    sessionsWhenOpened.current = activity.sessions.length;
+    track('ouvre-activite');
+    setActivityVisible(true);
+  };
+  const closeActivity = () => {
+    if (activity.sessions.length === sessionsWhenOpened.current) track('activite-abandonnee');
+    setActivityVisible(false);
+  };
+  // Fermer l'ajout d'un repas sans l'avoir validé : c'est le signal le plus
+  // utile du journal, celui qui dit où le formulaire décourage.
+  const abandonAdd = () => { track('ajout-repas-abandonne'); closeAdd(); };
   const playStory = (next: Story) => { clearOverlays(); setStory(next); };
 
   const saved = (meal: Meal) => {
     const wasEditing = editingMeal !== null;
+    track(wasEditing ? 'repas-modifie' : 'repas-ajoute');
     closeAdd();
     if (wasEditing) { setNotice(true); return; }
     setTab('today');
@@ -170,6 +206,13 @@ function AppShell() {
         <StatusBar style="dark" />
         {!hydrated || !ready ? (
           <View style={styles.loading}><ActivityIndicator color={colors.violet} /></View>
+        ) : askConsent ? (
+          /* V3.1 — avant tout le reste : on demande, on n'enregistre pas
+             d'abord pour demander ensuite. */
+          <TestJournalConsent
+            onAccept={() => setSetting('testJournal', 'yes')}
+            onDecline={() => setSetting('testJournal', 'no')}
+          />
         ) : showOnboarding ? (
           /* Premier lancement : la création du profil, mise en scène. Elle ne
              réapparaît jamais une fois le profil enregistré ou passé. */
@@ -203,13 +246,13 @@ function AppShell() {
               </Entrance>
             </ErrorBoundary>
             <BottomNav active={tab} onChange={changeTab} onAdd={openAdd} />
-            {addVisible && <AddMealModal visible onClose={closeAdd} onAdded={saved} meal={editingMeal} />}
+            {addVisible && <AddMealModal visible onClose={abandonAdd} onAdded={saved} meal={editingMeal} />}
             {activityVisible && (
               <ActivityModal
                 initialTab={activityIdea ? 'ideas' : 'journal'}
                 initialIdea={activityIdea}
                 initialDay={selectedDay}
-                onClose={() => setActivityVisible(false)}
+                onClose={closeActivity}
                 onSettings={() => { setActivityVisible(false); changeTab('profile'); }}
               />
             )}

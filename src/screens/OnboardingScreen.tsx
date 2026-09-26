@@ -12,6 +12,7 @@ import {
   ACTIVITY_CHOICES, FieldName, fieldIssue, GOAL_CHOICES, nextStep, previousStep,
   progressAt, resultSentence, StepId, STEPS, stepIssue, summarize,
 } from '../domain/onboarding';
+import { track } from '../services/test-journal';
 import { DEFAULT_PROFILE, useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
 import { colors, MAX_FONT_SCALE, radii, shadows, fonts } from '../theme';
@@ -72,6 +73,10 @@ export function OnboardingScreen({ onDone }: Props) {
   const enter = useRef(new Animated.Value(reducedMotion ? 1 : 0)).current;
   const bar = useRef(new Animated.Value(progress.ratio)).current;
   const glow = useRef(new Animated.Value(0)).current;
+
+  // V3.1 — une ligne au journal de test quand le parcours s'ouvre, pour
+  // pouvoir la comparer à « profil-termine » et voir qui décroche en route.
+  useEffect(() => { track('profil-commence'); }, []);
 
   // Entrée du contenu à chaque changement d'étape.
   useEffect(() => {
@@ -134,7 +139,7 @@ export function OnboardingScreen({ onDone }: Props) {
    * quelqu'un qui a déjà des semaines de saisie derrière lui — abandonner en
    * cours de route ne doit rien lui coûter.
    */
-  const skip = () => onDone();
+  const skip = () => { track('profil-passe'); onDone(); };
 
   const goBack = () => {
     const back = previousStep(step);
@@ -154,6 +159,7 @@ export function OnboardingScreen({ onDone }: Props) {
     if (!next) {
       // Dernière étape : c'est ici, et seulement ici, que le profil est écrit.
       updateProfile(draft);
+      track('profil-termine');
       onDone();
       return;
     }

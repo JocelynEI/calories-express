@@ -4,6 +4,7 @@ import { CIQUAL_COUNT, CIQUAL_SOURCE, FoodSegment, initialQuantity, parseFoodSeg
 import { portionIssue, ProductCandidate, productToFood, readNumber, scaleReference } from '../domain/foods';
 import { searchProducts } from '../services/products';
 import { FoodThumb } from './FoodThumb';
+import { track } from '../services/test-journal';
 import { useApp } from '../state/AppContext';
 import { colors, fonts } from '../theme';
 import { RecognizedFood, SavedFood } from '../types';
@@ -54,7 +55,7 @@ export function UnifiedFoodSearch({ onAdd, onDraftChange }: { onAdd: (item: Reco
       <View style={form.card}>
         <View style={styles.heading}><Text style={form.title}>Estimations disponibles</Text><Text style={styles.badge}>HORS LIGNE</Text></View>
         <Text style={form.muted}>{CIQUAL_COUNT.toLocaleString('fr-FR')} aliments Ciqual et tes aliments mémorisés. Les recettes, les marques et la cuisson peuvent changer les valeurs.</Text>
-        {local.map(food => <Result key={food.id} name={food.name} imageUrl={food.reference.imageUrl} detail={`≈ ${Math.round(food.reference.calories.estimated)} kcal / ${food.reference.amount} ${food.reference.unit} · ${food.reference.source === 'ciqual' ? 'Ciqual 2025' : 'Mes aliments'}`} onPress={() => setSelection(food)} />)}
+        {local.map(food => <Result key={food.id} name={food.name} imageUrl={food.reference.imageUrl} detail={`≈ ${Math.round(food.reference.calories.estimated)} kcal / ${food.reference.amount} ${food.reference.unit} · ${food.reference.source === 'ciqual' ? 'Ciqual 2025' : 'Mes aliments'}`} onPress={() => { track('aliment-cherche'); setSelection(food); }} />)}
         {segment.query && !local.length && <Text style={form.copy}>Aucune correspondance exacte. Compose ton plat maison avec ses ingrédients, essaie un nom simple ou photographie son étiquette.</Text>}
         <SourceLink url={CIQUAL_SOURCE} label="Source : Anses · Ciqual 2025 · Licence ouverte" />
       </View>
@@ -66,7 +67,7 @@ export function UnifiedFoodSearch({ onAdd, onDraftChange }: { onAdd: (item: Reco
         {busy && <ActivityIndicator color={colors.violet} />}
         {error ? <Text accessibilityRole="alert" style={form.error}>{error}</Text> : null}
         {searched && !results.length && <Text style={form.copy}>Aucun produit avec des calories renseignées. Essaie un nom plus précis ou une estimation Ciqual.</Text>}
-        {results.map(product => <Result key={product.id} name={product.name} imageUrl={product.imageUrl} detail={`${product.brand} · ≈ ${Math.round(product.kcal100)} kcal / 100 g ou ml`} onPress={() => setSelection(product)} />)}
+        {results.map(product => <Result key={product.id} name={product.name} imageUrl={product.imageUrl} detail={`${product.brand} · ≈ ${Math.round(product.kcal100)} kcal / 100 g ou ml`} onPress={() => { track('aliment-cherche'); setSelection(product); }} />)}
         <Text style={form.muted}>Cette recherche envoie seulement les mots recherchés à Open Food Facts. Le profil et le journal restent sur ton appareil.</Text>
         {results.length > 0 && <SourceLink />}
       </View>

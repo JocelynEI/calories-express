@@ -1,3 +1,47 @@
+# V3.1 — 26 septembre 2026
+
+Un journal de test, pour la version web, qui écrit dans un tableur ce que font
+les personnes qui essaient l'application — sans jamais toucher à ce qu'elles
+mangent.
+
+## Ce qu'il enregistre
+
+Six colonnes : l'heure, un numéro de visiteur tiré au sort, un numéro de
+visite, l'action, la version et le type d'appareil. Les actions sont prises
+dans une liste fermée de vingt noms : écrans ouverts, repas ajouté ou
+abandonné, séance estimée puis enregistrée, profil commencé puis terminé.
+
+Les deux comparaisons qui apprennent le plus : combien ouvrent le formulaire
+de repas sans aller au bout, et où décroche la création de profil.
+
+## Ce qu'il ne peut pas enregistrer
+
+Les aliments, les quantités, les calories, le poids, la taille, l'âge,
+l'objectif, le prénom, les photos. Ce n'est pas une promesse, c'est une
+mécanique : le domaine n'accepte que six champs, chaque valeur doit
+correspondre à une forme connue, et un message qui sort du cadre n'est pas
+corrigé — il est jeté. Un numéro de visiteur fait dix signes et commence par
+un chiffre : un prénom glissé là par erreur ne passerait pas.
+
+## Rien sans accord
+
+Trois conditions doivent être réunies pour qu'une ligne parte : la personne a
+dit oui, on est sur le site, et une adresse de journal est configurée. La
+question est posée une fois, à l'ouverture, avec la liste de ce qui est noté
+et de ce qui ne l'est jamais. « Non merci » est un bouton de la même taille
+que l'autre, et l'application fonctionne exactement pareil après un refus. Le
+choix se change à tout moment dans Profil.
+
+Sous Expo Go et sur un téléphone, le journal est inerte : il ne sert qu'à la
+phase de test sur le site.
+
+## Éteint par défaut
+
+`src/config/test-journal.ts` est livré avec une adresse vide : tant qu'elle
+l'est, rien ne part et aucune question n'est posée. La mise en place côté
+Google, le mode d'emploi et la façon d'arrêter sont dans
+`docs/JOURNAL_DE_TEST.md`.
+
 # V3.0 — 26 septembre 2026
 
 « Il faudrait *Ajouter un repas* et *Ajouter une activité* sans rien
