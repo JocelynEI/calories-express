@@ -15,6 +15,7 @@ export function activityIssue(entry: ActivitySession, journal: ActivityJournal):
   if (entry.deviceName !== undefined && (typeof entry.deviceName !== 'string' || entry.deviceName.length > 60)) return 'Vérifie le nom de la montre.';
   if (entry.weightKg !== undefined && (!Number.isFinite(entry.weightKg) || entry.weightKg < 35 || entry.weightKg > 300)) return 'Indique un poids entre 35 et 300 kg pour estimer cette séance.';
   if (entry.includedInSteps !== undefined && typeof entry.includedInSteps !== 'boolean') return 'Vérifie si cette séance est déjà incluse dans les pas.';
+  if (entry.weightAssumed !== undefined && typeof entry.weightAssumed !== 'boolean') return 'Vérifie le poids utilisé pour cette séance.';
   if (entry.includeInGoal !== undefined && typeof entry.includeInGoal !== 'boolean') return 'Vérifie la prise en compte de cette séance.';
   if (!Number.isFinite(entry.minutes) || entry.minutes < 1 || entry.minutes > 600) return 'Indique une durée entre 1 et 600 minutes.';
   const others = journal.sessions.filter(s => s.day === entry.day && s.id !== entry.id).reduce((n, s) => n + s.minutes, 0);

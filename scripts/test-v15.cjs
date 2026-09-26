@@ -48,7 +48,12 @@ test('Poids mémorisé stable, pas de crédit reporté le lendemain et pas de po
   assert.equal(dailyEnergyPlan({ ...profile, weightKg: 100 }, journal, day).creditedKcal, 112);
   assert.equal(dailyEnergyPlan(profile, journal, nextDay).creditedKcal, 0);
   assert.equal(dailyEnergyPlan(profile, journal, day, false).creditedKcal, 0);
-  assert.equal(sessionEnergy(session({ weightKg: undefined })), null);
+  // V2.8 : sans poids, la dépense est désormais estimée avec un poids moyen,
+  // signalé comme tel. Le crédit sur le repère, lui, reste à zéro sans profil
+  // (assertion ci-dessus) : estimer n'est pas créditer.
+  const sansPoids = sessionEnergy(session({ weightKg: undefined }));
+  assert.equal(sansPoids.assumedWeight, true);
+  assert.equal(sansPoids.weightKg, 70);
 });
 test('Migration activité : defaults signalés ; nouvelles valeurs conservées ; autre activité reste inconnue', () => {
   const old = sessionEnergy(session({ effort: undefined, weightKg: undefined }), 80); assert.ok(old.usesDefaults); assert.equal(old.activeKcal, 72);

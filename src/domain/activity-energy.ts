@@ -19,23 +19,69 @@ export const ACTIVITY_EFFORTS: Record<Exclude<ActivityKind, 'other'>, Record<Act
 export function validActivityWeight(weight: unknown): weight is number {
   return typeof weight === 'number' && Number.isFinite(weight) && weight >= 35 && weight <= 300;
 }
+
+/**
+ * V2.8 — estimer sans profil.
+ *
+ * Le calcul MET a besoin d'un poids. Exiger le profil avant d'afficher le
+ * moindre chiffre bloquait net quelqu'un qui découvre l'application et veut
+ * juste savoir ce que valent ses 30 minutes de natation.
+ *
+ * L'application estime donc avec un poids moyen — et le dit, à chaque fois,
+ * dans l'écran comme dans le journal. La séance retient qu'elle a été estimée
+ * ainsi : le jour où un vrai poids existe, elle se recalcule toute seule.
+ *
+ * 70 kg est un ordre de grandeur, pas une norme. L'écart sur la dépense est
+ * à peu près proportionnel : 10 kg d'écart font environ 14 % d'écart.
+ */
+export const ASSUMED_WEIGHT_KG = 70;
+
+/**
+ * Intensité proposée par la saisie rapide : l'allure habituelle.
+ *
+ * Elle n'est PAS l'intensité de repli du calcul. Le moteur continue de retenir
+ * « facile » quand une séance n'en porte aucune, parce que des séances
+ * enregistrées avant que l'intensité existe se verraient sinon recalculées à
+ * la hausse, des mois plus tard, sans que personne n'ait rien demandé.
+ * Les nouvelles saisies, elles, écrivent explicitement leur intensité.
+ */
+export const DEFAULT_EFFORT: ActivityEffort = 'moderate';
+
+/** Intensité de repli du calcul, pour les séances qui n'en portent pas. */
+const FALLBACK_EFFORT: ActivityEffort = 'easy';
+
+export type ResolvedWeight = { weightKg: number; assumed: boolean };
+
+/**
+ * Le poids à utiliser, et s'il est supposé. Ordre : le poids retenu avec la
+ * séance, puis celui du profil, puis la moyenne.
+ */
+export function resolveWeight(session: Pick<ActivitySession, 'weightKg' | 'weightAssumed'>, profileWeight?: number): ResolvedWeight {
+  if (!session.weightAssumed && validActivityWeight(session.weightKg)) return { weightKg: session.weightKg, assumed: false };
+  if (validActivityWeight(profileWeight)) return { weightKg: profileWeight, assumed: false };
+  if (validActivityWeight(session.weightKg)) return { weightKg: session.weightKg, assumed: true };
+  return { weightKg: ASSUMED_WEIGHT_KG, assumed: true };
+}
 export function normallyIncludedInSteps(kind: ActivityKind) { return kind === 'walk' || kind === 'run'; }
 export function sessionEnergyIssue(session: ActivitySession, fallbackWeight?: number): string | null {
   if (!Number.isFinite(session.minutes) || session.minutes < 1 || session.minutes > 600) return 'Indique la durée réellement effectuée, entre 1 et 600 minutes.';
   if (session.energySource === 'reported') return validActiveKcal(session.reportedActiveKcal) ? null : 'Recopie les calories actives de ta séance (0 à 10 000 kcal).';
   if (session.kind === 'other' || !Object.hasOwn(ACTIVITY_EFFORTS, session.kind)) return 'Choisis une activité proposée pour l’estimation, ou « Saisir mes kcal » si tu connais la dépense de cette séance.';
-  if (!validActivityWeight(session.weightKg ?? fallbackWeight)) return 'Indique ton poids en kg pour calculer les kcal de la séance.';
-  if (!Object.hasOwn(ACTIVITY_EFFORTS[session.kind], session.effort ?? 'easy')) return 'Choisis une intensité pour calculer la dépense.';
+  // Depuis la V2.8, l'absence de poids n'empêche plus l'estimation : elle est
+  // faite avec un poids moyen, annoncé comme tel. Un poids saisi hors bornes
+  // reste une erreur.
+  if (session.weightKg !== undefined && !validActivityWeight(session.weightKg)) return 'Indique un poids entre 35 et 300 kg pour cette séance.';
+  if (!Object.hasOwn(ACTIVITY_EFFORTS[session.kind], session.effort ?? FALLBACK_EFFORT)) return 'Choisis une intensité pour calculer la dépense.';
   return null;
 }
 export function sessionEnergy(session: ActivitySession, fallbackWeight?: number) {
   if (sessionEnergyIssue(session, fallbackWeight)) return null;
-  if (session.energySource === 'reported') return { source: 'reported' as const, activeKcal: Math.round(session.reportedActiveKcal!), grossKcal: null, weightKg: null, met: null, label: session.deviceName?.trim() || 'Kcal saisies', code: null, usesDefaults: false };
+  if (session.energySource === 'reported') return { source: 'reported' as const, activeKcal: Math.round(session.reportedActiveKcal!), grossKcal: null, weightKg: null, assumedWeight: false, met: null, label: session.deviceName?.trim() || 'Kcal saisies', code: null, usesDefaults: false };
   if (session.kind === 'other') return null;
-  const weight = (session.weightKg ?? fallbackWeight)!;
-  const reference = ACTIVITY_EFFORTS[session.kind][session.effort ?? 'easy'];
+  const { weightKg: weight, assumed } = resolveWeight(session, fallbackWeight);
+  const reference = ACTIVITY_EFFORTS[session.kind][session.effort ?? FALLBACK_EFFORT];
   const hours = session.minutes / 60;
-  return { source: 'estimated' as const, activeKcal: Math.round((reference.met - 1) * weight * hours), grossKcal: Math.round(reference.met * weight * hours), weightKg: weight, met: reference.met, label: reference.label, code: reference.code, usesDefaults: !session.effort || !session.weightKg };
+  return { source: 'estimated' as const, activeKcal: Math.round((reference.met - 1) * weight * hours), grossKcal: Math.round(reference.met * weight * hours), weightKg: weight, assumedWeight: assumed, met: reference.met, label: reference.label, code: reference.code, usesDefaults: !session.effort || assumed };
 }
 
 // Explicit app model, not a pedometer measurement: 3 MET, 100 steps/minute.

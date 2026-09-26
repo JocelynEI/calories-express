@@ -1,3 +1,87 @@
+# V2.8 — 25 septembre 2026
+
+« Une personne qui n'y connaît rien met 30 min de natation, et l'application
+lui donne ses dépenses. » C'était l'idée de départ ; le calcul la tenait déjà,
+le formulaire non.
+
+## Ce qui bloquait
+
+Le moteur d'estimation était bon : valeurs MET du Compendium 2024, poids,
+durée, et même une déduplication entre la marche saisie et les pas comptés.
+
+C'est la saisie qui demandait trop. Pour enregistrer trente minutes de piscine,
+il fallait passer par l'activité, le mode d'estimation, la durée, le poids,
+l'intensité — libellée « Crawl à allure moyenne » —, un interrupteur sur les
+pas, puis une section « précisions ». Et sans poids, aucun chiffre ne
+s'affichait : quelqu'un qui découvrait l'application restait devant un
+formulaire, sans réponse.
+
+## La saisie rapide
+
+Dans « Mon activité », sur l'accueil : six activités, quatre durées, la dépense
+qui s'affiche en direct, un bouton. Deux gestes.
+
+L'intensité retenue est l'allure habituelle, **écrite dans la séance** au
+moment de l'enregistrement. Le formulaire complet reste accessible d'un lien,
+avec tous ses réglages.
+
+## Estimer sans profil
+
+Sans poids connu, l'application n'attend plus : elle estime avec une moyenne de
+70 kg et le dit, à l'écran comme dans les félicitations. La séance retient
+qu'elle a été estimée ainsi ; le jour où un vrai poids existe, elle se
+recalcule toute seule.
+
+Une limite volontaire : **estimer n'est pas créditer**. Sans profil, la dépense
+s'affiche mais n'augmente pas le repère alimentaire du jour, qui n'existe pas
+encore.
+
+### Le piège évité
+
+En passant l'intensité par défaut à « habituelle », j'allais du même coup
+recalculer à la hausse toutes les séances déjà enregistrées sans intensité —
+des mois plus tard, sans que personne n'ait rien demandé. Un test existant l'a
+attrapé.
+
+Le moteur garde donc « facile » pour les séances anciennes ; seule la saisie
+choisit « habituelle » pour les nouvelles.
+
+## Les félicitations
+
+Trois règles tiennent tout le fichier `praise.ts` :
+
+1. **On félicite ce qui a été fait, jamais ce qui a été évité.** Rien ne
+   complimente le fait d'avoir peu mangé. Une journée sous le repère reçoit un
+   mot sur les repas notés, pas sur le total.
+2. **Quand il n'y a rien à dire, on ne dit rien.** Chaque fonction peut
+   renvoyer « rien ». L'absence de carte n'est jamais un reproche : il n'existe
+   aucune version négative de cette carte.
+3. **Le mérite revient à la personne.** « Tu as nagé 30 minutes », pas
+   « objectif atteint ».
+
+Concrètement : après une séance, un message qui varie selon la durée et le type
+d'activité — cinq minutes de mobilité sont saluées comme une habitude qui
+s'installe, pas minimisées. Sur l'accueil, une carte quand la journée est
+complète. Et aux paliers de régularité : 3, 7, 14 et 30 jours, jamais entre les
+deux — un compliment quotidien deviendrait une obligation quotidienne.
+
+Une seule carte s'affiche à la fois.
+
+## Vérifications
+
+- 147 vérifications automatiques, dont 19 nouvelles : estimation sans profil,
+  poids supposé remplacé par le vrai, poids aberrant toujours refusé, stabilité
+  des anciennes séances, variété et déterminisme des félicitations, silence
+  quand la journée n'est pas remplie, absence de tout vocabulaire de
+  restriction ou de reproche.
+- Garde-fous : textes bruts, API dépréciées, graisses — 48 fichiers.
+- Références TypeScript : 73 fichiers, aucune erreur.
+- Aperçu du bloc de saisie et des cartes rendu avant livraison. La police n'a
+  pas pu y être chargée : l'aperçu montre la mise en page, pas les glyphes
+  exacts.
+
+---
+
 # V2.7 — 22 septembre 2026
 
 Refonte à partir du moodboard et du design system « Calories Express ».

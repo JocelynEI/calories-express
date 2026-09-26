@@ -16,7 +16,9 @@ test('Toutes les activités proposées sauf Autre ont une estimation pour les tr
   assert.ok(normallyIncludedInSteps('run')); assert.ok(normallyIncludedInSteps('walk')); assert.equal(normallyIncludedInSteps('swim'), false);
 });
 test('Séance automatique : manque de durée, poids ou type donne une action précise, pas un zéro', () => {
-  assert.match(sessionEnergyIssue(session({ weightKg: undefined })), /poids/);
+  // V2.8 : l'absence de poids n'est plus un blocage, mais un poids aberrant si.
+  assert.equal(sessionEnergyIssue(session({ weightKg: undefined })), null);
+  assert.match(sessionEnergyIssue(session({ weightKg: 12 })), /poids/);
   assert.match(sessionEnergyIssue(session({ minutes: NaN })), /durée/);
   assert.match(sessionEnergyIssue(session({ kind: 'other' })), /Saisir mes kcal/);
   assert.equal(sessionEnergyIssue(session({ kind: 'walk' })), null);

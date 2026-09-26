@@ -23,7 +23,19 @@ export type SavedFood = { id: string; name: string; reference: FoodReference };
 export type WeightEntry = { day: string; kg: number };
 export type ActivityKind = 'walk' | 'run' | 'swim' | 'aqua' | 'cycle' | 'strength' | 'interval' | 'mobility' | 'other';
 export type ActivityEffort = 'easy' | 'moderate' | 'brisk';
-export type ActivitySession = { id: string; day: string; kind: ActivityKind; minutes: number; note: string; effort?: ActivityEffort; weightKg?: number; includeInGoal?: boolean; includedInSteps?: boolean; energySource?: 'estimated' | 'reported'; reportedActiveKcal?: number; deviceName?: string };
+export type ActivitySession = {
+  id: string; day: string; kind: ActivityKind; minutes: number; note: string;
+  effort?: ActivityEffort; weightKg?: number; includeInGoal?: boolean; includedInSteps?: boolean;
+  energySource?: 'estimated' | 'reported'; reportedActiveKcal?: number; deviceName?: string;
+  /**
+   * V2.8 — le poids enregistré est une moyenne, pas celui de la personne.
+   *
+   * Sans profil, l'application estime quand même la dépense, avec un poids
+   * moyen, et le dit. Ce drapeau permet de recalculer la séance le jour où le
+   * vrai poids existe, au lieu de garder une valeur inventée pour toujours.
+   */
+  weightAssumed?: boolean;
+};
 export type StepDetails = { weightKg?: number; baselineSteps: number };
 export type ReportedDayEnergy = { activeKcal: number; baselineActiveKcal: number; deviceName: string };
 export type ActivityJournal = { sessions: ActivitySession[]; stepsByDay: Record<string, number>; stepDetailsByDay?: Record<string, StepDetails>; reportedEnergyByDay?: Record<string, ReportedDayEnergy> };

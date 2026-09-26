@@ -1,6 +1,14 @@
-# Calories Express — V2.7
+# Calories Express — V2.8
 
 Version de test Expo Go · 20 septembre 2026.
+
+## Ce qui change en V2.8 — le sport en deux gestes
+
+- **« 30 minutes de natation », et le chiffre s'affiche.** Un bloc de saisie rapide dans « Mon activité » : une activité, une durée, la dépense estimée, et c'est enregistré.
+- **Plus besoin de profil pour obtenir une estimation.** Sans poids connu, l'application calcule avec une moyenne de 70 kg et l'annonce clairement. La séance se recalcule toute seule le jour où un vrai poids existe.
+- **Le formulaire complet n'a rien perdu** : intensité, poids de la séance, calories de la montre, notes. Tout est simplement replié derrière « Ajuster ».
+- **Jaws félicite.** Après une séance, selon la durée et l'activité. Sur l'accueil, quand la journée est complète. Et aux paliers de régularité — 3, 7, 14 et 30 jours.
+- **Jamais de reproche.** Quand les conditions ne sont pas réunies, rien ne s'affiche. Aucune carte ne signale un manque, une série interrompue ou un dépassement.
 
 ## Ce qui change en V2.7 — le design system
 
@@ -75,11 +83,11 @@ Un vrai compte demanderait un serveur, une base de données, une politique de co
 ## Lancer sur ton Mac
 
 1. Dans le Terminal qui fait tourner l’ancienne version, appuie sur **Ctrl+C**.
-2. Décompresse le ZIP dans **Téléchargements**. Le dossier extrait doit s’appeler `Calories-Express-V2.7-2026-09-22`.
+2. Décompresse le ZIP dans **Téléchargements**. Le dossier extrait doit s’appeler `Calories-Express-V2.8-2026-09-25`.
 3. Colle uniquement cette commande :
 
 ```bash
-bash ~/Downloads/Calories-Express-V2.7-2026-09-22/Lancer-Calories-Express.command
+bash ~/Downloads/Calories-Express-V2.8-2026-09-25/Lancer-Calories-Express.command
 ```
 
 Le lanceur se place dans son propre dossier et installe les dépendances.
@@ -94,7 +102,7 @@ Ne recopie pas l’invite `jocelynlebon@… %`.
 Si Expo demande une connexion : arrête avec Ctrl+C, puis :
 
 ```bash
-cd ~/Downloads/Calories-Express-V2.7-2026-09-22 && npx expo login
+cd ~/Downloads/Calories-Express-V2.8-2026-09-25 && npx expo login
 ```
 
 Connecte le même compte que dans Expo Go, précédemment **jojaws**, puis relance.
@@ -103,7 +111,7 @@ Le mot de passe est à saisir dans Terminal, jamais dans une conversation.
 Si le Wi-Fi ne laisse pas passer la connexion :
 
 ```bash
-bash ~/Downloads/Calories-Express-V2.7-2026-09-22/Lancer-Calories-Express.command --tunnel
+bash ~/Downloads/Calories-Express-V2.8-2026-09-25/Lancer-Calories-Express.command --tunnel
 ```
 
 L’outil de tunnel est installé dans le projet. En cas de « remote gone away »,

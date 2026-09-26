@@ -17,6 +17,9 @@ import { EnergyPlanCard } from '../components/EnergyEducation';
 import { PremiumDayVisual } from '../components/PremiumDayVisual';
 import { dailyEnergyPlan } from '../domain/activity-energy';
 import { frequentMeals, mealsForDay, repeatMeal, templateLabel, totalCalories, totalMacros } from '../domain/meals';
+import { dayPraise, mealStreak, streakPraise } from '../domain/praise';
+import { QuickActivity } from '../components/QuickActivity';
+import { PraiseCard } from '../components/PraiseCard';
 import { Story } from '../domain/stories';
 import { GOAL_LABELS, GoalPicker } from '../components/GoalPicker';
 import { Meal } from '../types';
@@ -45,6 +48,25 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
   const partialMacros = dayMeals.some(meal => meal.items.some(item => item.macrosComplete === false));
   const remaining = target - consumed;
   const isToday = selectedDay === today;
+
+  // V2.8 — les félicitations. Le domaine décide s'il y a quelque chose à
+  // saluer ; quand il renvoie `null`, rien ne s'affiche, et c'est voulu :
+  // l'absence de carte n'est jamais un reproche.
+  const dayWell = dayPraise({
+    meals: dayMeals,
+    consumed,
+    target,
+    protein: macros.protein,
+    proteinTarget: targets.protein,
+    hasProfile: profileCompleted && !issue,
+    activeMinutes: plan.activity.minutes,
+    day: selectedDay,
+    today,
+  });
+  const regularity = isToday ? streakPraise(mealStreak(meals, today)) : null;
+  // Une seule carte à la fois. Deux félicitations l'une sous l'autre, c'est
+  // une de trop : le palier de régularité, plus rare, passe devant.
+  const praise = regularity ?? dayWell;
 
   // L'état de la journée reste descriptif : au-dessus du repère n'est pas une
   // faute, et l'application ne propose jamais de compenser.
@@ -216,9 +238,11 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           </MotionPressable>
         )}
       </View>
+        {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
       </Section>
 
       <Section icon="steps" tone={colors.gold} pale={colors.goldPale} art="banane" title="Mon activité">
+        <QuickActivity day={selectedDay} onProfile={onProfile} onDetails={onActivity} />
       <MotionPressable
         onPress={onActivity}
         accessibilityRole="button"
