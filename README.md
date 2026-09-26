@@ -1,6 +1,14 @@
-# Calories Express — V2.8
+# Calories Express — V2.9
 
-Version de test Expo Go · 20 septembre 2026.
+Version de test Expo Go · 26 septembre 2026.
+
+## Ce qui change en V2.9 — l'estimation se voit et se lit
+
+- **Une question en tête de bloc : « Combien ai-je dépensé ? »** La réponse se remplit comme une phrase — « J'ai fait *de la natation* pendant *30 min* » — dont les deux mots soulignés s'ouvrent au toucher.
+- **Le chiffre en grand**, écrit en toutes lettres : « kilocalories dépensées ».
+- **« Mon activité » passe en deuxième sur l'accueil**, juste sous le baromètre et avant les repas : plus besoin de descendre pour trouver l'estimation.
+- **Huit activités et sept durées** (de 10 à 90 min), affichées seulement quand on ouvre le mot correspondant.
+- Le formulaire complet, le moteur de calcul et les félicitations de Jaws sont inchangés.
 
 ## Ce qui change en V2.8 — le sport en deux gestes
 

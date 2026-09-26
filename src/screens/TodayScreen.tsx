@@ -191,6 +191,41 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
       </Section>
       )}
 
+      {/* V2.9 — l'activité passe en deuxième.
+          Elle était en bas de page : il fallait dépasser la jauge et les
+          repas pour découvrir qu'on pouvait estimer une séance. On lit
+          désormais son repère, puis immédiatement « Combien ai-je
+          dépensé ? ». Les repas suivent : on les saisit plus tard dans la
+          journée, une fois qu'on a mangé. */}
+      <Section icon="steps" tone={colors.gold} pale={colors.goldPale} art="banane" title="Mon activité">
+        <QuickActivity day={selectedDay} onProfile={onProfile} onDetails={onActivity} />
+      <MotionPressable
+        onPress={onActivity}
+        accessibilityRole="button"
+        accessibilityLabel="Ouvrir mon activité, mes pas et mes séances"
+        style={styles.activity}
+      >
+        <View style={styles.activityIcon}><AppIcon name="steps" size={21} color={colors.aqua} strokeWidth={1.9} /></View>
+        <View style={styles.activityBody}>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityTitle}>
+            {plan.activity.steps === null ? 'Pas à renseigner' : `${plan.activity.steps.toLocaleString('fr-FR')} pas`}
+            {plan.activity.sessions.length > 0 ? ` · ${plan.activity.sessions.length} séance${plan.activity.sessions.length > 1 ? 's' : ''}` : ''}
+          </Text>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityMeta}>
+            {plan.activity.report
+              ? `Total de ${plan.activity.report.deviceName} · ${plan.activity.activeKcal.toLocaleString('fr-FR')} kcal actives`
+              : plan.activity.hasEnergy
+                ? `≈ ${plan.activity.activeKcal.toLocaleString('fr-FR')} kcal actives${plan.dynamic && plan.creditedKcal > 0 ? ` · +${plan.creditedKcal.toLocaleString('fr-FR')} sur ton repère` : ''}`
+                : 'Ajouter une séance ou les kcal de ma montre'}
+          </Text>
+          {plan.activity.partial && (
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityWarn}>Bilan partiel : des kcal restent à compléter.</Text>
+          )}
+        </View>
+        <AppIcon name="chevron" size={20} color={colors.muted} strokeWidth={2.2} />
+      </MotionPressable>
+      </Section>
+
       <Section icon="journal" tone={colors.aqua} pale={colors.aquaPale} art="assiette" title="Mes repas" meta={`${dayMeals.length} ${dayMeals.length > 1 ? 'entrées' : 'entrée'} · ${consumed.toLocaleString('fr-FR')} kcal`}>
       <MotionPressable onPress={onAdd} accessibilityRole="button" style={styles.primary}>
         <AppIcon name="plus" size={21} color={colors.white} strokeWidth={2.6} />
@@ -239,35 +274,6 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
         )}
       </View>
         {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
-      </Section>
-
-      <Section icon="steps" tone={colors.gold} pale={colors.goldPale} art="banane" title="Mon activité">
-        <QuickActivity day={selectedDay} onProfile={onProfile} onDetails={onActivity} />
-      <MotionPressable
-        onPress={onActivity}
-        accessibilityRole="button"
-        accessibilityLabel="Ouvrir mon activité, mes pas et mes séances"
-        style={styles.activity}
-      >
-        <View style={styles.activityIcon}><AppIcon name="steps" size={21} color={colors.aqua} strokeWidth={1.9} /></View>
-        <View style={styles.activityBody}>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityTitle}>
-            {plan.activity.steps === null ? 'Pas à renseigner' : `${plan.activity.steps.toLocaleString('fr-FR')} pas`}
-            {plan.activity.sessions.length > 0 ? ` · ${plan.activity.sessions.length} séance${plan.activity.sessions.length > 1 ? 's' : ''}` : ''}
-          </Text>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityMeta}>
-            {plan.activity.report
-              ? `Total de ${plan.activity.report.deviceName} · ${plan.activity.activeKcal.toLocaleString('fr-FR')} kcal actives`
-              : plan.activity.hasEnergy
-                ? `≈ ${plan.activity.activeKcal.toLocaleString('fr-FR')} kcal actives${plan.dynamic && plan.creditedKcal > 0 ? ` · +${plan.creditedKcal.toLocaleString('fr-FR')} sur ton repère` : ''}`
-                : 'Ajouter une séance ou les kcal de ma montre'}
-          </Text>
-          {plan.activity.partial && (
-            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityWarn}>Bilan partiel : des kcal restent à compléter.</Text>
-          )}
-        </View>
-        <AppIcon name="chevron" size={20} color={colors.muted} strokeWidth={2.2} />
-      </MotionPressable>
       </Section>
 
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.legal}>

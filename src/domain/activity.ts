@@ -2,6 +2,26 @@ import { ActivityJournal, ActivityKind, ActivitySession, StepDetails, ReportedDa
 import { dayKey } from './date';
 
 export const ACTIVITY_LABELS: Record<ActivityKind, string> = { walk: 'Marche', run: 'Course à pied', swim: 'Natation', aqua: 'Aquagym / Aquafitness', cycle: 'Vélo', strength: 'Renforcement', interval: 'Circuit / Fractionné', mobility: 'Mobilité', other: 'Autre activité' };
+/**
+ * V2.9 — les mêmes activités, mais écrites pour tenir dans une phrase.
+ *
+ * L'accueil demande « Combien ai-je dépensé ? » et la réponse se lit
+ * « J'ai fait **de la natation** pendant **30 min** ». Coller l'étiquette du
+ * formulaire donnerait « J'ai fait Natation », qui n'est pas du français : un
+ * texte qui parle mal se fait relire deux fois, et c'est exactement ce qu'on
+ * cherchait à éviter. D'où cette deuxième liste, avec l'article.
+ */
+export const ACTIVITY_PHRASES: Record<ActivityKind, string> = {
+  walk: 'de la marche',
+  run: 'de la course à pied',
+  swim: 'de la natation',
+  aqua: 'de l’aquagym',
+  cycle: 'du vélo',
+  strength: 'du renforcement',
+  interval: 'du fractionné',
+  mobility: 'de la mobilité',
+  other: 'une activité',
+};
 export const EMPTY_ACTIVITY: ActivityJournal = { sessions: [], stepsByDay: {} };
 export function validDay(day: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(day) && dayKey(new Date(`${day}T12:00:00`)) === day;

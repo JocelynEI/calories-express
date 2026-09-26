@@ -1,3 +1,54 @@
+# V2.9 — 26 septembre 2026
+
+« La fonctionnalité qui estime n'est pas assez mise en avant. Il faut que ce
+soit plus simple à comprendre. »
+
+## Ce qui n'allait pas
+
+La V2.8 avait réduit la saisie à deux rangées de boutons. Mais deux rangées de
+boutons ne disent pas ce qu'elles font : on voyait des choix, pas un calcul. Et
+le bloc se trouvait en troisième position, après le baromètre et après les
+repas — il fallait descendre pour découvrir une fonction qu'on ne savait pas
+chercher.
+
+## Une question, une phrase
+
+Le bloc s'ouvre maintenant sur une question — **« Combien ai-je dépensé ? »** —
+et la réponse se lit comme une phrase à trous :
+
+> J'ai fait **de la natation** pendant **30 min**
+
+Les deux mots soulignés s'ouvrent au toucher. Rien à lire avant de comprendre :
+la phrase se termine toute seule dans la tête de celui qui la lit, et le
+chiffre se met à jour sous ses yeux. La dépense s'affiche en grand, écrite en
+toutes lettres — « kilocalories dépensées », pas « kcal ».
+
+Chaque activité a sa tournure avec l'article (« du vélo », « de la marche »,
+« de l'aquagym ») : l'étiquette du formulaire aurait donné « J'ai fait
+Natation », qui n'est pas du français. Un texte qui parle mal se fait relire
+deux fois, et c'est exactement ce qu'on cherchait à éviter.
+
+## L'accueil, dans l'ordre
+
+« Mon activité » passe en deuxième position, juste sous le baromètre et avant
+les repas. On ouvre l'application, on voit son repère du jour, puis
+immédiatement « Combien ai-je dépensé ? ». Les repas suivent : on les saisit
+plus tard dans la journée, une fois qu'on a mangé.
+
+## Plus de choix, sans plus de complexité
+
+Huit activités au lieu de six (fractionné et aquagym rejoignent la liste) et
+sept durées au lieu de quatre, de 10 à 90 minutes. Elles ne s'affichent que
+lorsqu'on ouvre le mot correspondant : la carte au repos ne montre qu'une
+phrase, un chiffre et un bouton.
+
+## Ce qui n'a pas changé
+
+Le moteur de calcul, à la virgule près. Le formulaire complet — intensité,
+poids de la séance, calories de la montre, notes — reste accessible d'un lien
+et n'a rien perdu. Les félicitations de Jaws non plus, et toujours aucune
+version négative : quand il n'y a rien à saluer, rien ne s'affiche.
+
 # V2.8 — 25 septembre 2026
 
 « Une personne qui n'y connaît rien met 30 min de natation, et l'application
