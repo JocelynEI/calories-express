@@ -1,3 +1,50 @@
+# V3.0 — 26 septembre 2026
+
+« Il faudrait *Ajouter un repas* et *Ajouter une activité* sans rien
+préremplir la première fois, et que remplir des infos se passe après. »
+
+## Pourquoi c'était juste
+
+La V2.9 affichait la phrase déjà remplie — « J'ai fait de la natation pendant
+30 min » — et son résultat, avant que personne n'ait rien demandé. C'était
+lisible, mais l'écran affirmait une séance qui n'avait pas eu lieu, et un doigt
+sur « Enregistrer » suffisait à l'inscrire pour de bon. Une valeur préremplie
+se prend pour une réponse.
+
+## Deux temps, comme pour un repas
+
+Au repos, « Mon activité » ne montre qu'un bouton : **« Ajouter une
+activité »**, de la même forme et du même verbe que « Ajouter un repas », avec
+une ligne qui annonce ce qu'il fait — ton sport et sa durée, l'application
+estime les calories dépensées.
+
+Une fois touché, la phrase s'ouvre **sur place**, avec ses blancs vides :
+
+> J'ai fait *quelle activité ?* pendant *combien de temps ?*
+
+Le premier blanc s'ouvre tout seul, le second s'enchaîne dès que le premier est
+rempli. Le chiffre n'apparaît qu'une fois les deux choisis, et le bouton
+« Enregistrer » avec lui : tant qu'il manque quelque chose, l'application ne
+prétend rien. « Annuler » referme tout.
+
+## Rien n'est mémorisé
+
+Chaque séance repart de zéro, y compris juste après en avoir enregistré une.
+On ne peut pas inscrire par inadvertance le sport de la veille.
+
+## Côté repas aussi
+
+Dans « Saisir mes valeurs », la quantité consommée ne vaut plus « 100 » par
+défaut. Quelqu'un qui mangeait 250 g et ne touchait pas au champ enregistrait
+100 g sans le savoir. Le champ part vide, avec un exemple en gris, et
+l'application refuse toujours d'ajouter un aliment sans quantité.
+
+## Ce qui n'a pas changé
+
+Le moteur de calcul, le formulaire complet, les félicitations de Jaws, et la
+place du bloc sur l'accueil — l'activité reste en deuxième, juste sous le
+baromètre.
+
 # V2.9 — 26 septembre 2026
 
 « La fonctionnalité qui estime n'est pas assez mise en avant. Il faut que ce

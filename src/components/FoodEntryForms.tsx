@@ -15,7 +15,11 @@ export function ManualFoodForm({ onAdd, initialName = '' }: { onAdd: Add; initia
   const [name, setName] = useState(initialName);
   const [unit, setUnit] = useState<FoodReference['unit']>('g');
   const [calories, setCalories] = useState('');
-  const [quantity, setQuantity] = useState('100');
+  // V3.0 — la quantité consommée part vide. Elle valait « 100 » par défaut :
+  // quelqu'un qui mangeait 250 g et ne touchait pas au champ enregistrait
+  // 100 g sans le savoir. Un chiffre prérempli se prend pour une réponse ;
+  // un champ vide se remarque, et le formulaire refuse de partir sans lui.
+  const [quantity, setQuantity] = useState('');
   const [remember, setRemember] = useState(true);
   const [showMacros, setShowMacros] = useState(false);
   const [protein, setProtein] = useState(''), [carbs, setCarbs] = useState(''), [fat, setFat] = useState('');
@@ -34,16 +38,16 @@ export function ManualFoodForm({ onAdd, initialName = '' }: { onAdd: Add; initia
     const issue = portionIssue(qty, food.reference); if (issue) { setError(issue); return; }
     onAdd(scaleReference(food, qty));
     if (remember) rememberFood(food);
-    setName(''); setCalories(''); setProtein(''); setCarbs(''); setFat('');
+    setName(''); setCalories(''); setQuantity(''); setProtein(''); setCarbs(''); setFat('');
   };
   return <View style={form.card}>
     <Text style={form.title}>Ton aliment, tes valeurs</Text>
     <Text style={form.copy}>Recopie l’étiquette ou indique directement les calories de ta portion.</Text>
     <Field label="Nom de l’aliment ou du plat" value={name} onChange={setName} placeholder="Ex. : pâtes cuites, recette maison…" />
     <Text style={form.label}>La valeur correspond à</Text>
-    <View style={form.row}>{(['g', 'ml', 'portion'] as const).map(u => <Choice key={u} label={u === 'portion' ? 'Ma portion' : `100 ${u}`} selected={unit === u} onPress={() => { setUnit(u); setQuantity(u === 'portion' ? '1' : '100'); setError(''); }} />)}</View>
+    <View style={form.row}>{(['g', 'ml', 'portion'] as const).map(u => <Choice key={u} label={u === 'portion' ? 'Ma portion' : `100 ${u}`} selected={unit === u} onPress={() => { setUnit(u); setQuantity(''); setError(''); }} />)}</View>
     <Field label={`Calories pour ${unit === 'portion' ? 'ma portion' : `100 ${unit}`} (kcal)`} value={calories} onChange={setCalories} numeric placeholder="Ex. : 150" />
-    <Field label={unit === 'portion' ? 'Nombre de portions mangées' : `Quantité consommée (${unit})`} value={quantity} onChange={setQuantity} numeric />
+    <Field label={unit === 'portion' ? 'Nombre de portions mangées' : `Quantité consommée (${unit})`} value={quantity} onChange={setQuantity} numeric placeholder={unit === 'portion' ? 'Ex. : 1' : `Ex. : 250 ${unit}`} />
     <Text style={form.muted}>Garde la même référence : produit cru ou cuit, tel que vendu ou préparé.</Text>
     <MotionPressable accessibilityRole="button" onPress={() => setShowMacros(!showMacros)} style={{ minHeight: 44, justifyContent: 'center' }}><Text style={styles.link}>{showMacros ? 'Masquer les macronutriments' : 'Ajouter les macronutriments (facultatif)'}</Text></MotionPressable>
     {showMacros && <><Text style={form.muted}>En grammes, pour {amount} {unit}. Laisse vide si tu ne sais pas.</Text><Field label="Protéines" value={protein} onChange={setProtein} numeric /><Field label="Glucides" value={carbs} onChange={setCarbs} numeric /><Field label="Lipides" value={fat} onChange={setFat} numeric /></>}

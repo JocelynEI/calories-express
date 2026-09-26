@@ -1,6 +1,14 @@
-# Calories Express — V2.9
+# Calories Express — V3.0
 
 Version de test Expo Go · 26 septembre 2026.
+
+## Ce qui change en V3.0 — on remplit soi-même, rien n'est prérempli
+
+- **Un bouton, puis on remplit.** « Mon activité » ne montre au repos qu'un bouton « Ajouter une activité », du même verbe et de la même forme que « Ajouter un repas ». La phrase à compléter s'ouvre après, sur place.
+- **Les deux blancs partent vides** — « J'ai fait *quelle activité ?* pendant *combien de temps ?* » — et le premier s'ouvre tout seul.
+- **Aucun chiffre tant qu'il manque une réponse.** Le résultat et le bouton « Enregistrer » n'apparaissent qu'une fois la phrase complète.
+- **Rien n'est mémorisé d'une séance à l'autre** : impossible d'enregistrer par mégarde le sport de la veille.
+- **Côté repas**, la quantité consommée ne vaut plus 100 g par défaut : le champ part vide, avec un exemple en gris.
 
 ## Ce qui change en V2.9 — l'estimation se voit et se lit
 

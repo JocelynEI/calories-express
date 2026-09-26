@@ -11,12 +11,50 @@ const quick = read('src/components/QuickActivity.tsx');
 const home = read('src/screens/TodayScreen.tsx');
 
 /**
- * V2.9 — « la fonctionnalité qui estime n'est pas assez mise en avant ».
+ * V2.9 puis V3.0 — l'estimation, mise en avant sans rien inventer.
  *
- * Deux choses à tenir, et elles se vérifient toutes les deux ici :
- * la phrase à compléter (on comprend sans mode d'emploi), et sa place sur
- * l'accueil (on la voit sans faire défiler).
+ * Trois choses à tenir, vérifiées ici : la phrase à compléter (on comprend
+ * sans mode d'emploi), sa place sur l'accueil (on la voit sans faire
+ * défiler), et le fait que **rien n'est prérempli** (on n'enregistre jamais
+ * une séance qu'on n'a pas faite).
  */
+
+/* ------------------------------------------------- rien n'est prérempli -- */
+
+test('Au repos, le bloc ne montre qu’un bouton, comme pour un repas', () => {
+  assert.ok(quick.includes('Ajouter une activité'), 'le bouton doit porter le même verbe que « Ajouter un repas »');
+  assert.match(quick, /if \(!editing\)/, 'la phrase ne doit apparaître qu’après le bouton');
+});
+
+test('Les deux blancs partent vides, et le restent d’une séance à l’autre', () => {
+  assert.match(quick, /useState<ActivityKind \| null>\(null\)/, 'aucune activité ne doit être choisie d’avance');
+  assert.match(quick, /useState<number \| null>\(null\)/, 'aucune durée ne doit être choisie d’avance');
+  assert.ok(quick.includes('quelle activité ?'), 'le blanc de l’activité doit se nommer');
+  assert.ok(quick.includes('combien de temps ?'), 'le blanc de la durée doit se nommer');
+  // `reset()` est appelé après l'enregistrement : la séance suivante repart
+  // de zéro, rien n'est mémorisé.
+  assert.match(quick, /const reset = \(\) => \{[\s\S]*?setKind\(null\);[\s\S]*?setMinutes\(null\);/, 'tout doit se vider');
+  assert.match(quick, /recordActivity\(record\);[\s\S]*?reset\(\);/, 'la séance enregistrée doit vider la phrase');
+});
+
+test('Aucun chiffre ne s’affiche tant qu’un blanc est vide', () => {
+  // Le brouillon n'existe que si les deux réponses sont là : pas d'estimation
+  // sur une phrase à moitié écrite, donc pas de 0 kcal trompeur.
+  assert.match(quick, /const draft: ActivitySession \| null = kind !== null && minutes !== null/, 'le brouillon exige les deux réponses');
+  assert.match(quick, /const estimate = draft \? sessionEnergy/, 'l’estimation suit le brouillon');
+  assert.match(quick, /\{estimate \? \([\s\S]*?styles\.result/, 'le chiffre est conditionné à l’estimation');
+  assert.match(quick, /\{estimate \? \([\s\S]*?Enregistrer cette séance/, 'on ne peut pas enregistrer une phrase incomplète');
+});
+
+test('Côté repas non plus, aucune quantité n’est préremplie', () => {
+  const foods = read('src/components/FoodEntryForms.tsx');
+  assert.match(foods, /const \[quantity, setQuantity\] = useState\(''\)/, 'la quantité consommée doit partir vide');
+  assert.doesNotMatch(foods, /setQuantity\(u === 'portion' \? '1' : '100'\)/, 'changer d’unité ne doit pas réécrire un chiffre');
+  // Le formulaire refuse déjà de partir sans quantité : c'est ce qui rend le
+  // champ vide sans danger.
+  assert.ok(foods.includes('Renseigne le nom, les kilocalories et la quantité consommée.'), 'le champ vide doit être refusé à l’ajout');
+  assert.ok(foods.includes('Ex. : 250'), 'un exemple doit rester visible en gris, sans être une valeur saisie');
+});
 
 /* --------------------------------------------- la phrase à compléter --- */
 
@@ -29,6 +67,10 @@ test('Le bloc pose une question et se lit comme une phrase', () => {
   // lit mais ne se remplit pas.
   assert.match(quick, /setOpen\(open === 'kind' \? null : 'kind'\)/, 'l’activité doit s’ouvrir au toucher');
   assert.match(quick, /setOpen\(open === 'minutes' \? null : 'minutes'\)/, 'la durée doit s’ouvrir au toucher');
+  // Et l'un enchaîne sur l'autre : on ne laisse personne devant une phrase à
+  // moitié remplie sans savoir quoi toucher.
+  assert.match(quick, /setOpen\('kind'\)/, 'le premier blanc s’ouvre dès le bouton');
+  assert.match(quick, /setOpen\(minutes === null \? 'minutes' : null\)/, 'choisir l’activité enchaîne sur la durée');
 });
 
 test('La phrase reste du français, quelle que soit l’activité choisie', () => {
@@ -43,8 +85,10 @@ test('La phrase reste du français, quelle que soit l’activité choisie', () =
 
 test('Le résultat s’annonce aux lecteurs d’écran quand il change', () => {
   assert.ok(quick.includes('accessibilityLiveRegion="polite"'), 'le chiffre doit être relu quand il bouge');
-  assert.match(quick, /accessibilityLabel=\{`Activité : \$\{ACTIVITY_LABELS\[kind\]\}/, 'le mot « activité » doit se présenter');
-  assert.match(quick, /accessibilityLabel=\{`Durée : \$\{minutes\} minutes/, 'le mot « durée » doit se présenter');
+  assert.ok(quick.includes('Choisir l’activité'), 'un blanc vide doit s’annoncer comme un choix à faire');
+  assert.ok(quick.includes('Choisir la durée'), 'idem pour la durée');
+  assert.match(quick, /`Activité : \$\{ACTIVITY_LABELS\[kind\]\}/, 'une fois rempli, le mot « activité » doit se présenter');
+  assert.match(quick, /`Durée : \$\{minutes\} minutes/, 'une fois remplie, le mot « durée » doit se présenter');
 });
 
 /* ------------------------------------------------ la place sur l’accueil */
