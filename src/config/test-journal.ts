@@ -15,4 +15,4 @@
  * ton tableur. Pour un test entre proches c'est sans conséquence, et le jour
  * où tu arrêtes, tu supprimes le déploiement côté Google.
  */
-export const TEST_JOURNAL_URL = '';
+export const TEST_JOURNAL_URL = 'https://script.google.com/macros/s/AKfycbxejxED5ofKCLG7fEsEw52-pHwLrSDCjTkHAsowzUj9I9zXVgK4JL_q0bZMimMPlwSH0w/exec';
