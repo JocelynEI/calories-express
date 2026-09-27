@@ -1,6 +1,14 @@
-# Calories Express — V3.2
+# Calories Express — V3.3
 
 Version de test Expo Go · 27 septembre 2026.
+
+## Ce qui change en V3.3 — les quantités en mesures de cuisine
+
+- **Un bol, un verre, une tranche, un pot** au lieu d'un champ en grammes. Un compteur ajuste par demi-mesure.
+- **Chaque mesure affiche son équivalence** : « 1 bol · 250 ml ». Ce sont des moyennes, et ça se voit.
+- **Les boissons se comptent en millilitres**, plus en grammes.
+- **Le champ libre reste là**, derrière un lien, pour qui pèse ses aliments.
+- Le classement des 3 339 aliments est vérifié par les tests sur le catalogue entier.
 
 ## Ce qui change en V3.2 — un accueil qui tient sur un écran
 

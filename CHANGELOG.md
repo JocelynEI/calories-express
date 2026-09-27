@@ -1,3 +1,49 @@
+# V3.3 — 27 septembre 2026
+
+« 100 g de lait, c'est combien pour un bol ? » Bonne question : l'application
+n'y répondait pas, et c'est elle qui aurait dû.
+
+## Les mesures de la cuisine
+
+L'étape « quantité » présentait un champ vide en grammes. Pour un liquide,
+cela revenait à demander de convertir un bol de tête — en pratique on laissait
+100, et le chiffre était faux.
+
+Elle propose maintenant les mesures qui correspondent à l'aliment : verre,
+bol, tasse, mug, canette et cuillère pour une boisson ; tranche, quart de
+baguette ou petit pain pour du pain ; pot pour un yaourt ; portion, tranche ou
+dé pour un fromage ; assiette ou cuillère pour un féculent cuit. Un compteur
+permet d'ajuster par demi-mesure — un demi-bol, deux tranches — et le résultat
+s'affiche immédiatement.
+
+Chaque mesure porte son équivalence, toujours visible : « 1 bol · 250 ml ».
+Ce sont des moyennes, pas des vérités ; personne ne se fait avoir sans le
+voir. Le champ libre reste accessible d'un lien, pour qui pèse ses aliments.
+
+## Les liquides se comptent en millilitres
+
+Une boisson s'affiche désormais en ml et non en grammes. Les valeurs Ciqual
+sont données pour 100 g ; pour un liquide, l'application présente les mêmes
+chiffres pour 100 ml. L'écart réel est de 3 % pour le lait, invisible à côté
+de l'imprécision d'un bol rempli à vue. Les huiles (densité 0,92) gardent les
+grammes : elles se mesurent à la cuillère de toute façon.
+
+## Comment l'application devine
+
+Les données Ciqual ne disent pas qu'un lait est liquide : elles donnent un nom
+et des valeurs pour 100 g. La famille est donc déduite du nom, avec deux
+règles qui évitent les pièges classiques :
+
+- **des mots entiers**, jamais des morceaux — « museau » ne contient pas
+  « eau », sans quoi la salade de museau se boirait ;
+- **seulement la tête du nom**, c'est-à-dire l'aliment et non sa cuisson :
+  « Chou-fleur, bouilli/cuit à l'eau » est un chou-fleur, « Coq au vin » est
+  un coq, « Sardine, à l'huile de tournesol » est une sardine.
+
+Le classement des 3 339 aliments est livré dans un tableur à relire
+(`Classement-aliments-mesures.xlsx`), et les tests le vérifient sur le
+catalogue entier, pas sur trois exemples choisis.
+
 # V3.2 — 27 septembre 2026
 
 L'accueil disait trois fois la même chose. Il la dit désormais une seule fois,

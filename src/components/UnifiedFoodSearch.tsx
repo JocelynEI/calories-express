@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { CIQUAL_COUNT, CIQUAL_SOURCE, FoodSegment, initialQuantity, parseFoodSegment, searchFoods, splitMealText } from '../domain/food-search';
 import { portionIssue, ProductCandidate, productToFood, readNumber, scaleReference } from '../domain/foods';
+import { countLabel, measuresFor, quantityFor, referenceForDisplay, stepCount } from '../domain/measures';
 import { searchProducts } from '../services/products';
 import { FoodThumb } from './FoodThumb';
 import { track } from '../services/test-journal';
@@ -77,21 +78,96 @@ export function UnifiedFoodSearch({ onAdd, onDraftChange }: { onAdd: (item: Reco
   </View>;
 }
 
+/**
+ * V3.3 — « combien en as-tu pris ? », en mesures de cuisine.
+ *
+ * Cette étape demandait une quantité en grammes, champ vide. Pour un lait,
+ * cela revenait à demander de convertir un bol en grammes de tête : en
+ * pratique on laissait 100, et le chiffre était faux.
+ *
+ * Les mesures viennent du domaine (`measures.ts`), qui déduit la famille de
+ * l'aliment de son nom. Le champ libre n'a pas disparu — il est derrière un
+ * lien, pour qui pèse vraiment ses aliments.
+ */
 function Quantity({ selection, segment, onAdd, onCancel, onForget }: { selection: SavedFood | ProductCandidate; segment: FoodSegment; onAdd: (item: RecognizedFood) => void; onCancel: () => void; onForget?: () => void }) {
   const { rememberFood } = useApp();
   const product = 'kcal100' in selection ? selection : null;
   const [unit, setUnit] = useState<'g' | 'ml' | null>(null), [remember, setRemember] = useState(true);
+  const base = product ? (unit ? productToFood(product, unit) : null) : selection as SavedFood;
+  // Un liquide se présente en millilitres, même si Ciqual le mesure en grammes.
+  const food = base ? { ...base, reference: product ? base.reference : referenceForDisplay(base) } : null;
+
   const initial = product ? null : initialQuantity(selection as SavedFood, segment);
-  const [quantity, setQuantity] = useState(initial?.quantity ?? ''), [note, setNote] = useState(initial?.note ?? ''), [error, setError] = useState('');
+  // Une quantité écrite dans la description l'emporte : la personne a déjà
+  // répondu, on ne va pas lui reposer la question.
+  const saisie = Boolean(initial?.quantity && segment.quantity !== null);
+  const [mode, setMode] = useState<'mesures' | 'pesee'>(saisie ? 'pesee' : 'mesures');
+  const [quantity, setQuantity] = useState(saisie ? initial!.quantity : '');
+  const [error, setError] = useState('');
   const [forgetting, setForgetting] = useState(false);
-  const food = product ? unit ? productToFood(product, unit) : null : selection as SavedFood;
-  const qty = readNumber(quantity), issue = food && qty !== null ? portionIssue(qty, food.reference) : null;
+
+  const mesures = useMemo(() => measuresFor(selection.name), [selection.name]);
+  const [measureId, setMeasureId] = useState(mesures[0]?.id ?? '');
+  const [count, setCount] = useState(1);
+  const mesure = mesures.find(item => item.id === measureId) ?? mesures[0];
+
+  const uniteAffichee = food ? food.reference.unit : 'g';
+  const qty = mode === 'mesures' ? (mesure ? quantityFor(mesure, count) : null) : readNumber(quantity);
+  const issue = food && qty !== null ? portionIssue(qty, food.reference) : null;
   const preview = food && qty !== null && !issue ? scaleReference(food, qty) : null;
+
   return <View style={form.card}>
     <Action label="Retour à la recherche" secondary onPress={onCancel} />
-    <Text style={styles.eyebrow}>2 · VÉRIFIE LA QUANTITÉ</Text><Text style={form.title}>{selection.name}</Text>
-    {product && <><Text style={form.copy}>{product.brand} {product.package}</Text><Text style={form.label}>Sur l’étiquette : pour 100 g ou 100 ml ?</Text><Text style={form.muted}>Le service fournit une référence normalisée : vérifie son unité. Le poids et le volume ne sont pas convertis.</Text><View style={form.row}>{(['g', 'ml'] as const).map(u => <Choice key={u} label={`Pour 100 ${u}`} selected={unit === u} onPress={() => { setUnit(u); const next = initialQuantity(productToFood(product, u), segment); setQuantity(next.quantity); setNote(next.note); }} />)}</View></>}
-    {food && <><Text style={form.copy}>{Math.round(food.reference.calories.estimated)} kcal pour {food.reference.amount} {food.reference.unit}</Text><Text style={form.muted}>{food.reference.description}</Text><Field label={`Quantité consommée (${food.reference.portionName ?? food.reference.unit})`} numeric value={quantity} onChange={setQuantity} /><Text style={form.muted}>{note}</Text>{preview && <View style={styles.estimate}><Text style={styles.total}>≈ {preview.calories.estimated.toLocaleString('fr-FR')} kcal</Text><Text style={form.muted}>pour cette quantité · estimation à confirmer</Text></View>}{!food.reference.macrosComplete && <Text style={form.muted}>Les macronutriments manquants seront signalés dans le bilan.</Text>}</>}
+    <Text style={styles.eyebrow}>2 · COMBIEN EN AS-TU PRIS ?</Text>
+    <Text style={form.title}>{selection.name}</Text>
+    {product && <><Text style={form.copy}>{product.brand} {product.package}</Text><Text style={form.label}>Sur l’étiquette : pour 100 g ou 100 ml ?</Text><Text style={form.muted}>Le service fournit une référence normalisée : vérifie son unité. Le poids et le volume ne sont pas convertis.</Text><View style={form.row}>{(['g', 'ml'] as const).map(u => <Choice key={u} label={`Pour 100 ${u}`} selected={unit === u} onPress={() => { setUnit(u); setMode('mesures'); setCount(1); }} />)}</View></>}
+
+    {food && <>
+      <Text style={form.copy}>{Math.round(food.reference.calories.estimated)} kcal pour {food.reference.amount} {uniteAffichee}</Text>
+      {food.reference.description ? <Text style={form.muted}>{food.reference.description}</Text> : null}
+
+      {mode === 'mesures' && mesure ? <>
+        <View style={form.row}>
+          {mesures.map(item => (
+            <MotionPressable
+              key={item.id}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: item.id === mesure.id }}
+              accessibilityLabel={`${item.label}, ${item.amount} ${uniteAffichee}`}
+              onPress={() => { setMeasureId(item.id); setCount(1); setError(''); }}
+              style={[styles.mesure, item.id === mesure.id && styles.mesureOn]}
+            >
+              <Text style={[styles.mesureNom, item.id === mesure.id && styles.mesureNomOn]}>{item.label}</Text>
+              <Text style={styles.mesureEquiv}>{item.amount.toLocaleString('fr-FR')} {uniteAffichee}</Text>
+            </MotionPressable>
+          ))}
+        </View>
+        <View style={styles.compteur}>
+          <MotionPressable accessibilityRole="button" accessibilityLabel="Enlever une demi-mesure" onPress={() => setCount(value => stepCount(value, -1))} style={styles.compteurBouton}>
+            <Text style={styles.compteurSigne}>−</Text>
+          </MotionPressable>
+          <View style={styles.compteurCentre} accessibilityLiveRegion="polite">
+            <Text style={styles.compteurTexte}>{countLabel(mesure, count)}</Text>
+            <Text style={styles.compteurEquiv}>{qty?.toLocaleString('fr-FR')} {uniteAffichee}</Text>
+          </View>
+          <MotionPressable accessibilityRole="button" accessibilityLabel="Ajouter une demi-mesure" onPress={() => setCount(value => stepCount(value, 1))} style={styles.compteurBouton}>
+            <Text style={styles.compteurSigne}>+</Text>
+          </MotionPressable>
+        </View>
+      </> : <>
+        <Field label={`Quantité consommée (${food.reference.portionName ?? uniteAffichee})`} numeric value={quantity} onChange={setQuantity} placeholder={`Ex. : ${food.reference.amount}`} />
+        {initial?.note ? <Text style={form.muted}>{initial.note}</Text> : null}
+      </>}
+
+      {preview && <View style={styles.estimate}><Text style={styles.total}>≈ {preview.calories.estimated.toLocaleString('fr-FR')} kcal</Text><Text style={form.muted}>pour cette quantité · estimation à confirmer</Text></View>}
+
+      <MotionPressable accessibilityRole="button" onPress={() => { setMode(mode === 'mesures' ? 'pesee' : 'mesures'); setError(''); }} style={styles.linkButton}>
+        <Text style={styles.link}>{mode === 'mesures' ? `Je préfère ${uniteAffichee === 'ml' ? 'saisir en ml' : 'peser en grammes'}` : 'Revenir aux mesures courantes'}</Text>
+      </MotionPressable>
+
+      {!food.reference.macrosComplete && <Text style={form.muted}>Les macronutriments manquants seront signalés dans le bilan.</Text>}
+    </>}
+
     {product && <><SourceLink url={product.url} /><View style={styles.heading}><Text style={[form.copy, { flex: 1 }]}>Mémoriser ce produit</Text><Switch accessibilityLabel="Mémoriser ce produit" value={remember} onValueChange={setRemember} trackColor={{ true: colors.violet }} /></View></>}
     {error || issue ? <Text style={form.error} accessibilityRole="alert">{error || issue}</Text> : null}
     <Action label="Ajouter au repas" disabled={!food} onPress={() => { if (!food || !preview) { setError(issue ?? 'Indique la quantité consommée.'); return; } if (product && remember) rememberFood(food); onAdd(preview); }} />
@@ -106,6 +182,17 @@ function Result({ name, detail, imageUrl, onPress }: { name: string; detail: str
   </MotionPressable>;
 }
 const styles = StyleSheet.create({
+  mesure: { minWidth: 96, borderWidth: 1.5, borderColor: colors.line, borderRadius: 16, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: colors.background },
+  mesureOn: { borderColor: colors.violet, backgroundColor: colors.violetPale },
+  mesureNom: { color: colors.ink, fontSize: 14, lineHeight: 19, fontFamily: fonts.bold },
+  mesureNomOn: { color: colors.violet },
+  mesureEquiv: { color: colors.muted, fontSize: 11, lineHeight: 15, fontFamily: fonts.semibold, marginTop: 1 },
+  compteur: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.violetPale, borderRadius: 20, padding: 8 },
+  compteurBouton: { width: 44, height: 44, borderRadius: 16, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
+  compteurSigne: { color: colors.violet, fontSize: 22, lineHeight: 26, fontFamily: fonts.extrabold },
+  compteurCentre: { flex: 1, alignItems: 'center' },
+  compteurTexte: { color: colors.navy, fontSize: 17, lineHeight: 22, fontFamily: fonts.extrabold },
+  compteurEquiv: { color: colors.violet, fontSize: 12, lineHeight: 16, fontFamily: fonts.semibold },
   eyebrow: { color: colors.sageDark, fontSize: 12, letterSpacing: 1.2, fontFamily: fonts.extrabold },
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, justifyContent: 'space-between' },
   badge: { color: colors.sageDark, backgroundColor: colors.aquaPale, padding: 6, borderRadius: 8, fontFamily: fonts.extrabold, fontSize: 12 },
