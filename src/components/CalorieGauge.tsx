@@ -10,16 +10,19 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 type Props = { consumed: number; target: number };
 
 /**
- * V2.7 — la jauge du design system.
+ * V3.2 — la jauge répond à la question qu'on lui pose.
  *
- * Un arc de 240° — l'ouverture en bas, de 120°, accueille la pastille d'état.
- * Au centre, le total consommé en grand, le repère juste dessous : c'est la
- * lecture demandée par le brief (« 1 310 sur 2 100 kcal »). Ce qu'il reste
- * n'a pas disparu : il est annoncé dans l'en-tête du bloc « Ma journée » et
- * dans la ligne de chiffres sous la jauge.
+ * Jusqu'ici le centre affichait le total consommé : « 1 850 sur 2 100 ». Un
+ * constat exact, mais muet — à 16 h, 1 850 ne veut rien dire tant qu'on n'a
+ * pas fait la soustraction soi-même. Or la question posée en ouvrant
+ * l'application avant de passer à table est toujours la même : combien
+ * reste-t-il pour ce soir ?
  *
- * La progression est toujours violette. Au-dessus du repère, l'arc reste
- * plein et c'est la pastille qui le dit, sans jugement.
+ * C'est donc ce chiffre qui occupe le centre, le total passant en dessous en
+ * petit : rien n'est perdu, l'ordre de lecture change.
+ *
+ * Au-dessus du repère, le centre annonce l'écart plutôt qu'un nombre négatif,
+ * et la pastille garde son rôle : dire l'état sans le juger.
  */
 export function CalorieGauge({ consumed, target }: Props) {
   const { reducedMotion } = useExperience();
@@ -36,7 +39,9 @@ export function CalorieGauge({ consumed, target }: Props) {
   const remaining = Math.round(target - consumed);
   const over = remaining < 0;
 
-  const shownValue = Math.max(0, Math.round(consumed));
+  // C'est le chiffre du centre qui s'anime : ce qu'il reste, ou l'écart
+  // au-dessus du repère.
+  const shownValue = target > 0 ? Math.abs(remaining) : Math.max(0, Math.round(consumed));
   const counter = useRef(new Animated.Value(shownValue)).current;
   const [displayed, setDisplayed] = useState(shownValue);
 
@@ -93,11 +98,18 @@ export function CalorieGauge({ consumed, target }: Props) {
         />
       </Svg>
       <View style={styles.content} pointerEvents="none">
+        {target > 0 ? (
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.eyebrow}>
+            {over ? 'AU-DESSUS DE' : 'IL TE RESTE'}
+          </Text>
+        ) : null}
         <Text maxFontSizeMultiplier={1.35} style={styles.value}>
           {displayed.toLocaleString('fr-FR')}
         </Text>
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.unit}>
-          {target <= 0 ? 'repère à définir' : `sur ${target.toLocaleString('fr-FR')} kcal`}
+          {target <= 0
+            ? 'repère à définir'
+            : `kcal · ${Math.round(consumed).toLocaleString('fr-FR')} sur ${target.toLocaleString('fr-FR')}`}
         </Text>
       </View>
       {/* La pastille loge dans l'ouverture de 120° en bas de l'arc. */}
@@ -120,9 +132,10 @@ function describeArc(cx: number, cy: number, radius: number, startAngle: number,
 
 const styles = StyleSheet.create({
   wrapper: { width: 200, height: 200, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
-  content: { position: 'absolute', width: 150, alignItems: 'center', marginTop: -8 },
+  content: { position: 'absolute', width: 154, alignItems: 'center', marginTop: -10 },
+  eyebrow: { color: colors.violet, fontSize: 11, lineHeight: 15, fontFamily: fonts.bold, letterSpacing: 1.1 },
   value: { color: colors.ink, ...typeScale.numeric, fontSize: 36, lineHeight: 42 },
-  unit: { color: colors.muted, fontSize: 13, lineHeight: 18, fontFamily: fonts.medium, marginTop: 2 },
+  unit: { color: colors.muted, fontSize: 12, lineHeight: 16, fontFamily: fonts.medium, marginTop: 1, textAlign: 'center' },
   statusPill: { position: 'absolute', bottom: 6, maxWidth: 150, borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 6 },
   status: { fontSize: 12, lineHeight: 16, fontFamily: fonts.bold },
 });

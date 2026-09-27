@@ -109,9 +109,16 @@ test('La question ne se pose que là où elle a un sens', () => {
   assert.equal(shouldAskConsent({ consent: 'unknown', platform: 'web', url: '' }), false, 'sans journal, aucune question');
 });
 
-test('Livré tel quel, le journal est éteint', () => {
+test('L’adresse du journal est vide, ou c’est une vraie adresse de journal', () => {
+  // Le dépôt part avec une adresse vide (journal éteint). Une fois le tableur
+  // en place, la seule adresse acceptable est celle d'un script Google publié :
+  // ni un brouillon, ni une adresse en clair, ni un texte de remplacement.
   const config = read('src/config/test-journal.ts');
-  assert.match(config, /export const TEST_JOURNAL_URL = '';/, 'l’adresse doit partir vide du dépôt');
+  const ligne = config.match(/export const TEST_JOURNAL_URL = '([^']*)';/);
+  assert.ok(ligne, 'la ligne de configuration doit exister');
+  const url = ligne[1];
+  if (url === '') return;
+  assert.match(url, /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/, `adresse inattendue : ${url}`);
 });
 
 /* ---------------------------------------------- le réglage se souvient -- */
@@ -140,15 +147,17 @@ test('Les numéros tirés au sort ont la forme attendue', () => {
 
 /* ------------------------------------------------- l’interface --------- */
 
-test('La question dit ce qui est noté et ce qui ne l’est jamais', () => {
+test('La demande d’accord dit ce qui est enregistré et ce qui ne l’est jamais', () => {
   const card = read('src/components/TestJournalConsent.tsx');
-  assert.ok(card.includes('Ce qui est noté'));
-  assert.ok(card.includes('Ce qui ne sort jamais d’ici'));
+  assert.ok(card.includes('Ce qui est enregistré'));
+  assert.ok(card.includes('Ce qui n’est jamais enregistré'));
   for (const mot of ['poids', 'aliments', 'calories']) {
     assert.ok(card.toLowerCase().includes(mot), `la liste des exclusions doit nommer : ${mot}`);
   }
-  assert.ok(card.includes('Non merci'), 'le refus doit être un vrai bouton');
-  assert.ok(card.includes('marche exactement pareil si tu refuses'), 'refuser ne doit rien coûter');
+  assert.ok(card.includes('Accepter') && card.includes('Refuser'), 'les deux réponses doivent être nommées sobrement');
+  assert.ok(card.includes('n’a aucune conséquence sur le fonctionnement'), 'un refus ne doit rien coûter, et ça doit être écrit');
+  // Le registre : un écran de consentement s'énonce, il ne bavarde pas.
+  assert.doesNotMatch(card, /ça m’aide|Tu veux bien|coince/, 'formulation trop familière');
 });
 
 test('L’interrupteur du Profil permet de revenir sur son choix', () => {

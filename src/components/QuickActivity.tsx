@@ -53,17 +53,26 @@ const SHORT_LABELS: Partial<Record<ActivityKind, string>> = {
   aqua: 'Aquagym',
 };
 
-type Props = { day: string; onProfile?: () => void; onDetails?: () => void };
+type Props = {
+  day: string;
+  onProfile?: () => void;
+  onDetails?: () => void;
+  /** V3.2 — le bloc s'ouvre déjà rempli d'attente : le bouton est ailleurs. */
+  startOpen?: boolean;
+  /** Appelé quand la personne referme le bloc, ou quand elle a terminé. */
+  onDismiss?: () => void;
+};
 type Open = 'kind' | 'minutes' | null;
 
-export function QuickActivity({ day, onProfile, onDetails }: Props) {
+export function QuickActivity({ day, onProfile, onDetails, startOpen = false, onDismiss }: Props) {
   const { profile, profileCompleted, activity, recordActivity } = useApp();
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(startOpen);
   // Volontairement `null` au départ, et jamais rempli par défaut : un blanc
   // vide se remarque, une valeur d'exemple se prend pour une réponse.
   const [kind, setKind] = useState<ActivityKind | null>(null);
   const [minutes, setMinutes] = useState<number | null>(null);
-  const [open, setOpen] = useState<Open>(null);
+  // Ouvert depuis l'accueil, le premier blanc se déplie tout de suite.
+  const [open, setOpen] = useState<Open>(startOpen ? 'kind' : null);
   const [praise, setPraise] = useState<Praise | null>(null);
   const [error, setError] = useState('');
 
@@ -71,10 +80,10 @@ export function QuickActivity({ day, onProfile, onDetails }: Props) {
   const { weightKg, assumed } = resolveWeight({}, profileWeight);
 
   const reset = () => {
-    setEditing(false);
+    setEditing(startOpen);
     setKind(null);
     setMinutes(null);
-    setOpen(null);
+    setOpen(startOpen ? 'kind' : null);
     setError('');
   };
 
@@ -125,12 +134,14 @@ export function QuickActivity({ day, onProfile, onDetails }: Props) {
       <View style={styles.wrap}>
         <PraiseCard praise={praise} tone="mint" onClose={() => setPraise(null)} />
         <MotionPressable
-          onPress={() => { setPraise(null); start(); }}
+          onPress={() => { setPraise(null); if (startOpen) { reset(); onDismiss?.(); } else start(); }}
           accessibilityRole="button"
           style={styles.link}
         >
           <AppIcon name="plus" size={16} color={colors.violet} strokeWidth={2.4} />
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.linkText}>Ajouter une autre activité</Text>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.linkText}>
+            {startOpen ? 'Revenir à ma journée' : 'Ajouter une autre activité'}
+          </Text>
         </MotionPressable>
       </View>
     );
@@ -243,7 +254,7 @@ export function QuickActivity({ day, onProfile, onDetails }: Props) {
 
         {error ? <Text accessibilityRole="alert" maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.error}>{error}</Text> : null}
 
-        <MotionPressable onPress={reset} accessibilityRole="button" style={styles.cancel}>
+        <MotionPressable onPress={() => { reset(); onDismiss?.(); }} accessibilityRole="button" style={styles.cancel}>
           <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.cancelText}>Annuler</Text>
         </MotionPressable>
       </View>

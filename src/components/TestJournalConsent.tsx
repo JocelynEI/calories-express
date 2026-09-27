@@ -6,14 +6,19 @@ import { GuideAvatar } from './GuideAvatar';
 import { MotionPressable } from './Motion';
 
 /**
- * V3.1 — la question posée avant d'enregistrer quoi que ce soit.
+ * V3.1, réécrit en V3.2 — la demande d'accord, avant tout enregistrement.
  *
  * Elle n'apparaît que sur le site, pendant la phase de test, et une seule
- * fois. Elle dit trois choses, dans cet ordre : ce qui est enregistré, ce qui
- * ne l'est **jamais**, et qu'on peut refuser sans rien perdre.
+ * fois. Elle énonce trois choses, dans cet ordre : ce qui est enregistré, ce
+ * qui ne l'est **jamais**, et le fait qu'un refus n'a aucune conséquence.
  *
- * Le bouton « Non merci » est un vrai bouton, de la même taille que l'autre :
- * un refus qu'il faut chercher n'est pas un refus, c'est un piège.
+ * Le ton est neutre. La première version disait « D'accord, ça m'aide à
+ * aider » : une formule bancale, qui sonnait faux là où la personne attend
+ * une information claire avant de décider. Un écran de consentement se lit
+ * comme un contrat, pas comme une conversation.
+ *
+ * « Refuser » est un bouton de même taille que « Accepter » : un refus qu'il
+ * faut chercher n'est pas un refus.
  */
 export function TestJournalConsent({ onAccept, onDecline }: { onAccept: () => void; onDecline: () => void }) {
   return (
@@ -22,22 +27,23 @@ export function TestJournalConsent({ onAccept, onDecline }: { onAccept: () => vo
         <GuideAvatar size={72} />
         <View style={styles.headerText}>
           <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.eyebrow}>VERSION D’ESSAI</Text>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.title}>Tu veux bien m’aider ?</Text>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.title}>Participer à l’amélioration de l’application</Text>
         </View>
       </View>
 
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.copy}>
-        Cette application est en test. Pour savoir ce qui fonctionne et ce qui coince, elle peut noter
-        les boutons que tu utilises et les écrans que tu ouvres — rien d’autre.
+        Cette version est en cours de test. Avec ton accord, l’application enregistre les écrans
+        ouverts et les actions effectuées, afin d’identifier ce qui fonctionne et ce qui pose
+        problème. Aucune donnée personnelle n’est concernée.
       </Text>
 
       <View style={[styles.card, styles.yes]}>
-        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.cardTitle, { color: colors.greenInk }]}>Ce qui est noté</Text>
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.cardTitle, { color: colors.greenInk }]}>Ce qui est enregistré</Text>
         {[
-          'Les écrans que tu ouvres',
-          'Les actions réussies : repas ajouté, séance enregistrée',
-          'Les moments où tu abandonnes un formulaire',
-          'Téléphone ou ordinateur, et la version de l’application',
+          'Les écrans ouverts',
+          'Les actions menées à terme : repas ajouté, séance enregistrée',
+          'Les formulaires quittés avant validation',
+          'Le type d’appareil et la version de l’application',
         ].map(line => (
           <View key={line} style={styles.line}>
             <AppIcon name="check" size={15} color={colors.greenInk} strokeWidth={2.6} />
@@ -47,12 +53,12 @@ export function TestJournalConsent({ onAccept, onDecline }: { onAccept: () => vo
       </View>
 
       <View style={[styles.card, styles.no]}>
-        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.cardTitle, { color: colors.coral }]}>Ce qui ne sort jamais d’ici</Text>
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.cardTitle, { color: colors.coral }]}>Ce qui n’est jamais enregistré</Text>
         {[
-          'Ce que tu manges, et le nom de tes aliments',
-          'Ton poids, ta taille, ton âge, ton objectif',
-          'Tes calories et tes totaux',
-          'Ton nom, ton adresse mail, tes photos',
+          'Les aliments saisis et les quantités',
+          'Le poids, la taille, l’âge et l’objectif',
+          'Les calories et les totaux de la journée',
+          'Le nom, l’adresse électronique et les photos',
         ].map(line => (
           <View key={line} style={styles.line}>
             <AppIcon name="close" size={15} color={colors.coral} strokeWidth={2.6} />
@@ -62,16 +68,17 @@ export function TestJournalConsent({ onAccept, onDecline }: { onAccept: () => vo
       </View>
 
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.small}>
-        Un numéro tiré au sort remplace ton nom. Il ne sort pas de ce navigateur et disparaît si tu
-        effaces tes données de navigation. Tu peux changer d’avis quand tu veux dans Profil, et
-        l’application marche exactement pareil si tu refuses.
+        Un identifiant aléatoire remplace toute information nominative. Il reste propre à ce
+        navigateur et disparaît si les données de navigation sont effacées. Ce choix est modifiable
+        à tout moment depuis le Profil. Un refus n’a aucune conséquence sur le fonctionnement de
+        l’application.
       </Text>
 
       <MotionPressable onPress={onAccept} accessibilityRole="button" style={styles.primary}>
-        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.primaryText}>D’accord, ça m’aide à aider</Text>
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.primaryText}>Accepter</Text>
       </MotionPressable>
       <MotionPressable onPress={onDecline} accessibilityRole="button" style={styles.secondary}>
-        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.secondaryText}>Non merci</Text>
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.secondaryText}>Refuser</Text>
       </MotionPressable>
     </ScrollView>
   );

@@ -98,11 +98,18 @@ test('Un repas montre la première photo disponible', () => {
 
 /* --------------------------------------- l'accueil rangé en blocs (V2.4) */
 
-test('L’accueil est découpé en blocs thématiques', () => {
+test('L’accueil se lit dans l’ordre : le repère, les deux côtés, les repas', () => {
+  // V2.4 exigeait trois bandeaux thématiques. La V3.2 les remplace par deux
+  // bulles : l'intention est la même — un écran rangé, chaque chose à sa
+  // place — mais elle tient désormais en un écran au lieu de trois.
   const home = read('src/screens/TodayScreen.tsx');
-  for (const titre of ['Ma journée', 'Mes repas', 'Mon activité']) {
-    assert.ok(home.includes(`title="${titre}"`), `bloc manquant : ${titre}`);
-  }
+  const jauge = home.indexOf('<CalorieGauge');
+  const bulles = home.indexOf('<DayBubbles>');
+  const repas = home.indexOf('<MealCard');
+  assert.ok(jauge >= 0 && bulles >= 0 && repas >= 0, 'les trois étages doivent exister');
+  assert.ok(jauge < bulles, 'le repère du jour reste en premier');
+  assert.ok(bulles < repas, 'les deux bulles annoncent le détail qui suit');
+  assert.ok(home.includes('label="MANGÉ"') && home.includes('label="DÉPENSÉ"'), 'les deux côtés de la journée');
   // Ce qui a déménagé ne doit pas revenir en douce.
   assert.equal(home.includes('StoryRail'), false, 'les séquences ont quitté l’accueil');
   assert.equal(home.includes('GuideAvatar'), false, 'le conseil illustré a quitté l’accueil');

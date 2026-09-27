@@ -1,6 +1,14 @@
-# Calories Express — V3.1
+# Calories Express — V3.2
 
-Version de test Expo Go · 26 septembre 2026.
+Version de test Expo Go · 27 septembre 2026.
+
+## Ce qui change en V3.2 — un accueil qui tient sur un écran
+
+- **La jauge annonce ce qu'il reste**, pas ce qui a été mangé. Le total passe en petit dessous.
+- **Deux bulles côte à côte, « Mangé » et « Dépensé »**, chacune avec son chiffre et son bouton : les deux gestes sont visibles en même temps.
+- **Les pas ont rejoint l'activité**, avec les séances.
+- **Une information, une seule fois** : la ligne « Restant · Repère · Activité » disparaît, elle répétait la jauge.
+- **L'écran d'accord au journal de test est réécrit** dans un registre neutre : « Accepter » et « Refuser ».
 
 ## Ce qui change en V3.1 — un journal de test, pour la version web
 

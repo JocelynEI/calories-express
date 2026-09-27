@@ -1,3 +1,43 @@
+# V3.2 — 27 septembre 2026
+
+L'accueil disait trois fois la même chose. Il la dit désormais une seule fois,
+et répond à la question qu'on lui pose vraiment.
+
+## La jauge annonce ce qu'il reste
+
+Le centre affichait le total consommé : « 1 850 sur 2 100 ». Exact, mais muet
+— à 16 h, 1 850 ne veut rien dire tant qu'on n'a pas fait la soustraction
+soi-même. Or la question posée en ouvrant l'application avant de passer à
+table est toujours la même : combien reste-t-il pour ce soir ?
+
+C'est donc ce chiffre qui occupe le centre, le total passant en petit
+dessous. Au-dessus du repère, le centre annonce l'écart plutôt qu'un nombre
+négatif.
+
+## Deux bulles : mangé, dépensé
+
+Les trois bandeaux thématiques laissent la place à deux bulles côte à côte,
+qui se répondent : ce qui est entré, ce qui est sorti. Chacune porte son
+chiffre, son détail et son bouton, dans sa couleur. Les deux gestes — ajouter
+un repas, ajouter une activité — sont donc visibles en même temps, sans
+faire défiler et sans que l'un passe avant l'autre.
+
+Les pas ont rejoint l'activité, avec les séances : c'est le même mouvement
+pour celui qui l'a fait, et les séparer obligeait à comprendre le découpage
+interne de l'application pour trouver son chiffre.
+
+La ligne « Restant · Repère · Activité » disparaît : le restant est au centre
+de la jauge, le repère juste dessous, l'activité dans sa bulle.
+
+## L'écran d'accord, réécrit
+
+La demande d'accord au journal de test était rédigée sur un ton bancal — le
+bouton disait « D'accord, ça m'aide à aider ». Tout l'écran est repris dans un
+registre neutre : « Participer à l'amélioration de l'application », puis
+« Ce qui est enregistré », « Ce qui n'est jamais enregistré », et deux boutons
+de même taille, « Accepter » et « Refuser ». Un écran de consentement se lit
+comme un contrat, pas comme une conversation.
+
 # V3.1 — 26 septembre 2026
 
 Un journal de test, pour la version web, qui écrit dans un tableur ce que font

@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CalorieGauge } from '../components/CalorieGauge';
-import { AppIcon, IconName } from '../components/AppIcon';
-import { SectionHeader } from '../components/SectionHeader';
-import { FoodName } from '../data/illustrations';
+import { AppIcon } from '../components/AppIcon';
+import { DayBubble, DayBubbles } from '../components/DayBubbles';
 import { GuideCard } from '../components/GuideCard';
 import { MealCard } from '../components/MealCard';
 import { DayNavigator, PastDayBanner } from '../components/DayNavigator';
@@ -36,6 +35,7 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
   const { profile, meals, activity, today, selectedDay, isDemo, profileCompleted, startFresh, addMeal } = useApp();
   const [goalOpen, setGoalOpen] = useState(false);
   const [explain, setExplain] = useState(false);
+  const [addingActivity, setAddingActivity] = useState(false);
 
   const dayMeals = useMemo(() => mealsForDay(meals, selectedDay), [meals, selectedDay]);
   const consumed = totalCalories(dayMeals);
@@ -63,6 +63,19 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
     day: selectedDay,
     today,
   });
+  /**
+   * La deuxième ligne de la bulle « Dépensé ». Les pas et les séances y sont
+   * ensemble : c'est le même mouvement pour celui qui l'a fait, et les
+   * séparer obligeait à comprendre le découpage interne de l'application
+   * pour trouver son chiffre.
+   */
+  const activityDetail = plan.activity.report
+    ? `Total de ${plan.activity.report.deviceName}`
+    : [
+      plan.activity.steps === null ? 'Pas à renseigner' : `${plan.activity.steps.toLocaleString('fr-FR')} pas`,
+      plan.activity.sessions.length > 0 ? `${plan.activity.sessions.length} séance${plan.activity.sessions.length > 1 ? 's' : ''}` : '',
+    ].filter(Boolean).join(' · ');
+
   const regularity = isToday ? streakPraise(mealStreak(meals, today)) : null;
   // Une seule carte à la fois. Deux félicitations l'une sous l'autre, c'est
   // une de trop : le palier de régularité, plus rare, passe devant.
@@ -111,7 +124,7 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           mieux vaut pas de titre qu'un titre au-dessus du vide. La carte de
           Jaws, juste au-dessus, dit déjà quoi faire. */}
       {!issue && (
-      <Section icon="target" tone={colors.violet} pale={colors.violetPale} art="pomme" title="Ma journée">
+      <>
         <Entrance delay={60} style={styles.hero}>
           <PremiumDayVisual
             goalLabel={profileCompleted ? GOAL_LABELS[profile.goal] : 'À personnaliser'}
@@ -140,22 +153,14 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
 
           <CalorieGauge consumed={consumed} target={target} />
 
-          <View style={styles.stats}>
-            {/* V2.7 : le consommé est au centre de la jauge ; ici, ce qu'il reste. */}
-            <Stat
-              label={remaining < 0 ? 'Au-dessus' : 'Restant'}
-              value={Math.abs(remaining).toLocaleString('fr-FR')}
-              tone={remaining < 0 ? colors.warmInk : colors.ink}
-            />
-            <View style={styles.statDivider} />
-            <Stat label={isDemo || !profileCompleted ? 'Exemple' : 'Repère'} value={target.toLocaleString('fr-FR')} />
-            <View style={styles.statDivider} />
-            <Stat
-              label="Activité"
-              value={plan.dynamic && plan.creditedKcal > 0 ? `+${plan.creditedKcal.toLocaleString('fr-FR')}` : plan.activity.hasEnergy ? plan.activity.activeKcal.toLocaleString('fr-FR') : '—'}
-              tone={plan.dynamic && plan.creditedKcal > 0 ? colors.aqua : colors.ink}
-            />
-          </View>
+          {/* V3.2 — la ligne « Restant · Repère · Activité » a disparu : le
+              restant est au centre de la jauge, le repère juste dessous, et
+              l'activité a sa bulle. Trois fois la même chose, c'était deux
+              fois de trop. */}
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.reference}>
+            {isDemo || !profileCompleted ? 'Repère d’exemple' : 'Ton repère'} · {target.toLocaleString('fr-FR')} kcal
+            {plan.dynamic && plan.creditedKcal > 0 ? ` (dont +${plan.creditedKcal.toLocaleString('fr-FR')} d’activité)` : ''}
+          </Text>
 
           <View style={styles.macros}>
             <Macro label="Protéines" value={macros.protein} target={targets.protein} color={colors.protein} partial={partialMacros} />
@@ -188,49 +193,53 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           <EnergyPlanCard profile={profile} />
         </Entrance>
       )}
-      </Section>
+      </>
       )}
 
-      {/* V2.9 — l'activité passe en deuxième.
-          Elle était en bas de page : il fallait dépasser la jauge et les
-          repas pour découvrir qu'on pouvait estimer une séance. On lit
-          désormais son repère, puis immédiatement « Combien ai-je
-          dépensé ? ». Les repas suivent : on les saisit plus tard dans la
-          journée, une fois qu'on a mangé. */}
-      <Section icon="steps" tone={colors.gold} pale={colors.goldPale} art="banane" title="Mon activité">
-        <QuickActivity day={selectedDay} onProfile={onProfile} onDetails={onActivity} />
-      <MotionPressable
-        onPress={onActivity}
-        accessibilityRole="button"
-        accessibilityLabel="Ouvrir mon activité, mes pas et mes séances"
-        style={styles.activity}
-      >
-        <View style={styles.activityIcon}><AppIcon name="steps" size={21} color={colors.aqua} strokeWidth={1.9} /></View>
-        <View style={styles.activityBody}>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityTitle}>
-            {plan.activity.steps === null ? 'Pas à renseigner' : `${plan.activity.steps.toLocaleString('fr-FR')} pas`}
-            {plan.activity.sessions.length > 0 ? ` · ${plan.activity.sessions.length} séance${plan.activity.sessions.length > 1 ? 's' : ''}` : ''}
-          </Text>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityMeta}>
-            {plan.activity.report
-              ? `Total de ${plan.activity.report.deviceName} · ${plan.activity.activeKcal.toLocaleString('fr-FR')} kcal actives`
-              : plan.activity.hasEnergy
-                ? `≈ ${plan.activity.activeKcal.toLocaleString('fr-FR')} kcal actives${plan.dynamic && plan.creditedKcal > 0 ? ` · +${plan.creditedKcal.toLocaleString('fr-FR')} sur ton repère` : ''}`
-                : 'Ajouter une séance ou les kcal de ma montre'}
-          </Text>
-          {plan.activity.partial && (
-            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityWarn}>Bilan partiel : des kcal restent à compléter.</Text>
-          )}
-        </View>
-        <AppIcon name="chevron" size={20} color={colors.muted} strokeWidth={2.2} />
-      </MotionPressable>
-      </Section>
+      {/* V3.2 — les deux côtés de la journée, et les deux gestes, d'un coup
+          d'œil. Les pas ont rejoint l'activité : un pas et une séance, c'est
+          la même chose pour celui qui les fait. */}
+      <DayBubbles>
+        <DayBubble
+          tone="mint"
+          label="MANGÉ"
+          value={consumed.toLocaleString('fr-FR')}
+          detail={dayMeals.length === 0 ? 'Aucun repas noté' : `${dayMeals.length} repas noté${dayMeals.length > 1 ? 's' : ''}`}
+          art="assiette"
+          action="Un repas"
+          actionLabel="Ajouter un repas"
+          onAction={onAdd}
+        />
+        <DayBubble
+          tone="warm"
+          label="DÉPENSÉ"
+          value={plan.activity.activeKcal.toLocaleString('fr-FR')}
+          detail={activityDetail}
+          art="banane"
+          action="Une activité"
+          actionLabel="Ajouter une activité"
+          onAction={() => setAddingActivity(true)}
+          onOpen={onActivity}
+          openLabel="Ouvrir mon activité : mes pas, mes séances et les kcal de ma montre"
+        />
+      </DayBubbles>
 
-      <Section icon="journal" tone={colors.aqua} pale={colors.aquaPale} art="assiette" title="Mes repas" meta={`${dayMeals.length} ${dayMeals.length > 1 ? 'entrées' : 'entrée'} · ${consumed.toLocaleString('fr-FR')} kcal`}>
-      <MotionPressable onPress={onAdd} accessibilityRole="button" style={styles.primary}>
-        <AppIcon name="plus" size={21} color={colors.white} strokeWidth={2.6} />
-        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.primaryText}>Ajouter un repas</Text>
-      </MotionPressable>
+      {addingActivity && (
+        <Entrance>
+          <QuickActivity
+            startOpen
+            day={selectedDay}
+            onProfile={onProfile}
+            onDetails={onActivity}
+            onDismiss={() => setAddingActivity(false)}
+          />
+        </Entrance>
+      )}
+
+      {plan.activity.partial && (
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityWarn}>Bilan partiel : des kcal actives restent à compléter.</Text>
+      )}
+
       {templates.length > 0 && (
         <View style={styles.repeatRow}>
           {templates.map(template => (
@@ -273,8 +282,7 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           </MotionPressable>
         )}
       </View>
-        {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
-      </Section>
+      {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
 
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.legal}>
         Valeurs indicatives · ne remplacent pas l’avis d’un professionnel de santé.
@@ -282,32 +290,6 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
 
       {goalOpen && <GoalPicker onClose={() => setGoalOpen(false)} />}
     </ScrollView>
-  );
-}
-
-/**
- * Un bloc thématique : une pastille de couleur, un titre, un chiffre-clé
- * facultatif, et le contenu en dessous. Le même gabarit partout donne à la
- * page un rythme régulier — c'est ce qui la rend lisible bien plus que le
- * nombre d'informations qu'elle contient.
- */
-function Section({ icon, tone, pale, title, meta, art, children }: {
-  icon: IconName; tone: string; pale: string; title: string; meta?: string; art?: FoodName; children: React.ReactNode;
-}) {
-  return (
-    <View style={styles.section}>
-      <SectionHeader icon={icon} tone={tone} pale={pale} title={title} meta={meta} art={art} />
-      <View style={styles.sectionBody}>{children}</View>
-    </View>
-  );
-}
-
-function Stat({ label, value, tone = colors.ink }: { label: string; value: string; tone?: string }) {
-  return (
-    <View style={styles.stat}>
-      <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.statLabel}>{label}</Text>
-      <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.statValue, { color: tone }]}>{value}</Text>
-    </View>
   );
 }
 
@@ -343,11 +325,6 @@ const styles = StyleSheet.create({
   goalChipText: { color: colors.violet, fontSize: 13, fontFamily: fonts.extrabold },
   infoButton: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
 
-  stats: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 12 },
-  stat: { flex: 1, gap: 2, paddingHorizontal: 2 },
-  statDivider: { width: 1, backgroundColor: colors.track, marginHorizontal: 8 },
-  statLabel: { color: colors.muted, ...typeScale.caption },
-  statValue: { fontSize: 18, lineHeight: 24, fontFamily: fonts.extrabold, letterSpacing: -0.3 },
 
   macros: { flexDirection: 'row', gap: 10, borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 12 },
   macro: { flex: 1, gap: 6 },
@@ -362,8 +339,6 @@ const styles = StyleSheet.create({
   explain: { gap: 8 },
   explainLine: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold },
 
-  primary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 56, borderRadius: radii.large, backgroundColor: colors.violet, ...shadows.raised },
-  primaryText: { color: colors.white, fontSize: 16, lineHeight: 22, fontFamily: fonts.bold },
 
   repeatRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   repeatOuter: { flexGrow: 1, flexBasis: 150 },
@@ -372,8 +347,7 @@ const styles = StyleSheet.create({
   repeatTitle: { color: colors.ink, fontSize: 13, fontFamily: fonts.bold },
   repeatMeta: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, marginTop: 2 },
 
-  section: { gap: 10, marginTop: 4 },
-  sectionBody: { gap: 12 },
+  reference: { color: colors.muted, textAlign: 'center', ...typeScale.caption, marginTop: 2 },
 
   meals: { gap: 8 },
   empty: { alignItems: 'center', backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 18, paddingTop: 6, paddingBottom: 20 },
@@ -384,11 +358,6 @@ const styles = StyleSheet.create({
   emptyCta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, backgroundColor: colors.violetPale, borderRadius: radii.pill, paddingHorizontal: 14, paddingVertical: 9 },
   emptyCtaText: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold },
 
-  activity: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, padding: 14 },
-  activityIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.aquaPale, alignItems: 'center', justifyContent: 'center' },
-  activityBody: { flex: 1, minWidth: 0 },
-  activityTitle: { color: colors.ink, fontSize: 15, fontFamily: fonts.bold },
-  activityMeta: { color: colors.aqua, fontSize: 13, fontFamily: fonts.bold, marginTop: 3, lineHeight: 18 },
   activityWarn: { color: colors.goldText, fontSize: 12, fontFamily: fonts.bold, marginTop: 3 },
 
 
