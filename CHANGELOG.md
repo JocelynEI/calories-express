@@ -1,3 +1,30 @@
+# V3.6 — 11 octobre 2026
+
+La politique de confidentialité, exigée par Apple et Google pour publier.
+
+## Deux pages publiques
+
+« Confidentialité » et « Aide et contact » sont publiées avec le site web,
+aux adresses `/confidentialite/` et `/assistance/`. La politique dit en clair
+ce qui reste sur le téléphone (tout) et ce qui passe par internet : la
+recherche de produits vers Open Food Facts, le moteur de lecture d'étiquette
+téléchargé depuis jsDelivr, les liens vers les sources. Les deux pages ne
+chargent rien de l'extérieur : ni police, ni script, ni image.
+
+## Les liens dans l'appli
+
+Apple demande que la politique soit joignable depuis l'application, pas
+seulement depuis la fiche du store. Deux liens, « Confidentialité » et « Aide
+et contact », sont en bas du Profil. Si le navigateur ne s'ouvre pas, l'adresse
+s'affiche.
+
+## Ce qui disparaît avant la publication
+
+- Le Profil ne parle plus d'Expo Go, l'outil de test : « Désinstaller
+  l'application efface donc ces données. »
+- La recherche de produits se présente à Open Food Facts sous le nom de
+  l'appli, avec l'adresse de la page d'aide, au lieu de « prototype privé ».
+
 # V3.5.1 — 11 octobre 2026
 
 Une correction, trouvée en préparant la publication sur les stores.

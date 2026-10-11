@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, Share, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { AppIcon } from '../components/AppIcon';
 import { GuideAvatar } from '../components/GuideAvatar';
 import { GuideCard } from '../components/GuideCard';
@@ -14,6 +14,7 @@ import { EnergyPlanCard } from '../components/EnergyEducation';
 import { dailyEnergyPlan } from '../domain/activity-energy';
 import { ActivityBudgetControls } from '../components/ActivityBudgetControls';
 import appConfig from '../../app.json';
+import { PRIVACY_URL, SUPPORT_URL } from '../config/legal';
 import { MAX_FONT_SCALE } from '../theme';
 
 const goals: { id: Goal; label: string; detail: string }[] = [
@@ -33,6 +34,8 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
   const journalConfigured = Platform.OS === 'web' && TEST_JOURNAL_URL.trim().startsWith('https://');
   const { profile, activity, today, profileCompleted, updateProfile, resetProfile, restoreDemo, exportData } = useApp();
   const [draft, setDraft] = useState(profile);
+  const [legalError, setLegalError] = useState('');
+  const openLegal = (url: string) => { setLegalError(''); void Linking.openURL(url).catch(() => setLegalError(url)); };
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // V1.8 — sauvegarde hors de l'application. Rien n'est envoye nulle part :
@@ -272,7 +275,7 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
       <View style={styles.formCard}>
         <Text style={styles.settingCopy}>
           Tout est enregistré sur ce téléphone uniquement : il n’y a ni compte, ni synchronisation, ni copie sur un
-          serveur. Désinstaller Expo Go ou l’application effacerait donc le journal. Prépare une sauvegarde pour en
+          serveur. Désinstaller l’application efface donc ces données. Prépare une sauvegarde pour en
           garder une copie ailleurs.
         </Text>
         <MotionPressable
@@ -327,6 +330,17 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
         </View>
       </View>
       <Pressable onPress={restoreDemo} style={styles.demoLink}><Text style={styles.demoLinkText}>Restaurer les données de démonstration</Text></Pressable>
+      {/* V3.6 — exigé par Apple : la politique de confidentialité doit être
+          joignable depuis l'application, pas seulement depuis la fiche. */}
+      <View style={styles.legalLinks}>
+        <Pressable onPress={() => openLegal(PRIVACY_URL)} accessibilityRole="link" style={({ pressed }) => [styles.legalLink, pressed && { opacity: 0.65 }]}>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.legalLinkText}>Confidentialité</Text>
+        </Pressable>
+        <Pressable onPress={() => openLegal(SUPPORT_URL)} accessibilityRole="link" style={({ pressed }) => [styles.legalLink, pressed && { opacity: 0.65 }]}>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.legalLinkText}>Aide et contact</Text>
+        </Pressable>
+      </View>
+      {legalError ? <Text accessibilityRole="alert" style={styles.settingCopy}>La page n’a pas pu s’ouvrir. Elle est en ligne à l’adresse {legalError}</Text> : null}
       <Text style={styles.settingCopy}>Calories Express · version {appConfig.expo.version}</Text>
     </ScrollView>
   );
@@ -436,5 +450,8 @@ const styles = StyleSheet.create({
   motionTestTitle: { color: colors.ink, fontSize: 14, fontFamily: fonts.extrabold },
   motionTestCopy: { color: colors.muted, fontSize: 13, lineHeight: 18, fontFamily: fonts.semibold },
   demoLink: { alignItems: 'center', paddingVertical: 18 },
+  legalLinks: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  legalLink: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
+  legalLinkText: { color: colors.violet, fontSize: 14, fontFamily: fonts.bold, textDecorationLine: 'underline' },
   demoLinkText: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, textDecorationLine: 'underline' },
 });
