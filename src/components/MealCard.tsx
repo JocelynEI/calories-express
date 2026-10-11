@@ -124,7 +124,9 @@ const styles = StyleSheet.create({
 
   cover: { height: 132, alignItems: 'center', justifyContent: 'center' },
   photo: { width: '100%', height: '100%' },
-  photoShade: { ...StyleSheet.absoluteFillObject, backgroundColor: '#11152B1A' },
+  // V3.5.1 — l'ancienne variante « Object » de ce style a disparu de React
+  // Native 0.86 : le voile perdait sa position et ne couvrait plus la photo.
+  photoShade: { ...StyleSheet.absoluteFill, backgroundColor: '#11152B1A' },
   moment: { position: 'absolute', left: 12, top: 12, borderRadius: radii.pill, paddingHorizontal: 11, paddingVertical: 5 },
   momentText: { color: colors.white, fontSize: 12, lineHeight: 16, fontFamily: fonts.semibold },
 

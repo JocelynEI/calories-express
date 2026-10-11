@@ -1,3 +1,14 @@
+# V3.5.1 — 11 octobre 2026
+
+Une correction, trouvée en préparant la publication sur les stores.
+
+Sur les photos de produits du Journal, un léger voile sombre aide à lire la
+pastille du moment de la journée. Sur téléphone, il ne s'affichait plus : la
+fonction de React Native qu'il utilisait a disparu en version 0.86, sans
+erreur visible. Il est rétabli, et un test refuse le retour de l'ancienne
+fonction. C'était aussi la seule erreur signalée par la vérification des
+types du projet.
+
 # V3.5 — 11 octobre 2026
 
 L'accueil prend la forme de la piste « L'assiette ».

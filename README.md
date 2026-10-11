@@ -1,6 +1,10 @@
-# Calories Express — V3.5
+# Calories Express — V3.5.1
 
 Version de test Expo Go · 11 octobre 2026.
+
+## Ce qui change en V3.5.1
+
+- **Le voile sur les photos de produits du Journal** s'affiche de nouveau sur téléphone.
 
 ## Ce qui change en V3.5 — l'accueil « L'assiette »
 
