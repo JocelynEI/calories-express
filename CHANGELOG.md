@@ -1,3 +1,26 @@
+# V3.7 — 11 octobre 2026
+
+L'icône « L'assiette », et ce qu'il faut pour construire l'appli pour les stores.
+
+## Une nouvelle icône
+
+Une assiette blanche vue du dessus, entre une fourchette et une cuillère, sur
+le vert de l'appli. Son bord se remplit comme celui de l'accueil. L'ancienne
+icône était violette, et ses coins transparents l'auraient fait refuser par
+Apple : la nouvelle est un carré plein, sans transparence, et iOS arrondit
+lui-même les coins.
+
+Sur Android, le dessin est réduit pour rester entier quel que soit le masque
+du téléphone (rond, carré arrondi), sur le même fond vert. L'icône thématique,
+celle qu'Android teinte selon le fond d'écran, suit le même dessin.
+
+## Prête à construire
+
+- `eas.json` règle les constructions pour les stores ; les numéros de build
+  avancent tout seuls.
+- La question d'Apple sur le chiffrement est réglée une fois pour toutes :
+  l'appli n'utilise que le chiffrement standard des connexions https.
+
 # V3.6 — 11 octobre 2026
 
 La politique de confidentialité, exigée par Apple et Google pour publier.

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Calories Express",
     "slug": "calories-express-v1",
-    "version": "3.6.0",
+    "version": "3.7.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -10,12 +10,15 @@
     "description": "Repas, produits, objectifs, activité, poids et Jaws animé.",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.caloriesexpress.app"
+      "bundleIdentifier": "com.caloriesexpress.app",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.caloriesexpress.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E9E3FF",
+        "backgroundColor": "#2A7246",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },

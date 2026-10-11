@@ -1,6 +1,13 @@
-# Calories Express — V3.6
+# Calories Express — V3.7
 
 Version de test Expo Go · 11 octobre 2026.
+
+## Ce qui change en V3.7 — l'icône, et prête pour les stores
+
+- **Nouvelle icône** : une assiette entre une fourchette et une cuillère, sur le vert de l'appli. Carrée et pleine, comme l'exige Apple.
+- **Icône Android** sur fond vert, entière quel que soit le masque du téléphone.
+- **`eas.json`** pour construire l'appli avec Expo, et la question du chiffrement réglée pour Apple.
+- Pour régénérer les images après une retouche des dessins : `node scripts/render-assets.cjs` (avec le paquet `sharp`).
 
 ## Ce qui change en V3.6 — la politique de confidentialité
 
