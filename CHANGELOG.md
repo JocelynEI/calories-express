@@ -1,3 +1,44 @@
+# V3.5 — 11 octobre 2026
+
+L'accueil prend la forme de la piste « L'assiette ».
+
+## Une assiette à la place du compteur
+
+La jauge était un arc de compteur de vitesse. C'est maintenant le bord d'une
+assiette vue du dessus, qui se remplit à mesure des repas notés. Le centre ne
+change pas de rôle : il dit ce qu'il reste, ou l'écart au-dessus du repère, et
+la pastille dit l'état sans le juger.
+
+L'illustration « Mieux manger, sans pression » disparaît : l'assiette fait le
+même travail, et elle porte un chiffre.
+
+## Chaque chiffre à un seul endroit
+
+L'ancien accueil affichait le total mangé trois fois : au centre de la jauge
+(« 1 030 sur 1 997 »), dans la bulle « Mangé » et, en creux, dans la liste.
+Il est maintenant en tête de « Dans ton assiette », à côté des repas qui le
+composent. Le restant est au centre de l'assiette, le repère juste dessous.
+
+## Les deux gestes, puis ce qu'on a bougé
+
+Les bulles « Mangé » et « Dépensé » deviennent deux boutons côte à côte, « Un
+repas » et « Une activité », suivis d'une ligne « Bougé » : les kcal, les pas
+et les séances du jour. Un appui sur cette ligne ouvre le détail, comme le
+faisait la bulle.
+
+## « Dans ton assiette »
+
+Les trois derniers repas, en lignes resserrées. Chacun garde la teinte de son
+moment de la journée, la même que dans le Journal, et s'ouvre d'un appui pour
+être modifié. Au-delà de trois, une ligne dit combien d'autres repas sont dans
+le Journal.
+
+## Ce qui ne change pas
+
+Les macronutriments restent sous l'assiette pour cette version. Le bouton
+d'objectif, l'explication du repère, les repas à refaire d'un appui, la carte
+de félicitations et l'écran vide sont à leur place.
+
 # V3.4 — 11 octobre 2026
 
 Les couleurs de la piste « L'assiette », retenue pour la refonte de l'accueil.

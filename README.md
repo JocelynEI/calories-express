@@ -1,6 +1,15 @@
-# Calories Express — V3.4
+# Calories Express — V3.5
 
 Version de test Expo Go · 11 octobre 2026.
+
+## Ce qui change en V3.5 — l'accueil « L'assiette »
+
+- **La jauge devient une assiette vue du dessus.** Son bord se remplit à mesure des repas, et le centre dit toujours ce qu'il reste.
+- **Deux boutons côte à côte** : « Un repas », « Une activité ».
+- **Une ligne « Bougé »** avec les kcal, les pas et les séances du jour ; un appui ouvre le détail.
+- **« Dans ton assiette »** : les trois derniers repas en lignes, chacun avec la teinte de son moment, et le total mangé en tête.
+- Chaque chiffre n'apparaît plus qu'une fois : le restant au centre, le repère dessous, le total mangé en tête des repas.
+- Les macronutriments restent sous l'assiette ; ils passeront derrière un appui sur l'assiette en V3.6.
 
 ## Ce qui change en V3.4 — les couleurs de « L'assiette »
 
@@ -8,7 +17,6 @@ Version de test Expo Go · 11 octobre 2026.
 - **Figtree pour le texte, Bricolage Grotesque pour les titres et les grands chiffres.**
 - **Les teintes lavande cachées dans une dizaine de composants** passent par le thème : plus rien de violet ne reste sur fond vert.
 - Chaque texte garde un contraste d'au moins 4,5:1, vérifié par les tests.
-- La mise en page ne change pas : la nouvelle disposition de l'accueil arrive en V3.5.
 
 ## Ce qui change en V3.3 — les quantités en mesures de cuisine
 

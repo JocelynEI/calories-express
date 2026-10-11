@@ -2,18 +2,16 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CalorieGauge } from '../components/CalorieGauge';
 import { AppIcon } from '../components/AppIcon';
-import { DayBubble, DayBubbles } from '../components/DayBubbles';
 import { GuideCard } from '../components/GuideCard';
-import { MealCard } from '../components/MealCard';
+import { PlateMeals } from '../components/PlateMeals';
 import { DayNavigator, PastDayBanner } from '../components/DayNavigator';
 import { FoodMotion } from '../components/FoodMotion';
 import { macroTargets } from '../domain/calories';
 import { useApp } from '../state/AppContext';
-import { colors, fonts, MAX_FONT_SCALE, radii, shadows, typeScale } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, typeScale } from '../theme';
 import { Entrance, MotionPressable } from '../components/Motion';
 import { greeting } from '../domain/experience';
 import { EnergyPlanCard } from '../components/EnergyEducation';
-import { PremiumDayVisual } from '../components/PremiumDayVisual';
 import { dailyEnergyPlan } from '../domain/activity-energy';
 import { frequentMeals, mealsForDay, repeatMeal, templateLabel, totalCalories, totalMacros } from '../domain/meals';
 import { dayPraise, mealStreak, streakPraise } from '../domain/praise';
@@ -64,7 +62,7 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
     today,
   });
   /**
-   * La deuxième ligne de la bulle « Dépensé ». Les pas et les séances y sont
+   * Le détail de la ligne « Bougé ». Les pas et les séances y sont
    * ensemble : c'est le même mouvement pour celui qui l'a fait, et les
    * séparer obligeait à comprendre le découpage interne de l'application
    * pour trouver son chiffre.
@@ -113,24 +111,17 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
         </View>
       )}
 
-      {/* V2.4 — trois blocs, trois sujets.
-          L'accueil empilait une dizaine de cartes sans lien : le baromètre, un
-          bouton, des repas, l'activité, des séquences vidéo, un conseil, une
-          frise d'aliments. Tout était utile, rien n'était rangé. Chaque bloc
-          porte désormais un titre et ne parle que d'une chose. Les séquences
-          ont rejoint la Progression, où on vient pour comprendre. */}
+      {/* V3.5 — l'accueil se lit de haut en bas comme une assiette qu'on
+          regarde avant de passer à table : ce qu'il reste, les deux gestes,
+          ce qu'on a bougé, puis ce qu'on a mangé. L'illustration « Mieux
+          manger, sans pression » a cédé sa place à l'assiette elle-même.
 
-      {/* Quand le repère est à vérifier, ce bloc n'aurait rien à montrer :
-          mieux vaut pas de titre qu'un titre au-dessus du vide. La carte de
-          Jaws, juste au-dessus, dit déjà quoi faire. */}
+          Quand le repère est à vérifier, ce bloc n'aurait rien à montrer :
+          la carte de Jaws, juste au-dessus, dit déjà quoi faire. */}
       {!issue && (
       <>
-        <Entrance delay={60} style={styles.hero}>
-          <PremiumDayVisual
-            goalLabel={profileCompleted ? GOAL_LABELS[profile.goal] : 'À personnaliser'}
-            target={profileCompleted ? target : undefined}
-          />
-          <View style={styles.heroTop}>
+        <Entrance delay={60} style={styles.plate}>
+          <View style={styles.plateTop}>
             <MotionPressable
               onPress={() => (profileCompleted ? setGoalOpen(true) : onProfile())}
               accessibilityRole="button"
@@ -153,12 +144,8 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
 
           <CalorieGauge consumed={consumed} target={target} />
 
-          {/* V3.2 — la ligne « Restant · Repère · Activité » a disparu : le
-              restant est au centre de la jauge, le repère juste dessous, et
-              l'activité a sa bulle. Trois fois la même chose, c'était deux
-              fois de trop. */}
           <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.reference}>
-            {isDemo || !profileCompleted ? 'Repère d’exemple' : 'Ton repère'} · {target.toLocaleString('fr-FR')} kcal
+            {isDemo || !profileCompleted ? 'Repère d’exemple' : 'Ton repère du jour'} : {target.toLocaleString('fr-FR')} kcal
             {plan.dynamic && plan.creditedKcal > 0 ? ` (dont +${plan.creditedKcal.toLocaleString('fr-FR')} d’activité)` : ''}
           </Text>
 
@@ -196,33 +183,49 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
       </>
       )}
 
-      {/* V3.2 — les deux côtés de la journée, et les deux gestes, d'un coup
-          d'œil. Les pas ont rejoint l'activité : un pas et une séance, c'est
-          la même chose pour celui qui les fait. */}
-      <DayBubbles>
-        <DayBubble
-          tone="mint"
-          label="MANGÉ"
-          value={consumed.toLocaleString('fr-FR')}
-          detail={dayMeals.length === 0 ? 'Aucun repas noté' : `${dayMeals.length} repas noté${dayMeals.length > 1 ? 's' : ''}`}
-          art="assiette"
-          action="Un repas"
-          actionLabel="Ajouter un repas"
-          onAction={onAdd}
-        />
-        <DayBubble
-          tone="warm"
-          label="DÉPENSÉ"
-          value={plan.activity.activeKcal.toLocaleString('fr-FR')}
-          detail={activityDetail}
-          art="banane"
-          action="Une activité"
-          actionLabel="Ajouter une activité"
-          onAction={() => setAddingActivity(true)}
-          onOpen={onActivity}
-          openLabel="Ouvrir mon activité : mes pas, mes séances et les kcal de ma montre"
-        />
-      </DayBubbles>
+      {/* V3.5 — les deux gestes, côte à côte. Le texte affiché est court ; le
+          libellé complet est donné aux lecteurs d'écran. */}
+      <View style={styles.actions}>
+        <MotionPressable
+          onPress={onAdd}
+          accessibilityRole="button"
+          accessibilityLabel="Ajouter un repas"
+          containerStyle={styles.actionOuter}
+          style={[styles.action, styles.actionPrimary]}
+        >
+          <AppIcon name="plus" size={18} color={colors.white} strokeWidth={2.6} />
+          <Text maxFontSizeMultiplier={1.3} style={styles.actionPrimaryText} numberOfLines={1}>Un repas</Text>
+        </MotionPressable>
+        <MotionPressable
+          onPress={() => setAddingActivity(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Ajouter une activité"
+          containerStyle={styles.actionOuter}
+          style={[styles.action, styles.actionSecondary]}
+        >
+          <AppIcon name="plus" size={18} color={colors.navy} strokeWidth={2.6} />
+          <Text maxFontSizeMultiplier={1.3} style={styles.actionSecondaryText} numberOfLines={1}>Une activité</Text>
+        </MotionPressable>
+      </View>
+
+      {/* Ce qu'on a bougé : les pas et les séances ensemble, et un appui ouvre
+          le détail (pas, séances, kcal de la montre). Ce qu'on a mangé est en
+          tête de la liste des repas, plus bas. */}
+      <MotionPressable
+        onPress={onActivity}
+        accessibilityRole="button"
+        accessibilityLabel={`Ouvrir mon activité : ${plan.activity.activeKcal} kilocalories bougées, ${activityDetail || 'rien de noté'}`}
+        style={styles.moved}
+      >
+        <View style={styles.movedText}>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.movedLabel}>Bougé</Text>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.movedDetail} numberOfLines={1}>{activityDetail || 'Rien de noté pour l’instant'}</Text>
+        </View>
+        <Text maxFontSizeMultiplier={1.3} style={styles.movedValue}>
+          {plan.activity.activeKcal.toLocaleString('fr-FR')} <Text style={styles.movedUnit}>kcal</Text>
+        </Text>
+        <AppIcon name="chevron" size={16} color={colors.muted} strokeWidth={2.2} />
+      </MotionPressable>
 
       {addingActivity && (
         <Entrance>
@@ -260,28 +263,26 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           ))}
         </View>
       )}
-      <View style={styles.meals}>
-        {dayMeals.slice(0, 3).map(meal => (
-          <MealCard key={meal.id} meal={meal} compact onEdit={() => onEditMeal(meal)} />
-        ))}
-        {dayMeals.length === 0 && (
-          <MotionPressable onPress={onAdd} accessibilityRole="button" style={styles.empty}>
-            <View style={styles.emptyArt}>
-              <FoodMotion kind="orbit" size={30} height={104} width={150} />
+
+      {dayMeals.length > 0 ? (
+        <PlateMeals meals={dayMeals} total={consumed} onEdit={onEditMeal} />
+      ) : (
+        <MotionPressable onPress={onAdd} accessibilityRole="button" style={styles.empty}>
+          <View style={styles.emptyArt}>
+            <FoodMotion kind="orbit" size={30} height={104} width={150} />
+          </View>
+          <View style={styles.emptyBody}>
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyTitle}>
+              {isToday ? 'Aucun repas pour l’instant' : 'Rien n’a été saisi ce jour-là'}
+            </Text>
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyCopy}>Une phrase et une quantité suffisent pour commencer.</Text>
+            <View style={styles.emptyCta}>
+              <AppIcon name="plus" size={16} color={colors.violet} strokeWidth={2.6} />
+              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyCtaText}>Ajouter un repas</Text>
             </View>
-            <View style={styles.emptyBody}>
-              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyTitle}>
-                {isToday ? 'Aucun repas pour l’instant' : 'Rien n’a été saisi ce jour-là'}
-              </Text>
-              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyCopy}>Une phrase et une quantité suffisent pour commencer.</Text>
-              <View style={styles.emptyCta}>
-                <AppIcon name="plus" size={16} color={colors.violet} strokeWidth={2.6} />
-                <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyCtaText}>Ajouter un repas</Text>
-              </View>
-            </View>
-          </MotionPressable>
-        )}
-      </View>
+          </View>
+        </MotionPressable>
+      )}
       {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
 
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.legal}>
@@ -319,14 +320,14 @@ const styles = StyleSheet.create({
 
   guideWrap: { marginTop: 2 },
 
-  hero: { backgroundColor: colors.card, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.line, padding: 18, gap: 14, ...shadows.card },
-  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  plate: { gap: 12 },
+  plateTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   goalChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.violetPale, paddingLeft: 14, paddingRight: 10, paddingVertical: 9, borderRadius: radii.pill },
   goalChipText: { color: colors.violet, fontSize: 13, fontFamily: fonts.extrabold },
-  infoButton: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
+  infoButton: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
 
 
-  macros: { flexDirection: 'row', gap: 10, borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 12 },
+  macros: { flexDirection: 'row', gap: 10, backgroundColor: colors.card, borderRadius: radii.large, padding: 14 },
   macro: { flex: 1, gap: 6 },
   macroValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontFamily: fonts.bold },
   macroTarget: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold },
@@ -334,7 +335,22 @@ const styles = StyleSheet.create({
   macroFill: { height: 6, borderRadius: radii.pill },
   macroLabel: { color: colors.muted, ...typeScale.caption },
 
-  note: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, borderTopWidth: 1, borderTopColor: colors.track, paddingTop: 11 },
+  note: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, paddingHorizontal: 4 },
+
+  actions: { flexDirection: 'row', gap: 10 },
+  actionOuter: { flex: 1 },
+  action: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 52, borderRadius: radii.medium, paddingHorizontal: 12 },
+  actionPrimary: { backgroundColor: colors.navy },
+  actionPrimaryText: { color: colors.white, fontSize: 15, fontFamily: fonts.bold },
+  actionSecondary: { borderWidth: 2, borderColor: colors.navy },
+  actionSecondaryText: { color: colors.navy, fontSize: 15, fontFamily: fonts.bold },
+
+  moved: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, backgroundColor: colors.card, borderRadius: radii.large, paddingHorizontal: 16, paddingVertical: 10 },
+  movedText: { flex: 1, minWidth: 0 },
+  movedLabel: { color: colors.warmInk, fontSize: 13, lineHeight: 18, fontFamily: fonts.bold },
+  movedDetail: { color: colors.muted, ...typeScale.caption },
+  movedValue: { color: colors.ink, fontSize: 18, lineHeight: 24, fontFamily: fonts.extrabold },
+  movedUnit: { color: colors.muted, fontSize: 13, fontFamily: fonts.semibold },
 
   explain: { gap: 8 },
   explainLine: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold },
@@ -347,9 +363,8 @@ const styles = StyleSheet.create({
   repeatTitle: { color: colors.ink, fontSize: 13, fontFamily: fonts.bold },
   repeatMeta: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, marginTop: 2 },
 
-  reference: { color: colors.muted, textAlign: 'center', ...typeScale.caption, marginTop: 2 },
+  reference: { color: colors.muted, textAlign: 'center', fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
 
-  meals: { gap: 8 },
   empty: { alignItems: 'center', backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 18, paddingTop: 6, paddingBottom: 20 },
   emptyArt: { height: 104, justifyContent: 'center' },
   emptyBody: { alignItems: 'center', gap: 4 },
