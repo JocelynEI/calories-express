@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
+import { colors } from '../theme';
 
 /**
  * V2.4 — Jaws ne bouge plus.
@@ -48,5 +49,5 @@ export function GuideAvatar({ size = 96 }: Props) {
 
 const styles = StyleSheet.create({
   frame: { justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 },
-  halo: { position: 'absolute', backgroundColor: '#E2DCFF' },
+  halo: { position: 'absolute', backgroundColor: colors.violetEdge },
 });

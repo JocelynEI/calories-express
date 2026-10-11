@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   trend: { color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
 
   formRow: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
-  inputWrap: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#C9CEDC', borderRadius: 13, paddingHorizontal: 12, backgroundColor: colors.white },
+  inputWrap: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.fieldEdge, borderRadius: 13, paddingHorizontal: 12, backgroundColor: colors.white },
   input: { flex: 1, color: colors.ink, fontSize: 16, fontFamily: fonts.bold, paddingVertical: 12 },
   inputSuffix: { color: colors.muted, fontSize: 13, fontFamily: fonts.bold },
   saveOuter: { minWidth: 104 },

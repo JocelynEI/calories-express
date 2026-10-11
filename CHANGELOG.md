@@ -1,3 +1,30 @@
+# V3.4 — 11 octobre 2026
+
+Les couleurs de la piste « L'assiette », retenue pour la refonte de l'accueil.
+Cette version ne change que les couleurs et les polices ; la disposition de
+l'accueil suivra en V3.5.
+
+## Un vert de cuisine à la place du violet
+
+Le violet et le cyan venaient d'un brief d'application de santé. Le vert,
+l'orange des quantités et le prune du dîner viennent de la cuisine. Les noms
+des couleurs dans le code ne changent pas, seules leurs valeurs : tous les
+écrans suivent d'un coup.
+
+Une dizaine de composants avaient leurs propres teintes lavande, écrites en
+dur hors du thème. Elles passent maintenant par le thème ; un test refuse leur
+retour.
+
+## Deux polices
+
+Figtree pour le texte, Bricolage Grotesque pour les titres et les grands
+chiffres. Plus Jakarta Sans est retirée.
+
+## Ce qui est vérifié
+
+Chaque couleur de texte garde au moins 4,5:1 sur son fond : sur l'écran, sur
+les cartes, sur les pastilles, sous un texte blanc et sur fond sombre.
+
 # V3.3 — 27 septembre 2026
 
 « 100 g de lait, c'est combien pour un bol ? » Bonne question : l'application

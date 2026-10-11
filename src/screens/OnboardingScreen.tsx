@@ -585,14 +585,14 @@ const styles = StyleSheet.create({
   promiseIcon: { width: 34, height: 34, borderRadius: 12, backgroundColor: colors.violetPale, alignItems: 'center', justifyContent: 'center' },
   promiseText: { flex: 1, color: colors.inkSoft, fontSize: 14, lineHeight: 20, fontFamily: fonts.semibold },
 
-  nameInput: { backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: '#C9CEDC', color: colors.ink, fontSize: 18, fontFamily: fonts.bold, paddingHorizontal: 16, paddingVertical: 15 },
+  nameInput: { backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.fieldEdge, color: colors.ink, fontSize: 18, fontFamily: fonts.bold, paddingHorizontal: 16, paddingVertical: 15 },
   preview: { backgroundColor: colors.violetPale, borderRadius: radii.medium, padding: 14 },
   previewLabel: { color: colors.violet, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.1 },
   previewValue: { color: colors.violetInk, fontSize: 24, fontFamily: fonts.extrabold, letterSpacing: -0.5, marginTop: 5 },
 
   choice: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderRadius: radii.medium, borderWidth: 1.5, borderColor: colors.line, padding: 15, minHeight: 68 },
   choiceOn: { borderColor: colors.violet, backgroundColor: colors.violetPale },
-  radio: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: '#C9CEDC', alignItems: 'center', justifyContent: 'center' },
+  radio: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: colors.fieldEdge, alignItems: 'center', justifyContent: 'center' },
   radioOn: { backgroundColor: colors.violet, borderColor: colors.violet },
   choiceBody: { flex: 1 },
   choiceLabel: { color: colors.ink, fontSize: 16, fontFamily: fonts.bold },
@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
   segmentTextOn: { color: colors.white },
 
   numberRow: { marginTop: 4 },
-  numberBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1.5, borderColor: '#C9CEDC', paddingHorizontal: 14 },
+  numberBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderRadius: 14, borderWidth: 1.5, borderColor: colors.fieldEdge, paddingHorizontal: 14 },
   numberBoxError: { borderColor: colors.coral },
   numberInput: { flex: 1, color: colors.ink, fontSize: 20, fontFamily: fonts.extrabold, paddingVertical: 13 },
   numberUnit: { color: colors.muted, fontSize: 14, fontFamily: fonts.bold },

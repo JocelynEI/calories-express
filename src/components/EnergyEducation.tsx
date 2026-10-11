@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   definitionDigit: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold },
   definitionTitle: { fontSize: 14, fontFamily: fonts.bold, color: colors.navy, marginBottom: 4 },
   formula: { backgroundColor: colors.navy, padding: 18, borderRadius: 18, gap: 7 },
-  formulaText: { color: '#DEDDFF', fontSize: 13, fontFamily: fonts.medium },
+  formulaText: { color: colors.onDarkMuted, fontSize: 13, fontFamily: fonts.medium },
   formulaResult: { color: colors.white, fontSize: 20, fontFamily: fonts.extrabold },
   exampleChoice: { flexDirection: 'row', gap: 8 },
   choice: { minHeight: 61, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 15, alignItems: 'center', justifyContent: 'center', gap: 3 },

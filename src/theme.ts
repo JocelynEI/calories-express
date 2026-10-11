@@ -1,81 +1,88 @@
-// V2.7 — design system « Calories Express » (Modern Soft UI).
+// V3.4 — « L'assiette » : un vert de cuisine à la place du violet.
 //
-// Deux familles de couleurs, et une règle pour choisir :
+// La refonte de l'accueil part d'une assiette vue du dessus. Le violet et le
+// cyan venaient d'un brief d'application de santé ; le vert, l'orange des
+// pastilles de quantité et le prune du dîner viennent de la cuisine.
 //
-// - Les couleurs du brief, **exactes**, pour tout ce qui est aplat : fonds de
-//   carte, jauge, pastilles, icônes posées sur fond clair. Clés `…Fill`/`…Pale`
-//   et les clés historiques qui ne portent pas de texte.
-// - Leurs **encres**, calculées pour le texte. Trois accents du brief sont
-//   illisibles comme texte : cyan 2,2:1, jaune 1,7:1, vert 2,8:1, pour un
-//   minimum de 4,5:1. Chaque encre est la même teinte, assombrie juste assez
-//   pour passer 4,5:1 sur sa pastille ET sous un texte blanc. Le brun doré
-//   obtenu pour le jaune est d'ailleurs celui de la pastille « Petit-déjeuner »
-//   du moodboard.
+// La règle de la V2.7 ne change pas : les aplats (`…Fill`, `…Pale`) pour les
+// fonds et les pastilles, leurs **encres** (`…Ink`) pour le texte, chacune
+// assombrie juste assez pour passer 4,5:1 sur sa pastille ET sous un texte
+// blanc.
 //
-// Les clés de la V1.7 sont conservées pour ne rien casser dans les écrans qui
-// ne sont pas encore repris : seules leurs valeurs changent.
+// Les noms des clés ne changent pas, seules leurs valeurs : `violet` reste la
+// couleur principale (désormais verte), `navy` la couleur sombre. Renommer
+// toucherait chaque écran pour un même résultat.
 //
 // Contrastes mesurés (texte sur fond) :
-//   ink 15,2 sur l'écran · muted 4,7 sur carte, 4,4 sur l'écran
-//   violet 5,9 · mintInk 4,7 · warmInk 4,6 · greenInk 4,7 · purpleInk 4,6
+//   ink 10,9 sur l'écran · muted 6,5 sur carte, 5,7 sur l'écran
+//   violet 5,8 sur carte, 4,9 sur sa pastille · blanc sur violet 5,8
+//   mintInk 5,7 · warmInk 6,1 · greenInk 5,4 · purpleInk 5,9
+//   onDarkMuted 9,2 sur navy
 export const colors = {
-  // ---- Brief : couleurs exactes ----------------------------------------------
-  violet: '#5B48E8',        // Primary Violet — CTA, jauge
-  navy: '#1A1B4B',          // Primary Dark — titres majeurs, badges
-  mintFill: '#00C4CC',      // Mint / Fresh Cyan — aplat
-  mintPale: '#E6F8F8',
-  warmFill: '#EAC15C',      // Warm Orange — aplat
-  warmPale: '#FFF9EB',
-  greenFill: '#4CAF50',     // Soft Green — aplat
-  greenPale: '#EBF7ED',
-  purpleFill: '#8C62FF',    // Soft Purple — aplat
-  purplePale: '#F3EFFF',
-  background: '#F5F7FB',    // Background Light
-  card: '#FFFFFF',          // Surface White
-  ink: '#1E2022',           // Text Main
-  muted: '#6C757D',         // Text Muted
+  // ---- Couleurs de base -------------------------------------------------------
+  violet: '#2A7246',        // Couleur principale (vert) — boutons, jauge
+  navy: '#1F3A2E',          // Vert très sombre — titres majeurs, badges
+  mintFill: '#3FA7B5',      // Bleu-vert — aplat
+  mintPale: '#E2F2F3',
+  warmFill: '#F29A4A',      // Orange — aplat
+  warmPale: '#FCEBD7',
+  greenFill: '#7BB662',     // Vert tendre — aplat
+  greenPale: '#E7F1DF',
+  purpleFill: '#A0679B',    // Prune — aplat
+  purplePale: '#F4E9F2',
+  background: '#EEF2EA',    // Fond de l'écran, vert très pâle
+  card: '#FFFFFF',
+  ink: '#1F3A2E',           // Texte principal
+  muted: '#4E6357',         // Texte secondaire
   white: '#FFFFFF',
 
   // ---- Encres : les mêmes teintes, lisibles en texte -------------------------
-  mintInk: '#007A7F',
-  warmInk: '#906C13',
-  greenInk: '#367B38',
-  purpleInk: '#7643FF',
+  mintInk: '#1D6670',
+  warmInk: '#8A4500',
+  greenInk: '#3A6B29',
+  purpleInk: '#7F4579',
 
   // ---- Neutres dérivés -------------------------------------------------------
-  inkSoft: '#43484D',       // corps de texte long, entre ink et muted
-  line: '#E9ECF2',
-  track: '#EDEFF5',
+  inkSoft: '#3A5245',       // corps de texte long, entre ink et muted
+  line: '#E2E8DD',
+  track: '#DCE4D6',
+  onDarkMuted: '#CFE3D6',   // texte secondaire sur fond sombre (navy)
+  fieldEdge: '#C3CEC4',     // bord des champs de saisie et des choix
 
-  // ---- Clés historiques, remappées sur le design system ----------------------
-  reference: '#1A1B4B',
-  intake: '#5B48E8',
-  today: '#906C13',
-  protein: '#5B48E8',
-  carbs: '#EAC15C',
-  fat: '#00C4CC',
-  sage: '#8C62FF',
-  sageDark: '#5B48E8',
-  sagePale: '#F3EFFF',
-  gold: '#906C13',
-  goldText: '#906C13',
-  goldBright: '#EAC15C',
-  goldPale: '#FFF9EB',
+  // ---- Bords des pastilles : un ton plus soutenu que chaque aplat pâle -------
+  mintEdge: '#C4E3E6',
+  warmEdge: '#F3D3AE',
+  greenEdge: '#CFE2C2',
+
+  // ---- Clés historiques, remappées sur les couleurs de base ------------------
+  reference: '#1F3A2E',
+  intake: '#2A7246',
+  today: '#8A4500',
+  protein: '#2A7246',
+  carbs: '#F29A4A',
+  fat: '#3FA7B5',
+  sage: '#A0679B',
+  sageDark: '#2A7246',
+  sagePale: '#E3EFE6',     // pastille de la couleur principale, comme violetPale
+  gold: '#8A4500',
+  goldText: '#8A4500',
+  goldBright: '#F29A4A',
+  goldPale: '#FCEBD7',
   coral: '#B93027',
   coralBright: '#F26D64',
   coralPale: '#FFF0EF',
-  aqua: '#007A7F',
-  aquaBright: '#00C4CC',
-  aquaPale: '#E6F8F8',
-  violetInk: '#1A1B4B',
-  violetPale: '#F3EFFF',
-  violetEdge: '#DDD5FF',
-  leaf: '#367B38',
-  leafPale: '#EBF7ED',
-  visualPale: '#F3EFFF',
-  visualInk: '#1A1B4B',
-  visualMint: '#E6F8F8',
-  visualWarm: '#FFF9EB',
+  aqua: '#1D6670',
+  aquaBright: '#3FA7B5',
+  aquaPale: '#E2F2F3',
+  violetInk: '#1F3A2E',
+  violetPale: '#E3EFE6',    // pastille de la couleur principale
+  violetEdge: '#C5DCCB',    // bord des cartes de la couleur principale
+  leaf: '#3A6B29',
+  leafPale: '#E7F1DF',
+  visualPale: '#E3EFE6',
+  visualInk: '#1F3A2E',
+  visualMint: '#E2F2F3',
+  visualWarm: '#FCEBD7',
   shadow: '#000000',
 } as const;
 
@@ -98,31 +105,34 @@ export const spacing = {
 } as const;
 
 /**
- * V2.7 — Plus Jakarta Sans, une famille par graisse.
+ * V3.4 — Figtree pour le texte, Bricolage Grotesque pour les titres et les
+ * grands chiffres. Une famille par graisse.
  *
  * Avec une police chargée, Android ignore `fontWeight` : il faut nommer la
  * famille de la graisse voulue. Aucune vue ne doit donc écrire `fontWeight` —
  * un garde-fou automatique le vérifie.
  */
 export const fonts = {
-  regular: 'PlusJakartaSans_400Regular',
-  medium: 'PlusJakartaSans_500Medium',
-  semibold: 'PlusJakartaSans_600SemiBold',
-  bold: 'PlusJakartaSans_700Bold',
-  extrabold: 'PlusJakartaSans_800ExtraBold',
+  regular: 'Figtree_400Regular',
+  medium: 'Figtree_500Medium',
+  semibold: 'Figtree_600SemiBold',
+  bold: 'Figtree_700Bold',
+  extrabold: 'Figtree_800ExtraBold',
+  display: 'BricolageGrotesque_700Bold',
+  displayHeavy: 'BricolageGrotesque_800ExtraBold',
 } as const;
 
-// Hiérarchie du brief. Rien sous 12.
+// Hiérarchie du brief. Rien sous 12. Titres et grands chiffres en Bricolage.
 export const typeScale = {
-  numeric: { fontSize: 32, lineHeight: 38, fontFamily: fonts.extrabold, letterSpacing: -1 },   // 1 310
-  display: { fontSize: 28, lineHeight: 34, fontFamily: fonts.bold, letterSpacing: -0.6 },      // Bonjour Jocelyn
-  section: { fontSize: 20, lineHeight: 26, fontFamily: fonts.bold, letterSpacing: -0.3 },      // Mes repas
+  numeric: { fontSize: 32, lineHeight: 38, fontFamily: fonts.displayHeavy, letterSpacing: -1 }, // 1 310
+  display: { fontSize: 28, lineHeight: 34, fontFamily: fonts.display, letterSpacing: -0.6 },    // Bonjour Jocelyn
+  section: { fontSize: 20, lineHeight: 26, fontFamily: fonts.display, letterSpacing: -0.3 },    // Mes repas
   cardTitle: { fontSize: 16, lineHeight: 22, fontFamily: fonts.semibold },                      // Porridge…
   body: { fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
   caption: { fontSize: 12, lineHeight: 17, fontFamily: fonts.regular },                         // Petit-déjeuner · 08:10
   // Anciennes clés, pour les vues pas encore reprises.
-  hero: { fontSize: 44, lineHeight: 48, fontFamily: fonts.extrabold, letterSpacing: -1.6 },
-  title: { fontSize: 28, lineHeight: 34, fontFamily: fonts.bold, letterSpacing: -0.6 },
+  hero: { fontSize: 44, lineHeight: 48, fontFamily: fonts.displayHeavy, letterSpacing: -1.6 },
+  title: { fontSize: 28, lineHeight: 34, fontFamily: fonts.display, letterSpacing: -0.6 },
   secondary: { fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
 } as const;
 

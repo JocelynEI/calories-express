@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
 
   hero: { backgroundColor: colors.card, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.line, padding: 18, gap: 14, ...shadows.card },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  goalChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.purplePale, paddingLeft: 14, paddingRight: 10, paddingVertical: 9, borderRadius: radii.pill },
+  goalChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.violetPale, paddingLeft: 14, paddingRight: 10, paddingVertical: 9, borderRadius: radii.pill },
   goalChipText: { color: colors.violet, fontSize: 13, fontFamily: fonts.extrabold },
   infoButton: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
 

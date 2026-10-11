@@ -19,7 +19,7 @@ export function MealCoachPopup({ suggestion, onClose, onSnooze, onDisable, onIde
 }
 const styles = StyleSheet.create({
   position: { position: 'absolute', left: 12, right: 12, bottom: 94, zIndex: 30 },
-  card: { borderRadius: 23, backgroundColor: colors.white, borderColor: '#CAC3E9', borderWidth: 1, shadowColor: colors.navy, shadowOpacity: .18, shadowRadius: 22, shadowOffset: { width: 0, height: 8 }, elevation: 12, overflow: 'hidden' }, content: { padding: 15, gap: 12 },
+  card: { borderRadius: 23, backgroundColor: colors.white, borderColor: colors.violetEdge, borderWidth: 1, shadowColor: colors.navy, shadowOpacity: .18, shadowRadius: 22, shadowOffset: { width: 0, height: 8 }, elevation: 12, overflow: 'hidden' }, content: { padding: 15, gap: 12 },
   heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, eyebrow: { color: colors.sageDark, fontSize: 12, letterSpacing: 1, fontFamily: fonts.extrabold },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }, cross: { color: colors.navy, fontSize: 26, fontFamily: fonts.medium },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 }, title: { fontSize: 17, lineHeight: 23, color: colors.navy, fontFamily: fonts.extrabold }, copy: { fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, color: colors.inkSoft, marginTop: 7 },

@@ -95,9 +95,9 @@ if (deprecated.length) {
 }
 console.log('Aucune API dépréciée importée.');
 
-/* ------------------------------------------------ la police (V2.7) */
+/* ------------------------------------------- la police (V2.7, V3.4) */
 
-// Avec Plus Jakarta Sans chargée, Android ignore `fontWeight` : chaque graisse
+// Avec une police chargée (Figtree, Bricolage Grotesque), Android ignore `fontWeight` : chaque graisse
 // est une famille à part (fonts.bold, fonts.semibold…). Un seul fontWeight
 // oublié afficherait ce texte dans la police du système, sans erreur visible.
 const weights = [];
@@ -107,7 +107,7 @@ for (const file of files) {
   });
 }
 if (weights.length) {
-  console.error(`\nfontWeight utilisé au lieu d'une famille Plus Jakarta Sans :\n  ${weights.join('\n  ')}`);
+  console.error(`\nfontWeight utilisé au lieu d'une famille de police nommée :\n  ${weights.join('\n  ')}`);
   process.exit(1);
 }
-console.log('Toutes les graisses passent par la famille Plus Jakarta Sans.');
+console.log('Toutes les graisses passent par une famille de police nommée.');

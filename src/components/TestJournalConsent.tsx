@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   title: { color: colors.ink, ...typeScale.display, marginTop: 2 },
   copy: { color: colors.inkSoft, ...typeScale.body },
   card: { borderRadius: radii.large, borderWidth: 1, padding: 14, gap: 9, ...shadows.card },
-  yes: { backgroundColor: colors.greenPale, borderColor: '#CDE9D1' },
+  yes: { backgroundColor: colors.greenPale, borderColor: colors.greenEdge },
   no: { backgroundColor: colors.coralPale, borderColor: '#F6D6D3' },
   cardTitle: { fontSize: 15, lineHeight: 20, fontFamily: fonts.bold },
   line: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
