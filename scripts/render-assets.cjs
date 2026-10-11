@@ -8,10 +8,12 @@ async function render(input, output, size, background) {
 }
 
 (async () => {
-  await render('assets/brand-icon.svg', 'assets/icon.png', 1024);
+  // V3.7 — l'icône iOS ne doit avoir aucune transparence : on l'aplatit et on
+  // retire le canal alpha.
+  await sharp('assets/brand-icon.svg').resize(1024, 1024).flatten({ background: '#2A7246' }).removeAlpha().png().toFile('assets/icon.png');
   await render('assets/android-foreground.svg', 'assets/android-icon-foreground.png', 1024);
   await render('assets/android-monochrome.svg', 'assets/android-icon-monochrome.png', 1024);
-  await sharp({ create: { width: 1024, height: 1024, channels: 4, background: '#1D1B4B' } }).png().toFile('assets/android-icon-background.png');
+  await sharp({ create: { width: 1024, height: 1024, channels: 4, background: '#2A7246' } }).png().toFile('assets/android-icon-background.png');
   await render('assets/android-foreground.svg', 'assets/splash-icon.png', 512);
   await render('assets/brand-icon.svg', 'assets/favicon.png', 64);
   const outputs = await Promise.all(['icon.png', 'android-icon-foreground.png', 'android-icon-monochrome.png', 'android-icon-background.png', 'splash-icon.png', 'favicon.png'].map(async (name) => ({ name, bytes: (await fs.stat(`assets/${name}`)).size })));

@@ -1,8 +1,12 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g transform="translate(512 512) scale(0.64) translate(-512 -512)">
-    <circle fill="none" cx="512" cy="512" r="326" stroke="#FFFFFF" stroke-width="100" stroke-linecap="round" stroke-dasharray="952 1097" transform="rotate(135 512 512)" opacity="0.6"/>
-    <circle cx="512" cy="352" r="48" fill="#FFFFFF"/>
-    <rect x="326" y="450" width="372" height="54" rx="27" fill="#FFFFFF"/>
-    <path d="M362 504 A 150 150 0 0 0 662 504 Z" fill="#FFFFFF"/>
+  <!-- V3.7 — icône thématique Android : une seule couleur, le système la teinte.
+       Seule la forme compte : le bord rempli, l'assiette, les couverts. -->
+  <g transform="translate(512 512) scale(0.72) translate(-512 -512)" fill="#FFFFFF">
+    <circle cx="512" cy="512" r="286" fill="none" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round" stroke-dasharray="1258 1797" transform="rotate(-90 512 512)"/>
+    <circle cx="512" cy="512" r="226"/>
+    <rect x="128" y="300" width="26" height="430" rx="13"/>
+    <rect x="100" y="300" width="12" height="130" rx="6"/><rect x="170" y="300" width="12" height="130" rx="6"/>
+    <rect x="100" y="410" width="82" height="40" rx="20"/>
+    <path d="M870 300 C 930 340, 930 470, 884 500 L 884 730 C 884 744, 858 744, 858 730 L 858 300 Z"/>
   </g>
 </svg>

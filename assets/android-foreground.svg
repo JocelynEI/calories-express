@@ -1,9 +1,17 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g transform="translate(512 512) scale(0.64) translate(-512 -512)">
-    <circle fill="none" cx="512" cy="512" r="326" stroke="#D5CCFF" stroke-width="100" stroke-linecap="round" stroke-dasharray="1536 513" transform="rotate(135 512 512)"/>
-    <circle fill="none" cx="512" cy="512" r="326" stroke="#5B3FE0" stroke-width="100" stroke-linecap="round" stroke-dasharray="952 1097" transform="rotate(135 512 512)"/>
-    <circle cx="512" cy="352" r="48" fill="#0F857D"/>
-    <rect x="326" y="450" width="372" height="54" rx="27" fill="#1D1B4B"/>
-    <path d="M362 504 A 150 150 0 0 0 662 504 Z" fill="#1D1B4B"/>
+  <!-- V3.7 — premier plan de l'icône adaptative Android, fond transparent.
+       Réduit à 72 % pour tenir dans la zone sûre (cercle de 61 % du côté) que
+       tous les masques des fabricants laissent visible. Fond : #2A7246. -->
+  <g transform="translate(512 512) scale(0.72) translate(-512 -512)">
+    <circle cx="512" cy="512" r="286" fill="none" stroke="#1F5A37" stroke-width="48"/>
+    <circle cx="512" cy="512" r="286" fill="none" stroke="#CFE3D6" stroke-width="48" stroke-linecap="round" stroke-dasharray="1258 1797" transform="rotate(-90 512 512)"/>
+    <circle cx="512" cy="512" r="226" fill="#FFFFFF"/>
+    <circle cx="512" cy="512" r="168" fill="none" stroke="#E2E8DD" stroke-width="9"/>
+    <g fill="#FFFFFF">
+      <rect x="128" y="300" width="26" height="430" rx="13"/>
+      <rect x="100" y="300" width="12" height="130" rx="6"/><rect x="170" y="300" width="12" height="130" rx="6"/>
+      <rect x="100" y="410" width="82" height="40" rx="20"/>
+      <path d="M870 300 C 930 340, 930 470, 884 500 L 884 730 C 884 744, 858 744, 858 730 L 858 300 Z"/>
+    </g>
   </g>
 </svg>

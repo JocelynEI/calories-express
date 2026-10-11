@@ -1,18 +1,18 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- V1.9 — direction claire. Le baromètre de l'accueil et le bol, sur un fond
-       lavande très pâle : parmi les icônes sombres d'un écran d'accueil, c'est
-       la clarté qui fait ressortir celle-ci. Lisible jusqu'à 32 px. -->
-  <defs>
-    <linearGradient id="bg" x1="0.1" y1="0" x2="0.5" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#E9E3FF"/>
-    </linearGradient>
-  </defs>
-  <rect width="1024" height="1024" rx="238" fill="url(#bg)"/>
-  <rect x="3" y="3" width="1018" height="1018" rx="235" fill="none" stroke="#D5CCFF" stroke-width="6"/>
-  <circle fill="none" cx="512" cy="512" r="326" stroke="#D5CCFF" stroke-width="100" stroke-linecap="round" stroke-dasharray="1536 513" transform="rotate(135 512 512)"/>
-  <circle fill="none" cx="512" cy="512" r="326" stroke="#5B3FE0" stroke-width="100" stroke-linecap="round" stroke-dasharray="952 1097" transform="rotate(135 512 512)"/>
-  <circle cx="512" cy="352" r="48" fill="#0F857D"/>
-  <rect x="326" y="450" width="372" height="54" rx="27" fill="#1D1B4B"/>
-  <path d="M362 504 A 150 150 0 0 0 662 504 Z" fill="#1D1B4B"/>
+  <!-- V3.7 — « L'assiette ». Le bord se remplit comme sur l'accueil, les couverts
+       disent « repas ». Carré plein, sans transparence : Apple arrondit lui-même
+       les coins et refuse une icône transparente. -->
+  <rect width="1024" height="1024" fill="#2A7246"/>
+  <g>
+    <circle cx="512" cy="512" r="286" fill="none" stroke="#1F5A37" stroke-width="48"/>
+    <circle cx="512" cy="512" r="286" fill="none" stroke="#CFE3D6" stroke-width="48" stroke-linecap="round" stroke-dasharray="1258 1797" transform="rotate(-90 512 512)"/>
+    <circle cx="512" cy="512" r="226" fill="#FFFFFF"/>
+    <circle cx="512" cy="512" r="168" fill="none" stroke="#E2E8DD" stroke-width="9"/>
+    <g fill="#FFFFFF">
+      <rect x="128" y="300" width="26" height="430" rx="13"/>
+      <rect x="100" y="300" width="12" height="130" rx="6"/><rect x="170" y="300" width="12" height="130" rx="6"/>
+      <rect x="100" y="410" width="82" height="40" rx="20"/>
+      <path d="M870 300 C 930 340, 930 470, 884 500 L 884 730 C 884 744, 858 744, 858 730 L 858 300 Z"/>
+    </g>
+  </g>
 </svg>
