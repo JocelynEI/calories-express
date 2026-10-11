@@ -56,3 +56,14 @@ test('Les deux boutons tiennent la hauteur d’un doigt', () => {
   assert.match(home, /moved: \{[^}]*minHeight: 56/);
   assert.match(plate, /row: \{[^}]*minHeight: 56/);
 });
+
+test('Plus aucun style « absoluteFillObject », retiré de React Native 0.86 (V3.5.1)', () => {
+  // Sur téléphone il valait `undefined` : le voile des photos du Journal perdait
+  // sa position sans la moindre erreur à l'écran.
+  for (const dir of ['src/components', 'src/screens']) {
+    for (const name of fs.readdirSync(path.join(__dirname, '..', dir))) {
+      assert.equal(read(`${dir}/${name}`).includes('absoluteFillObject'), false, `${dir}/${name}`);
+    }
+  }
+  assert.ok(read('src/components/MealCard.tsx').includes('...StyleSheet.absoluteFill,'));
+});
