@@ -49,7 +49,7 @@ export function CalorieGauge({ consumed, target }: Props) {
   // cette couleur (voir le thème : les accents du brief sont illisibles en
   // texte, leurs encres passent 4,5:1).
   const tone = useMemo(() => ({
-    navy: { pale: colors.purplePale, ink: colors.violet },
+    navy: { pale: colors.violetPale, ink: colors.violet },
     sage: { pale: colors.mintPale, ink: colors.mintInk },
     gold: { pale: colors.warmPale, ink: colors.warmInk },
   })[status.tone], [status.tone]);

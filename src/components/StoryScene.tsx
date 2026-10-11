@@ -107,7 +107,7 @@ function ClockScene({ progress, accent, scene }: SceneProps) {
   return (
     <View style={styles.center}>
       <Svg width={W} height={H}>
-        <Circle cx={cx} cy={cy} r={r} fill={evening ? '#EDEBFA' : colors.violetPale} />
+        <Circle cx={cx} cy={cy} r={r} fill={evening ? colors.purplePale : colors.violetPale} />
         <Circle cx={cx} cy={cy} r={r} fill="none" stroke={accent} strokeWidth={2} opacity={0.35} />
         <G>
           {marks.map(angle => {

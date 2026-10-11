@@ -12,16 +12,38 @@ const lin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 
 const lum = (hex) => { const n = parseInt(hex.slice(1, 7), 16); return 0.2126 * lin(n >> 16) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255); };
 const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
 
-test('Les couleurs du brief sont reprises exactement', () => {
-  const brief = {
-    violet: '#5B48E8', navy: '#1A1B4B',
-    mintFill: '#00C4CC', mintPale: '#E6F8F8',
-    warmFill: '#EAC15C', warmPale: '#FFF9EB',
-    greenFill: '#4CAF50', greenPale: '#EBF7ED',
-    purpleFill: '#8C62FF', purplePale: '#F3EFFF',
-    background: '#F5F7FB', card: '#FFFFFF', ink: '#1E2022', muted: '#6C757D',
+test('Les couleurs de « L’assiette » (V3.4) sont reprises exactement', () => {
+  const palette = {
+    violet: '#2A7246', navy: '#1F3A2E',
+    mintFill: '#3FA7B5', mintPale: '#E2F2F3',
+    warmFill: '#F29A4A', warmPale: '#FCEBD7',
+    greenFill: '#7BB662', greenPale: '#E7F1DF',
+    purpleFill: '#A0679B', purplePale: '#F4E9F2',
+    background: '#EEF2EA', card: '#FFFFFF', ink: '#1F3A2E', muted: '#4E6357',
   };
-  for (const [key, value] of Object.entries(brief)) assert.equal(colors[key], value, `${key} doit valoir ${value}`);
+  for (const [key, value] of Object.entries(palette)) assert.equal(colors[key], value, `${key} doit valoir ${value}`);
+});
+
+test('Les pastilles de la couleur principale sont vertes, le prune est réservé au dîner (V3.4)', () => {
+  // Le pâle du violet servait de fond à tout ce qui portait la couleur
+  // principale. Devenu prune, il aurait mis du rose derrière du vert.
+  assert.equal(colors.sagePale, colors.violetPale);
+  for (const file of ['src/components/CalorieGauge.tsx', 'src/components/PraiseCard.tsx', 'src/components/GuideCard.tsx', 'src/screens/TodayScreen.tsx']) {
+    assert.ok(!read(file).includes('colors.purplePale'), `${file} : le prune n’accompagne pas la couleur principale`);
+  }
+});
+
+test('Plus aucune teinte lavande codée en dur dans les écrans (V3.4)', () => {
+  // Les anciennes teintes violettes vivaient dans une dizaine de composants,
+  // hors du thème : elles seraient restées violettes sur fond vert.
+  const dirs = ['src/components', 'src/screens'];
+  const lavender = ['#DFDDF8', '#DEDDFF', '#C8C9FF', '#EDEBFA', '#E2DCFF', '#CAC3E9', '#CEC5ED', '#F1EDFF', '#C9BCF7', '#D6CCF6', '#CFC5FF', '#C9CEDC'];
+  for (const dir of dirs) {
+    for (const name of fs.readdirSync(path.join(__dirname, '..', dir))) {
+      const source = read(`${dir}/${name}`).toUpperCase();
+      for (const hex of lavender) assert.ok(!source.includes(hex), `${hex} encore présent dans ${dir}/${name}`);
+    }
+  }
 });
 
 test('Chaque encre d’accent est lisible sur sa pastille et sous un texte blanc', () => {
@@ -33,7 +55,11 @@ test('Chaque encre d’accent est lisible sur sa pastille et sous un texte blanc
     assert.ok(contrast(ink, pale) >= 4.5, `${name}Ink sur ${name}Pale : ${contrast(ink, pale).toFixed(2)}`);
     assert.ok(contrast('#FFFFFF', ink) >= 4.5, `blanc sur ${name}Ink : ${contrast('#FFFFFF', ink).toFixed(2)}`);
   }
-  assert.ok(contrast(colors.violet, colors.card) >= 4.5, 'le violet principal doit rester lisible');
+  assert.ok(contrast(colors.violet, colors.card) >= 4.5, 'la couleur principale doit rester lisible');
+  assert.ok(contrast(colors.violet, colors.violetPale) >= 4.5, 'la couleur principale doit rester lisible sur sa pastille');
+  assert.ok(contrast('#FFFFFF', colors.violet) >= 4.5, 'un texte blanc doit rester lisible sur un bouton principal');
+  assert.ok(contrast(colors.onDarkMuted, colors.navy) >= 4.5, 'le texte secondaire doit rester lisible sur fond sombre');
+  assert.ok(contrast(colors.muted, colors.background) >= 4.5, 'le texte secondaire doit rester lisible sur l’écran');
   assert.ok(contrast(colors.ink, colors.background) >= 7, 'le texte principal doit être très contrasté');
 });
 
@@ -44,9 +70,12 @@ test('La typographie suit la hiérarchie du brief', () => {
   assert.equal(typeScale.numeric.fontSize, 32);
   assert.equal(typeScale.body.fontSize, 14);
   assert.equal(typeScale.caption.fontSize, 12);
-  assert.equal(typeScale.numeric.fontFamily, fonts.extrabold);
+  assert.equal(typeScale.numeric.fontFamily, fonts.displayHeavy);
+  assert.equal(typeScale.display.fontFamily, fonts.display);
+  assert.equal(typeScale.section.fontFamily, fonts.display);
   assert.equal(typeScale.cardTitle.fontFamily, fonts.semibold);
-  for (const family of Object.values(fonts)) assert.match(family, /^PlusJakartaSans_\d00/);
+  for (const key of ['regular', 'medium', 'semibold', 'bold', 'extrabold']) assert.match(fonts[key], /^Figtree_\d00/);
+  for (const key of ['display', 'displayHeavy']) assert.match(fonts[key], /^BricolageGrotesque_\d00/);
 });
 
 test('Rayons et ombre du brief', () => {
@@ -57,13 +86,16 @@ test('Rayons et ombre du brief', () => {
   assert.equal(shadows.card.shadowOffset.height, 8);
 });
 
-test('Les cinq graisses de Plus Jakarta Sans sont chargées au démarrage', () => {
+test('Les polices Figtree et Bricolage Grotesque sont chargées au démarrage (V3.4)', () => {
   const app = read('App.tsx');
-  for (const weight of ['400Regular', '500Medium', '600SemiBold', '700Bold', '800ExtraBold']) {
-    assert.ok(app.includes(`PlusJakartaSans_${weight}`), `graisse non chargée : ${weight}`);
+  for (const family of Object.values(fonts)) {
+    assert.ok(app.includes(family), `graisse non chargée : ${family}`);
   }
+  assert.ok(!app.includes('PlusJakarta'), 'l’ancienne police ne doit plus être chargée');
   const pkg = JSON.parse(read('package.json'));
-  assert.ok(pkg.dependencies['@expo-google-fonts/plus-jakarta-sans'], 'paquet de police manquant');
+  assert.ok(pkg.dependencies['@expo-google-fonts/figtree'], 'paquet Figtree manquant');
+  assert.ok(pkg.dependencies['@expo-google-fonts/bricolage-grotesque'], 'paquet Bricolage Grotesque manquant');
+  assert.ok(!pkg.dependencies['@expo-google-fonts/plus-jakarta-sans'], 'l’ancien paquet de police doit être retiré');
   assert.ok(pkg.dependencies['expo-font'], 'expo-font manquant');
 });
 

@@ -27,8 +27,8 @@ import { MotionPressable } from './Motion';
 export type BubbleTone = 'mint' | 'warm';
 
 const TONES: Record<BubbleTone, { pale: string; ink: string; edge: string }> = {
-  mint: { pale: colors.mintPale, ink: colors.mintInk, edge: '#CFEDED' },
-  warm: { pale: colors.warmPale, ink: colors.warmInk, edge: '#F0E2BC' },
+  mint: { pale: colors.mintPale, ink: colors.mintInk, edge: colors.mintEdge },
+  warm: { pale: colors.warmPale, ink: colors.warmInk, edge: colors.warmEdge },
 };
 
 type BubbleProps = {

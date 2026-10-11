@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.navy, borderRadius: 20, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10, shadowColor: colors.navy, shadowOpacity: 0.2, shadowRadius: 15, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   check: { width: 36, height: 36, borderRadius: 12, backgroundColor: colors.aqua, alignItems: 'center', justifyContent: 'center' },
   body: { flex: 1 }, title: { color: colors.white, fontSize: 13, fontFamily: fonts.extrabold },
-  copy: { color: '#DFDDF8', fontSize: 12, fontFamily: fonts.medium, marginTop: 4 },
+  copy: { color: colors.onDarkMuted, fontSize: 12, fontFamily: fonts.medium, marginTop: 4 },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   closeText: { color: colors.white, fontSize: 24, fontFamily: fonts.medium },
 });

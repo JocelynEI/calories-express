@@ -13,8 +13,8 @@ export function ActivityCelebration({ feedback, onClose }: { feedback: ActivityF
   </Entrance>;
 }
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#F1EDFF', borderColor: '#C9BCF7', borderWidth: 1, borderRadius: 23, padding: 14, gap: 8 },
+  card: { backgroundColor: colors.violetPale, borderColor: colors.violetEdge, borderWidth: 1, borderRadius: 23, padding: 14, gap: 8 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 }, eyebrow: { fontSize: 12, fontFamily: fonts.extrabold, color: colors.sageDark, letterSpacing: 1 }, close: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
   row: { flexDirection: 'row', gap: 10, alignItems: 'center' }, title: { color: colors.navy, fontSize: 18, lineHeight: 24, fontFamily: fonts.extrabold }, copy: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.medium, lineHeight: 20 },
-  detail: { fontSize: 12, fontFamily: fonts.medium, lineHeight: 18, color: colors.sageDark, borderTopWidth: 1, borderTopColor: '#D6CCF6', paddingTop: 12 },
+  detail: { fontSize: 12, fontFamily: fonts.medium, lineHeight: 18, color: colors.sageDark, borderTopWidth: 1, borderTopColor: colors.violetEdge, paddingTop: 12 },
 });

@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   dayLabel: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, textTransform: 'capitalize' },
   dayLabelActive: { color: colors.navy, fontFamily: fonts.extrabold },
 
-  insight: { flexDirection: 'row', gap: 12, backgroundColor: colors.goldPale, borderRadius: radii.large, padding: 15, borderWidth: 1, borderColor: '#EFDDBE' },
+  insight: { flexDirection: 'row', gap: 12, backgroundColor: colors.goldPale, borderRadius: radii.large, padding: 15, borderWidth: 1, borderColor: colors.warmEdge },
   insightIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
   insightTitle: { color: colors.ink, fontSize: 15, fontFamily: fonts.extrabold },
   insightText: { color: '#6F4E07', fontSize: 13, lineHeight: 19, marginTop: 4, fontFamily: fonts.medium },

@@ -20,8 +20,8 @@ export function PraiseCard({ praise, onClose, tone = 'violet' }: {
   tone?: 'violet' | 'mint';
 }) {
   const palette = tone === 'mint'
-    ? { pale: colors.mintPale, ink: colors.mintInk, edge: '#BEE8E8' }
-    : { pale: colors.purplePale, ink: colors.violet, edge: colors.violetEdge };
+    ? { pale: colors.mintPale, ink: colors.mintInk, edge: colors.mintEdge }
+    : { pale: colors.violetPale, ink: colors.violet, edge: colors.violetEdge };
 
   return (
     <Entrance key={praise.key} style={[styles.card, { backgroundColor: palette.pale, borderColor: palette.edge }]}>

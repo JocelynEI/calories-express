@@ -1,6 +1,14 @@
-# Calories Express — V3.3
+# Calories Express — V3.4
 
-Version de test Expo Go · 27 septembre 2026.
+Version de test Expo Go · 11 octobre 2026.
+
+## Ce qui change en V3.4 — les couleurs de « L'assiette »
+
+- **Un vert de cuisine remplace le violet** : vert `#2A7246` pour les boutons et la jauge, vert très sombre `#1F3A2E` pour les titres, fond `#EEF2EA`. Les accents deviennent orange (petit-déjeuner, quantités), vert tendre (déjeuner), prune (dîner) et bleu-vert (collation).
+- **Figtree pour le texte, Bricolage Grotesque pour les titres et les grands chiffres.**
+- **Les teintes lavande cachées dans une dizaine de composants** passent par le thème : plus rien de violet ne reste sur fond vert.
+- Chaque texte garde un contraste d'au moins 4,5:1, vérifié par les tests.
+- La mise en page ne change pas : la nouvelle disposition de l'accueil arrive en V3.5.
 
 ## Ce qui change en V3.3 — les quantités en mesures de cuisine
 

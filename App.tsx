@@ -4,12 +4,13 @@ import { ActivityIndicator, BackHandler, Platform, StyleSheet, Text, View } from
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import {
   useFonts,
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_800ExtraBold,
-} from '@expo-google-fonts/plus-jakarta-sans';
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+  Figtree_800ExtraBold,
+} from '@expo-google-fonts/figtree';
+import { BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold } from '@expo-google-fonts/bricolage-grotesque';
 import { ActivityModal } from './src/components/ActivityModal';
 import { AddMealModal } from './src/components/AddMealModal';
 import { BottomNav, TabName } from './src/components/BottomNav';
@@ -63,17 +64,19 @@ const TAB_LABELS: Record<TabName, string> = {
 };
 
 export default function App() {
-  // V2.7 — Plus Jakarta Sans. Les fichiers de police font partie de
-  // l'application : aucun réseau n'est nécessaire pour les charger. Tant
+  // V3.4 — Figtree et Bricolage Grotesque. Les fichiers de police font partie
+  // de l'application : aucun réseau n'est nécessaire pour les charger. Tant
   // qu'ils ne sont pas prêts, on n'affiche qu'un fond uni plutôt qu'un texte
   // qui changerait de police sous les yeux. En cas d'échec, l'application
   // s'ouvre quand même, avec la police du système.
   const [fontsLoaded, fontError] = useFonts({
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-    PlusJakartaSans_800ExtraBold,
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
+    Figtree_800ExtraBold,
+    BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
   });
   if (!fontsLoaded && !fontError) return <View style={styles.fontGate} />;
 
