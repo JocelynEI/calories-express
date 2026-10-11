@@ -1,4 +1,5 @@
 import { parseProduct, ProductCandidate } from '../domain/foods';
+import { SUPPORT_URL } from '../config/legal';
 
 // V2.4 : on demande aussi la photo du produit. Ce sont de vraies
 // photographies, prises et versées par les contributeurs d'Open Food Facts —
@@ -33,7 +34,7 @@ export function createProductSearch(fetcher: typeof fetch = fetch, now: () => nu
     let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 20000);
     try {
-      const response = await fetcher(productSearchUrl(q), { signal: controller.signal, headers: { 'User-Agent': 'CaloriesExpress/1.5 (private Expo prototype)', Accept: 'application/json' } });
+      const response = await fetcher(productSearchUrl(q), { signal: controller.signal, headers: { 'User-Agent': `CaloriesExpress (+${SUPPORT_URL})`, Accept: 'application/json' } });
       if (response.status === 429) throw new Error('La base limite temporairement les recherches. Les aliments Ciqual restent accessibles hors ligne.');
       if (response.status === 404 && /^\d{8,14}$/.test(q)) return [];
       if (!response.ok) throw new Error('La recherche de marques est momentanément indisponible. Les estimations Ciqual restent disponibles hors ligne.');

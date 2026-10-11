@@ -1,6 +1,13 @@
-# Calories Express — V3.5.1
+# Calories Express — V3.6
 
 Version de test Expo Go · 11 octobre 2026.
+
+## Ce qui change en V3.6 — la politique de confidentialité
+
+- **Deux pages publiques** avec le site : « Confidentialité » et « Aide et contact ».
+- **Deux liens en bas du Profil** pour les ouvrir, comme l'exige Apple.
+- Le Profil ne parle plus d'Expo Go, et la recherche de produits se présente à Open Food Facts sous le nom de l'appli.
+- Pour mettre les pages en ligne : publier le site web, comme pour chaque version.
 
 ## Ce qui change en V3.5.1
 
