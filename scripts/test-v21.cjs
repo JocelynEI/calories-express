@@ -98,18 +98,20 @@ test('Un repas montre la première photo disponible', () => {
 
 /* --------------------------------------- l'accueil rangé en blocs (V2.4) */
 
-test('L’accueil se lit dans l’ordre : le repère, les deux côtés, les repas', () => {
-  // V2.4 exigeait trois bandeaux thématiques. La V3.2 les remplace par deux
-  // bulles : l'intention est la même — un écran rangé, chaque chose à sa
-  // place — mais elle tient désormais en un écran au lieu de trois.
+test('L’accueil se lit dans l’ordre : le repère, les deux gestes, le bougé, les repas', () => {
+  // V2.4 exigeait trois bandeaux thématiques, la V3.2 deux bulles. La V3.5
+  // (« L'assiette ») garde l'intention — un écran rangé, chaque chose à sa
+  // place — avec l'assiette en tête, puis les deux gestes, ce qu'on a bougé,
+  // et ce qu'on a mangé.
   const home = read('src/screens/TodayScreen.tsx');
   const jauge = home.indexOf('<CalorieGauge');
-  const bulles = home.indexOf('<DayBubbles>');
-  const repas = home.indexOf('<MealCard');
-  assert.ok(jauge >= 0 && bulles >= 0 && repas >= 0, 'les trois étages doivent exister');
-  assert.ok(jauge < bulles, 'le repère du jour reste en premier');
-  assert.ok(bulles < repas, 'les deux bulles annoncent le détail qui suit');
-  assert.ok(home.includes('label="MANGÉ"') && home.includes('label="DÉPENSÉ"'), 'les deux côtés de la journée');
+  const gestes = home.indexOf('accessibilityLabel="Ajouter un repas"');
+  const bouge = home.indexOf('style={styles.moved}');
+  const repas = home.indexOf('<PlateMeals');
+  assert.ok(jauge >= 0 && gestes >= 0 && bouge >= 0 && repas >= 0, 'les quatre étages doivent exister');
+  assert.ok(jauge < gestes, 'le repère du jour reste en premier');
+  assert.ok(gestes < bouge && bouge < repas, 'les gestes, puis le bougé, puis les repas');
+  assert.ok(home.includes('>Bougé<') && home.includes('total={consumed}'), 'les deux côtés de la journée : bougé et mangé');
   // Ce qui a déménagé ne doit pas revenir en douce.
   assert.equal(home.includes('StoryRail'), false, 'les séquences ont quitté l’accueil');
   assert.equal(home.includes('GuideAvatar'), false, 'le conseil illustré a quitté l’accueil');

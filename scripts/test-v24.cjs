@@ -94,19 +94,19 @@ test('Le résultat s’annonce aux lecteurs d’écran quand il change', () => {
 /* ------------------------------------------------ la place sur l’accueil */
 
 test('L’estimation vient juste après le baromètre, avant les repas', () => {
-  // V3.2 : le bloc « Mon activité » est devenu une bulle, mais la règle de la
-  // V2.9 tient toujours — on voit ce qu'on peut estimer avant d'arriver aux
-  // repas, sans faire défiler.
+  // V3.5 : les bulles sont devenues deux boutons et une ligne « Bougé », mais
+  // la règle de la V2.9 tient toujours — on voit ce qu'on peut estimer avant
+  // d'arriver aux repas, sans faire défiler.
   const jauge = home.indexOf('<CalorieGauge');
-  const bulles = home.indexOf('<DayBubbles>');
+  const gestes = home.indexOf('accessibilityLabel="Ajouter une activité"');
   const estimation = home.indexOf('<QuickActivity');
-  const repas = home.indexOf('<MealCard');
-  assert.ok(jauge >= 0 && bulles >= 0 && estimation >= 0 && repas >= 0, 'les quatre morceaux doivent exister');
-  assert.ok(jauge < bulles, 'le repère du jour reste en premier');
-  assert.ok(bulles < repas, 'les deux bulles passent avant la liste des repas');
+  const repas = home.indexOf('<PlateMeals');
+  assert.ok(jauge >= 0 && gestes >= 0 && estimation >= 0 && repas >= 0, 'les quatre morceaux doivent exister');
+  assert.ok(jauge < gestes, 'le repère du jour reste en premier');
+  assert.ok(gestes < repas, 'les deux gestes passent avant la liste des repas');
   assert.ok(estimation < repas, 'l’estimation s’ouvre au-dessus des repas : c’est elle qu’on ne trouvait pas');
-  assert.ok(home.includes('actionLabel="Ajouter une activité"'), 'le geste doit être nommé en entier pour les lecteurs d’écran');
-  assert.ok(home.includes('actionLabel="Ajouter un repas"'), 'idem côté repas');
+  assert.ok(home.includes('accessibilityLabel="Ajouter une activité"'), 'le geste doit être nommé en entier pour les lecteurs d’écran');
+  assert.ok(home.includes('accessibilityLabel="Ajouter un repas"'), 'idem côté repas');
 });
 
 /* ------------------------------------- aucun choix ne peut afficher zéro */

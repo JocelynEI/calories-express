@@ -99,11 +99,14 @@ test('Les polices Figtree et Bricolage Grotesque sont chargées au démarrage (V
   assert.ok(pkg.dependencies['expo-font'], 'expo-font manquant');
 });
 
-test('La jauge est un arc de 240° et affiche le consommé', () => {
+test('La jauge est une assiette pleine, avec ce qu’il reste au centre (V3.5)', () => {
   const gauge = read('src/components/CalorieGauge.tsx');
-  assert.ok(gauge.includes('describeArc(center, center, radius, 150, 390)'), 'arc de 150° à 390°');
-  assert.ok(gauge.includes('(240 / 360)'), 'longueur calculée sur 240°');
-  assert.ok(gauge.includes('sur ${target.toLocaleString'), 'le repère s’affiche sous le total');
+  assert.ok(gauge.includes('2 * Math.PI * rimRadius'), 'le bord fait tout le tour de l’assiette');
+  assert.ok(gauge.includes('rotation={-90}'), 'la progression part du haut');
+  assert.ok(gauge.includes("'Il te reste'") && gauge.includes("'Au-dessus de'"), 'le centre annonce le restant ou l’écart');
+  // Une information, un seul endroit : le repère est écrit sous l'assiette, le
+  // total mangé en tête de « Dans ton assiette ».
+  assert.ok(!gauge.includes('sur ${target.toLocaleString'), 'le total et le repère ne sont plus répétés au centre');
 });
 
 test('Les moments de la journée suivent les catégories du brief', () => {

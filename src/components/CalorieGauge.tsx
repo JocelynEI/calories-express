@@ -1,37 +1,37 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle } from 'react-native-svg';
 import { gaugeMessage } from '../domain/calories';
 import { colors, fonts, MAX_FONT_SCALE, radii, typeScale } from '../theme';
 import { useExperience } from '../state/ExperienceContext';
 
-const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 type Props = { consumed: number; target: number };
 
 /**
- * V3.2 — la jauge répond à la question qu'on lui pose.
+ * V3.5 — la jauge devient une assiette vue du dessus.
  *
- * Jusqu'ici le centre affichait le total consommé : « 1 850 sur 2 100 ». Un
- * constat exact, mais muet — à 16 h, 1 850 ne veut rien dire tant qu'on n'a
- * pas fait la soustraction soi-même. Or la question posée en ouvrant
- * l'application avant de passer à table est toujours la même : combien
- * reste-t-il pour ce soir ?
+ * La V3.2 avait déjà mis au centre la réponse à la question qu'on pose en
+ * ouvrant l'application : combien reste-t-il ? Ce chiffre ne bouge pas. Ce qui
+ * change, c'est la forme : un arc de compteur devient le bord d'une assiette,
+ * qui se remplit à mesure des repas notés.
  *
- * C'est donc ce chiffre qui occupe le centre, le total passant en dessous en
- * petit : rien n'est perdu, l'ordre de lecture change.
+ * Le total consommé et le repère ne sont plus répétés au centre : le repère
+ * est écrit juste dessous, le total en tête de la liste « Dans ton assiette ».
+ * Une information, un seul endroit.
  *
  * Au-dessus du repère, le centre annonce l'écart plutôt qu'un nombre négatif,
  * et la pastille garde son rôle : dire l'état sans le juger.
  */
 export function CalorieGauge({ consumed, target }: Props) {
   const { reducedMotion } = useExperience();
-  const size = 200;
+  const size = 248;
   const center = size / 2;
-  const radius = 82;
-  // 240° : de 150° (bas gauche) à 390° (bas droite), dans le sens horaire.
-  const activeLength = 2 * Math.PI * radius * (240 / 360);
-  const arcPath = describeArc(center, center, radius, 150, 390);
+  // Le bord de l'assiette, où se dessine la progression.
+  const rimRadius = 112;
+  const rimWidth = 12;
+  const circumference = 2 * Math.PI * rimRadius;
   const ratio = target > 0 ? consumed / target : 0;
   const visualRatio = Math.max(0, Math.min(1, ratio));
   const progress = useRef(new Animated.Value(reducedMotion ? visualRatio : 0)).current;
@@ -46,8 +46,7 @@ export function CalorieGauge({ consumed, target }: Props) {
   const [displayed, setDisplayed] = useState(shownValue);
 
   // La pastille prend la couleur de l'état ; son texte, l'encre lisible de
-  // cette couleur (voir le thème : les accents du brief sont illisibles en
-  // texte, leurs encres passent 4,5:1).
+  // cette couleur (voir le thème : chaque encre passe 4,5:1 sur sa pastille).
   const tone = useMemo(() => ({
     navy: { pale: colors.violetPale, ink: colors.violet },
     sage: { pale: colors.mintPale, ink: colors.mintInk },
@@ -80,7 +79,7 @@ export function CalorieGauge({ consumed, target }: Props) {
     return () => { animation.stop(); counter.removeListener(listener); };
   }, [shownValue, counter, reducedMotion]);
 
-  const dashOffset = progress.interpolate({ inputRange: [0, 1], outputRange: [activeLength, 0] });
+  const dashOffset = progress.interpolate({ inputRange: [0, 1], outputRange: [circumference, 0] });
 
   const label = target <= 0
     ? 'Profil à vérifier'
@@ -89,30 +88,33 @@ export function CalorieGauge({ consumed, target }: Props) {
   return (
     <View style={styles.wrapper} accessible accessibilityLabel={label}>
       <Svg width={size} height={size}>
-        <Path d={arcPath} fill="none" stroke={colors.track} strokeWidth={16} strokeLinecap="round" />
-        <AnimatedPath
-          d={arcPath}
-          fill="none" stroke={colors.violet} strokeWidth={16}
-          strokeLinecap="round" strokeDasharray={`${activeLength} ${activeLength}`}
+        {/* Le bord, puis la part déjà servie, qui part du haut et tourne dans le sens des aiguilles d'une montre. */}
+        <Circle cx={center} cy={center} r={rimRadius} fill="none" stroke={colors.track} strokeWidth={rimWidth} />
+        <AnimatedCircle
+          cx={center} cy={center} r={rimRadius}
+          fill="none" stroke={colors.violet} strokeWidth={rimWidth} strokeLinecap="round"
+          strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={dashOffset as never}
+          rotation={-90} origin={`${center}, ${center}`}
         />
+        {/* L'assiette elle-même, et le creux du centre. */}
+        <Circle cx={center} cy={center} r={rimRadius - rimWidth / 2 - 8} fill={colors.card} />
+        <Circle cx={center} cy={center} r={rimRadius - rimWidth / 2 - 28} fill="none" stroke={colors.background} strokeWidth={2} />
       </Svg>
       <View style={styles.content} pointerEvents="none">
         {target > 0 ? (
           <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.eyebrow}>
-            {over ? 'AU-DESSUS DE' : 'IL TE RESTE'}
+            {over ? 'Au-dessus de' : 'Il te reste'}
           </Text>
         ) : null}
-        <Text maxFontSizeMultiplier={1.35} style={styles.value}>
+        <Text maxFontSizeMultiplier={1.3} style={styles.value}>
           {displayed.toLocaleString('fr-FR')}
         </Text>
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.unit}>
-          {target <= 0
-            ? 'repère à définir'
-            : `kcal · ${Math.round(consumed).toLocaleString('fr-FR')} sur ${target.toLocaleString('fr-FR')}`}
+          {target <= 0 ? 'repère à définir' : 'kcal'}
         </Text>
       </View>
-      {/* La pastille loge dans l'ouverture de 120° en bas de l'arc. */}
+      {/* La pastille est posée sur le bas du bord, comme une étiquette. */}
       <View style={[styles.statusPill, { backgroundColor: tone.pale }]} pointerEvents="none">
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.status, { color: tone.ink }]} numberOfLines={1}>{status.label}</Text>
       </View>
@@ -120,22 +122,12 @@ export function CalorieGauge({ consumed, target }: Props) {
   );
 }
 
-function describeArc(cx: number, cy: number, radius: number, startAngle: number, endAngle: number) {
-  const point = (angle: number) => {
-    const radians = (angle * Math.PI) / 180;
-    return { x: cx + radius * Math.cos(radians), y: cy + radius * Math.sin(radians) };
-  };
-  const start = point(startAngle);
-  const end = point(endAngle);
-  return `M ${start.x} ${start.y} A ${radius} ${radius} 0 1 1 ${end.x} ${end.y}`;
-}
-
 const styles = StyleSheet.create({
-  wrapper: { width: 200, height: 200, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
-  content: { position: 'absolute', width: 154, alignItems: 'center', marginTop: -10 },
-  eyebrow: { color: colors.violet, fontSize: 11, lineHeight: 15, fontFamily: fonts.bold, letterSpacing: 1.1 },
-  value: { color: colors.ink, ...typeScale.numeric, fontSize: 36, lineHeight: 42 },
-  unit: { color: colors.muted, fontSize: 12, lineHeight: 16, fontFamily: fonts.medium, marginTop: 1, textAlign: 'center' },
-  statusPill: { position: 'absolute', bottom: 6, maxWidth: 150, borderRadius: radii.pill, paddingHorizontal: 12, paddingVertical: 6 },
-  status: { fontSize: 12, lineHeight: 16, fontFamily: fonts.bold },
+  wrapper: { width: 248, height: 260, alignItems: 'center', alignSelf: 'center' },
+  content: { position: 'absolute', top: 0, height: 248, width: 160, alignItems: 'center', justifyContent: 'center' },
+  eyebrow: { color: colors.muted, fontSize: 14, lineHeight: 18, fontFamily: fonts.semibold },
+  value: { color: colors.ink, ...typeScale.numeric, fontSize: 56, lineHeight: 62, letterSpacing: -2.2 },
+  unit: { color: colors.muted, fontSize: 14, lineHeight: 18, fontFamily: fonts.semibold },
+  statusPill: { position: 'absolute', bottom: 0, maxWidth: 220, borderRadius: radii.pill, paddingHorizontal: 14, paddingVertical: 7, borderWidth: 2, borderColor: colors.background },
+  status: { fontSize: 13, lineHeight: 17, fontFamily: fonts.bold },
 });

@@ -31,11 +31,9 @@ type Props = {
   onRemove?: () => void;
   /** V1.8 — modifier une entrée au lieu de la supprimer puis la ressaisir. */
   onEdit?: () => void;
-  /** Ligne resserrée, sans bandeau : pour les listes denses. */
-  compact?: boolean;
 };
 
-export function MealCard({ meal, onRemove, onEdit, compact = false }: Props) {
+export function MealCard({ meal, onRemove, onEdit }: Props) {
   const [photoFailed, setPhotoFailed] = useState(false);
   const tone = toneFor(meal.moment);
   const photo = photoFailed ? undefined : mealPhoto(meal);
@@ -73,31 +71,7 @@ export function MealCard({ meal, onRemove, onEdit, compact = false }: Props) {
     </View>
   );
 
-  const thumb = (
-    <View style={[styles.thumb, { backgroundColor: tone.pale }]}>
-      {photo
-        ? <Image source={{ uri: photo }} resizeMode="cover" onError={() => setPhotoFailed(true)} style={styles.thumbPhoto} />
-        : drawing
-          ? <FoodArt name={drawing} size={56} />
-          : <AppIcon name="journal" size={24} color={tone.ink} strokeWidth={1.7} />}
-    </View>
-  );
-
-  const inside = compact
-    ? (
-      <View style={styles.compactRow}>
-        {thumb}
-        <View style={styles.bodyText}>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.description} numberOfLines={1}>{meal.description}</Text>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.meta}>{meal.moment} · {shortTime(meal.createdAt)}</Text>
-        </View>
-        <View style={styles.right}>
-          <Text maxFontSizeMultiplier={1.3} style={styles.calories}>{meal.calories.estimated.toLocaleString('fr-FR')}</Text>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.kcal}>kcal</Text>
-        </View>
-      </View>
-    )
-    : <>{cover}{body}</>;
+  const inside = <>{cover}{body}</>;
 
   return (
     <View style={styles.wrapper}>
@@ -133,7 +107,7 @@ export function MealCard({ meal, onRemove, onEdit, compact = false }: Props) {
  * Jusqu'en V2.4 le déjeuner et le dîner partageaient deux violets presque
  * identiques : dans le journal, on ne les distinguait plus.
  */
-function toneFor(moment: Meal['moment']) {
+export function toneFor(moment: Meal['moment']) {
   // V2.7 — les catégories du brief : petit-déjeuner orangé, déjeuner vert,
   // dîner violet doux, collation menthe. L'aplat est la couleur pastel exacte
   // du brief ; la pastille et les icônes prennent son encre lisible.
@@ -162,10 +136,6 @@ const styles = StyleSheet.create({
   right: { alignItems: 'flex-end', minWidth: 50 },
   calories: { color: colors.ink, fontSize: 20, lineHeight: 24, fontFamily: fonts.extrabold, letterSpacing: -0.4 },
   kcal: { color: colors.muted, fontSize: 12, lineHeight: 16, fontFamily: fonts.medium },
-
-  compactRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10 },
-  thumb: { width: 62, height: 62, borderRadius: radii.input, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
-  thumbPhoto: { width: 62, height: 62 },
 
   remove: { width: 44, height: 44, borderRadius: radii.input, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.coralPale, marginTop: 4 },
 });
