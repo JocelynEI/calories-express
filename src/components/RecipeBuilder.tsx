@@ -37,12 +37,22 @@ export function RecipeBuilder({ initialName, onAdd, onCancel }: { initialName: s
       {search.trim().length >= 2 && !matches.length && <Text style={form.muted}>Essaie un ingrédient simple. Tu peux aussi mémoriser un produit ou une étiquette dans Ajouter un repas, puis l’utiliser ici.</Text>}
       {!items.length && <Choice label="Partir du burger maison au bœuf" selected={false} onPress={() => { setName('Burger maison au bœuf'); editItems(burgerIngredients().map(i => ({ ...i, quantity: String(i.quantity) }))); }} />}
     </View>
-    <View style={form.card}><Field label="Toute la recette donne combien de portions ?" numeric value={servings} onChange={v => { setServings(v); setConfirmed(false); }} /><Field label="Combien de ces portions as-tu mangées ?" numeric value={eaten} onChange={setEaten} />
-      {preview && <><Text style={{ fontSize: 28, color: colors.navy, fontFamily: fonts.extrabold }}>≈ {preview.calories.estimated} kcal</Text><Text style={form.muted}>pour {eaten} portion(s) · les valeurs dépendent de la cuisson et des ingrédients</Text></>}
-      <Choice label="J’ai vérifié les ingrédients, la cuisson et les quantités" selected={confirmed} onPress={() => setConfirmed(!confirmed)} />
+    <View style={form.card}><Field label="Toute la recette donne combien de portions ?" numeric value={servings} onChange={v => { setServings(v); setConfirmed(false); setError(''); }} /><Field label="Combien de ces portions as-tu mangées ?" numeric value={eaten} onChange={setEaten} /></View>
+    {/* V3.7.3 : la validation forme une étape à part, encadrée en vert, pour
+        qu'on comprenne tout de suite qu'il reste à valider le plat. */}
+    <View style={[form.card, { borderColor: colors.violet, borderWidth: 2, backgroundColor: colors.greenPale }]}>
+      <Text style={form.title}>Dernière étape : valider ton plat</Text>
+      {preview ? <><Text style={{ fontSize: 28, color: colors.navy, fontFamily: fonts.extrabold }}>≈ {preview.calories.estimated} kcal</Text><Text style={form.muted}>pour {eaten} portion(s) · les valeurs dépendent de la cuisson et des ingrédients</Text></> : <Text style={form.muted}>{issue || 'Ajoute au moins un ingrédient pour calculer les kcal.'}</Text>}
+      <Choice label={`${confirmed ? '☑' : '☐'}  J’ai vérifié les ingrédients, la cuisson et les quantités`} selected={confirmed} onPress={() => { setConfirmed(!confirmed); setError(''); }} />
       <View style={form.row}><Text style={[form.copy, { flex: 1 }]}>Mémoriser ma recette</Text><Switch accessibilityLabel="Mémoriser ma recette" value={remember} onValueChange={setRemember} /></View>
       {error ? <Text accessibilityRole="alert" style={form.error}>{error}</Text> : null}
-      <Action label="Ajouter mon plat au repas" disabled={!confirmed} onPress={() => { if (!preview || !food || search.trim()) { setError(search.trim() ? 'Ajoute l’ingrédient recherché ou efface sa recherche avant de valider.' : issue); return; } if (remember) rememberFood(food); onAdd(preview); }} />
+      <Action label={preview ? `Valider et ajouter au repas · ${preview.calories.estimated} kcal` : 'Valider et ajouter au repas'} onPress={() => {
+        if (search.trim()) { setError('Ajoute l’ingrédient recherché ou efface sa recherche avant de valider.'); return; }
+        if (!preview || !food) { setError(issue || 'Ajoute au moins un ingrédient avant de valider.'); return; }
+        if (!confirmed) { setError('Coche « J’ai vérifié les ingrédients… » juste au-dessus, puis valide.'); return; }
+        if (remember) rememberFood(food); onAdd(preview);
+      }} />
+      {!confirmed && <Text style={form.muted}>Coche la case de vérification pour valider.</Text>}
     </View>
   </View>;
 }
