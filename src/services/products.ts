@@ -15,6 +15,15 @@ export function productSearchUrl(query: string, base = 'https://search.openfoodf
   return `${base}/search?q=${encodeURIComponent(expression)}&page_size=12&langs=fr,en&fields=${FIELDS}`;
 }
 
+// Dans un navigateur, un en-tête User-Agent personnalisé déclenche une requête
+// CORS préalable (OPTIONS) que le serveur de recherche refuse : Safari affiche
+// alors « Load failed ». Le navigateur envoie déjà son propre User-Agent, on ne
+// l'ajoute donc que dans l'appli native.
+const IN_BROWSER = typeof window !== 'undefined' && typeof document !== 'undefined';
+export function productSearchHeaders(inBrowser = IN_BROWSER): Record<string, string> {
+  return inBrowser ? { Accept: 'application/json' } : { 'User-Agent': `CaloriesExpress (+${SUPPORT_URL})`, Accept: 'application/json' };
+}
+
 export function createProductSearch(fetcher: typeof fetch = fetch, now: () => number = Date.now) {
   const cache = new Map<string, { at: number; values: ProductCandidate[] }>();
   const requests: number[] = [];
@@ -34,7 +43,7 @@ export function createProductSearch(fetcher: typeof fetch = fetch, now: () => nu
     let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 20000);
     try {
-      const response = await fetcher(productSearchUrl(q), { signal: controller.signal, headers: { 'User-Agent': `CaloriesExpress (+${SUPPORT_URL})`, Accept: 'application/json' } });
+      const response = await fetcher(productSearchUrl(q), { signal: controller.signal, headers: productSearchHeaders() });
       if (response.status === 429) throw new Error('La base limite temporairement les recherches. Les aliments Ciqual restent accessibles hors ligne.');
       if (response.status === 404 && /^\d{8,14}$/.test(q)) return [];
       if (!response.ok) throw new Error('La recherche de marques est momentanément indisponible. Les estimations Ciqual restent disponibles hors ligne.');
@@ -53,7 +62,10 @@ export function createProductSearch(fetcher: typeof fetch = fetch, now: () => nu
     } catch (error) {
       if (timedOut) throw new Error('La recherche prend trop de temps. Les estimations hors ligne sont disponibles ci-dessus.');
       if (signal?.aborted) throw error;
-      if (error instanceof Error && !/fetch|network|abort/i.test(error.message)) throw error;
+      // Erreur réseau : Chrome dit « Failed to fetch », Firefox « NetworkError »,
+      // Safari « Load failed ». Toutes sont des TypeError : on ne montre jamais
+      // ce message brut, en anglais, à l'utilisateur.
+      if (error instanceof Error && !(error instanceof TypeError) && !/fetch|network|abort|load failed/i.test(error.message)) throw error;
       throw new Error('Connexion à la base impossible. Les aliments Ciqual restent accessibles sans connexion.');
     } finally { clearTimeout(timer); signal?.removeEventListener('abort', abort); }
   };
