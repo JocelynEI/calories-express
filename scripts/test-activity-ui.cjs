@@ -47,7 +47,8 @@ test('Formulaire réel : un objectif invalide ne bloque plus les kcal de séance
     await ui.change('Durée de la séance (minutes)', '30');
     await ui.press('Enregistrer la séance et ses kcal');
     assert.equal(ui.saved.length, 1);
-    assert.equal(sessionEnergy(ui.saved[0]).activeKcal, 72); // Marche lente, 2,8 MET.
+    // V2.8 : la saisie retient l'allure habituelle (marche modérée, 3,8 MET).
+    assert.equal(sessionEnergy(ui.saved[0]).activeKcal, 112);
     assert.equal(ui.saved[0].weightKg, 80);
     assert.ok(ui.dirty.includes(true)); assert.equal(ui.dirty.at(-1), false);
   } finally { await ui.close(); }
@@ -57,10 +58,15 @@ test('Formulaire réel : estimer sans profil complété en renseignant le poids'
   try {
     await ui.change('Durée de la séance (minutes)', '30');
     await ui.press('Enregistrer la séance et ses kcal');
-    assert.equal(ui.saved.length, 0); assert.match(ui.text(), /poids/);
+    // V2.8 : sans poids, la séance est estimée avec un poids moyen annoncé (70 kg).
+    assert.equal(ui.saved.length, 1); assert.match(ui.text(), /poids/);
+    const assumed = sessionEnergy(ui.saved[0]);
+    assert.equal(assumed.assumedWeight, true); assert.equal(assumed.activeKcal, 98);
+    await ui.press('Ajuster l’intensité, le poids et la prise en compte');
     await ui.change('Poids utilisé pour cette séance (kg)', '80');
     await ui.press('Enregistrer la séance et ses kcal');
-    assert.equal(ui.saved.length, 1); assert.equal(sessionEnergy(ui.saved[0]).activeKcal, 72);
+    assert.equal(ui.saved.length, 2); assert.equal(ui.saved[1].weightKg, 80);
+    assert.equal(sessionEnergy(ui.saved[1]).assumedWeight, false); assert.equal(sessionEnergy(ui.saved[1]).activeKcal, 112);
   } finally { await ui.close(); }
 });
 test('Formulaire réel : activité libre et calories montre sans poids, intégrées au bilan', async () => {
