@@ -16,8 +16,38 @@ export type LabelDetection = { energies: { value: number; line: string; fromKj: 
  */
 const REFERENCE_LINE = /apport|r[ée]f[ée]rence|\bAR\b|adulte|journali|daily|intake|\b2\s?000\s*kcal\b|\b8\s?400\s*kj\b/i;
 const ENERGY_LINE = /[ée]nergie|energy|valeur\s+[ée]nerg/i;
-// La photo transforme souvent « kcal » en « kca1 », « kcai » ou « kcaI ».
-const KCAL = 'k\\s*c\\s*a\\s*[l1iI|]';
+// La photo transforme souvent « kcal » en « kca1 », « kcai », « keal » ou
+// « kcol », et « kJ » en « k) » ou « k] ».
+const KCAL = 'k\\s*[ce]\\s*[ao]\\s*[l1iI|!]';
+const KJ = /(\d+(?:[.,]\d+)?)\s*k\s*[jJ)\]]/gi;
+
+/**
+ * V4.0.2 — quand les unités sont illisibles, les chiffres suffisent.
+ *
+ * Sur un sachet courbé ou un petit tableau, la lecture garde souvent les
+ * nombres mais abîme « kJ » et « kcal ». Or l'étiquette donne toujours la
+ * même énergie deux fois : en kJ, puis en kcal (1 kcal = 4,184 kJ). Deux
+ * nombres proches dont l'un vaut 4,184 fois l'autre sont donc presque
+ * sûrement « 1573 kJ / 375 kcal ». On ne retient que ces paires.
+ */
+function energyPairs(lines: string[]): LabelDetection['energies'] {
+  const found: LabelDetection['energies'] = [];
+  for (let index = 0; index < lines.length; index++) {
+    // Une case du tableau peut tenir sur deux lignes : kJ dessus, kcal dessous.
+    const block = [lines[index], lines[index + 1] ?? ''].join(' ').replace(/\b(\d{1,2})[ .](\d{3})\b/g, '$1$2');
+    const numbers = [...block.matchAll(/\d+(?:[.,]\d+)?/g)].map(m => m[0]).filter(plausible).map(n => Number(n.replace(',', '.')));
+    for (const kj of numbers) {
+      if (kj < 40 || kj > 4000) continue;
+      for (const kcal of numbers) {
+        if (kcal < 10 || kcal >= kj) continue;
+        if (Math.abs(kj / 4.184 - kcal) <= Math.max(2, kcal * 0.02) && !found.some(e => e.value === kcal)) {
+          found.push({ value: kcal, line: lines[index].trim().slice(0, 160), fromKj: false });
+        }
+      }
+    }
+  }
+  return found;
+}
 const plausible = (digits: string) => !/^0\d/.test(digits);
 
 export function parseLabelText(raw: string): LabelDetection {
@@ -34,8 +64,9 @@ export function parseLabelText(raw: string): LabelDetection {
       if (value <= 10000 && !energies.some(e => e.value === value && !e.fromKj)) energies.push({ value, line: line.trim().slice(0, 160), fromKj: false });
     }
   }
+  if (!energies.length) energies.push(...energyPairs(lines));
   if (!energies.length) for (const line of lines) {
-    for (const match of line.matchAll(/(\d+(?:[.,]\d+)?)\s*k\s*j\b/gi)) {
+    for (const match of line.matchAll(KJ)) {
       if (!plausible(match[1])) continue;
       const value = Math.round(Number(match[1].replace(',', '.')) / 4.184 * 10) / 10;
       if (value <= 10000 && !energies.some(e => e.value === value)) energies.push({ value, line: line.trim().slice(0, 160), fromKj: true });

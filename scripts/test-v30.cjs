@@ -156,3 +156,19 @@ test('La ligne « Énergie » est proposée en premier', () => {
   const r = parseLabelText('Matières grasses 19 g dont 120 kcal\nÉnergie 1960 kJ / 468 kcal');
   assert.equal(r.energies[0].value, 468);
 });
+
+/* ------------- V4.0.2 — un sachet courbé : les unités se perdent, pas les chiffres */
+
+test('« kcal » et « kJ » abîmés par la photo sont reconnus', () => {
+  assert.equal(parseLabelText('Énergie 1573 kJ 551 kJ 7%\n375 keal 131 kcal').energies[0].value, 375);
+  assert.equal(parseLabelText('Énergie 1573 k)').energies[0].value, 376, 'repli sur les kJ, même abîmés');
+});
+
+test('Sans unité lisible, la paire kJ / kcal donne l’énergie', () => {
+  // 1573 kJ = 375 kcal, 551 kJ = 131 kcal : la lecture a gardé les nombres seuls.
+  const r = parseLabelText('Energie 1573 551 7%\n375 131');
+  assert.deepEqual(r.energies.map(e => e.value), [375, 131]);
+  assert.equal(parseLabelText('Énergie 1 573 375').energies[0].value, 375, 'un espace dans les milliers');
+  // Des nombres sans rapport ne s'inventent pas une énergie.
+  assert.equal(parseLabelText('Matières grasses 18 6,3\nGlucides 50 18').energies.length, 0);
+});

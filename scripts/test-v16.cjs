@@ -121,7 +121,7 @@ test('Étiquette : poids inconnu, unité incorrecte, portions invalides et kcal 
   assert.equal(scaleReference(foodFromLabel(label({ kcal: 40, basis: '100ml', byPiece: false })), 250).calories.estimated, 100);
 });
 test('OCR : photo strictement base64, versions épinglées et aucun envoi de la photo via fetch', () => {
-  const html = ocrPage('YWJj'); assert.match(html, /tesseract\.js@6\.0\.1/); assert.match(html, /worker\.recognize\('data:image\/jpeg;base64,YWJj'\)/);
+  const html = ocrPage('YWJj'); assert.match(html, /tesseract\.js@6\.0\.1/); assert.match(html, /var img='data:image\/jpeg;base64,YWJj'/); assert.match(html, /worker\.recognize\(img\)/);
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
   assert.throws(() => ocrPage('</script><script>bad()'));
   let text = ''; const cb = { onText: t => text = t, onError: () => {}, onProgress: () => {} };

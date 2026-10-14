@@ -182,6 +182,8 @@ export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false 
         <MotionPressable accessibilityRole="button" onPress={() => { setTyping(true); setEnergy(''); }} style={styles.link}><Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.linkText}>Ce n’est pas le bon chiffre</Text></MotionPressable>
       </> : <>
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.copy}>Recopie le chiffre en kcal écrit à côté de « Énergie » (pas celui en kJ).</Text>
+        {/* La photo en grand juste au-dessus du champ : on recopie sans la quitter des yeux. */}
+        {uri ? <Image accessibilityLabel="Ta photo de l’étiquette, en grand" source={{ uri }} resizeMode="contain" style={styles.photoLarge} /> : null}
         <TextInput accessibilityLabel="Kilocalories de l’étiquette" value={energy} onChangeText={value => { setEnergy(value); setError(''); }} keyboardType="decimal-pad" maxLength={6} placeholder="Ex. 468" placeholderTextColor={colors.muted} style={[form.input, styles.bigInput]} />
         {detected && detected.energies.length > 0 && <MotionPressable accessibilityRole="button" onPress={() => { setTyping(false); setEnergy(String(detected.energies[0].value)); }} style={styles.link}><Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.linkText}>Revenir aux chiffres lus</Text></MotionPressable>}
       </>}
@@ -298,6 +300,7 @@ const styles = StyleSheet.create({
   title: { color: colors.navy, fontSize: 22, lineHeight: 28, fontFamily: fonts.display },
   photoRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   photo: { width: 72, height: 72, borderRadius: 14, backgroundColor: colors.background },
+  photoLarge: { width: '100%', height: 280, borderRadius: 16, backgroundColor: colors.background },
   reading: { gap: 8, alignItems: 'flex-start' },
   link: { minHeight: 44, justifyContent: 'center' },
   linkText: { color: colors.sageDark, fontSize: 14, fontFamily: fonts.bold },

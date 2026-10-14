@@ -3,7 +3,7 @@
 export function ocrPage(base64: string): string {
   if (!/^[A-Za-z0-9+/=]+$/.test(base64) || base64.length > 12000000) throw new Error('Cette photo est trop grande ou invalide. Reprends une photo centrée sur le tableau.');
   return `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; worker-src blob: https://cdn.jsdelivr.net; connect-src https://cdn.jsdelivr.net blob: data:; img-src data: blob:; style-src 'unsafe-inline'"></head><body><script>
-  var worker=null, ended=false;
+  var worker=null, ended=false, pass=1;
   function send(type,value){var message=JSON.stringify({channel:'calories-label-ocr',type:type,value:value});if(window.ReactNativeWebView)window.ReactNativeWebView.postMessage(message);else window.parent.postMessage(message,'*');}
   function fail(){if(ended)return;ended=true;send('error','Lecture indisponible. Vérifie ta connexion ou recopie les valeurs du tableau.');if(worker)worker.terminate();}
   window.addEventListener('error',fail);window.addEventListener('unhandledrejection',fail);
@@ -15,12 +15,22 @@ export function ocrPage(base64: string): string {
       corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0',
       langPath:'https://cdn.jsdelivr.net/npm/@tesseract.js-data/fra@1.0.0/4.0.0_best_int',
       cacheMethod:'none',
-      logger:function(m){if(m.status==='recognizing text')send('progress',Math.round(30+m.progress*70));},errorHandler:fail
+      logger:function(m){if(m.status==='recognizing text')send('progress',pass===1?Math.round(30+m.progress*50):Math.round(80+m.progress*20));},errorHandler:fail
     });
     if(ended){await worker.terminate();return;}
+    var img='data:image/jpeg;base64,${base64}';
     await worker.setParameters({tessedit_pageseg_mode:'6'});
-    var result=await worker.recognize('data:image/jpeg;base64,${base64}');
-    if(!ended){ended=true;send('done',String(result.data.text||'').slice(0,30000));}
+    var result=await worker.recognize(img);
+    var text=String(result.data.text||'');
+    // V4.0.2 — sans « kcal » ni « kJ » lisibles, une seconde lecture en mode
+    // « texte épars » retrouve mieux les chiffres isolés dans les cases d'un tableau.
+    if(!ended&&!/k\\s*[ce]\\s*[ao]\\s*[l1iI|!]|\\d\\s*k\\s*[jJ)\\]]/i.test(text)){
+      pass=2;send('progress',80);
+      await worker.setParameters({tessedit_pageseg_mode:'11'});
+      var second=await worker.recognize(img);
+      text=text+'\\n'+String(second.data.text||'');
+    }
+    if(!ended){ended=true;send('done',text.slice(0,30000));}
     await worker.terminate();worker=null;
   }catch(e){fail();}};document.head.appendChild(script);
   </script></body></html>`;

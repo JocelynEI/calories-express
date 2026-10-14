@@ -1,3 +1,18 @@
+# V4.0.2 — 14 octobre 2026
+
+La lecture des étiquettes sur un sachet courbé ou un petit tableau.
+
+- **Les unités abîmées sont reconnues** : « keal », « kcol », « kca! » pour
+  kcal, « k) » ou « k] » pour kJ.
+- **Sans unité lisible, la paire suffit.** Une étiquette donne l'énergie deux
+  fois, en kJ puis en kcal (1 kcal = 4,184 kJ). Deux nombres qui tiennent ce
+  rapport, comme 1573 et 375, donnent l'énergie, même si « kJ » et « kcal »
+  ont disparu à la lecture.
+- **Une seconde lecture** en mode « texte épars » quand la première ne trouve
+  ni kcal ni kJ : elle retrouve mieux les chiffres isolés dans les cases.
+- **Si rien n'est lu, la photo s'affiche en grand** au-dessus du champ, pour
+  recopier le chiffre sans quitter l'écran.
+
 # V4.0.1 — 14 octobre 2026
 
 L'étiquette en trois questions, et une lecture qui ne s'invente plus de chiffre.
