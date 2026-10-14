@@ -130,3 +130,29 @@ test('Le bouton + propose tout ce qu’on peut ajouter', () => {
   for (const choix of ["'search'", "'recipe'", "'activity'", "'weight'"]) assert.ok(sheet.includes(choix), choix);
   assert.ok(read('App.tsx').includes('<AddSheet onChoose={chooseAdd}'));
 });
+
+/* --------------------------- V4.0.1 — la lecture d'étiquette ne s'invente rien */
+
+const { parseLabelText } = require('../.test-dist/domain/labels.js');
+
+test('L’apport de référence d’un adulte n’est jamais pris pour l’énergie du produit', () => {
+  const r = parseLabelText('Valeurs nutritionnelles pour 100 g\nÉnergie 1960 kJ / 468 kcal\nApport de référence pour un adulte type (8400 kJ / 2000 kcal)');
+  assert.deepEqual(r.energies.map(e => e.value), [468]);
+});
+
+test('Un « 000 » mal lu ne devient pas « 0 kcal »', () => {
+  // Le cas réel : « …de référence 2000 kcal, AR » lu « re 000 kcal, A ».
+  assert.equal(parseLabelText('re 000 kcal, A').energies.length, 0);
+  assert.equal(parseLabelText('Énergie 05 kcal').energies.length, 0);
+  assert.equal(parseLabelText('Pour 100 ml\nÉnergie 0 kJ / 0 kcal').energies[0].value, 0, 'un vrai zéro reste valide');
+});
+
+test('Les fautes de lecture courantes de « kcal » sont reconnues', () => {
+  assert.equal(parseLabelText('Énergie 1960 kJ / 468 kca1').energies[0].value, 468);
+  assert.equal(parseLabelText('Énergie 468 kcaI').energies[0].value, 468);
+});
+
+test('La ligne « Énergie » est proposée en premier', () => {
+  const r = parseLabelText('Matières grasses 19 g dont 120 kcal\nÉnergie 1960 kJ / 468 kcal');
+  assert.equal(r.energies[0].value, 468);
+});

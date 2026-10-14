@@ -1,3 +1,21 @@
+# V4.0.1 — 14 octobre 2026
+
+L'étiquette en trois questions, et une lecture qui ne s'invente plus de chiffre.
+
+- **Le « 0 kcal » mal lu ne revient plus.** Sous le tableau, la ligne
+  « apport de référence d'un adulte (8400 kJ / 2000 kcal) » était parfois lue
+  « re 000 kcal » et proposée comme énergie du produit. Ces lignes sont
+  écartées, comme les nombres qui commencent par un zéro. La ligne « Énergie »
+  est proposée en premier, et « kca1 » ou « kcaI » sont reconnus.
+- **Après la photo, trois questions l'une après l'autre** : les kcal lues (en
+  gros, à confirmer d'un appui, ou à recopier), pour quelle quantité (100 g,
+  100 ml, 1 pièce, 1 portion), et combien tu en as mangé (en grammes avec des
+  raccourcis, ou en pièces avec un compteur − / +).
+- **Le résultat en grand avant d'ajouter**, et un bouton qui dit ce qu'il
+  ajoute : « Ajouter 117 kcal au repas ». La case « J'ai vérifié… » disparaît :
+  c'est le chiffre affiché qu'on confirme.
+- Le nom du produit devient facultatif, le texte brut lu passe derrière un lien.
+
 # V4.0 — 14 octobre 2026
 
 L'accueil en cartes : une appli plus simple à prendre en main, avec le scan
