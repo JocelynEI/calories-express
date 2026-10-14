@@ -4,7 +4,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { totalRecognized } from '../domain/calories';
 import { dayLabel, timestampForDay } from '../domain/date';
 import { itemQuantityLabel, portionIssue, readNumber, scaleReference } from '../domain/foods';
-import { newMealId } from '../domain/meals';
+import { momentForHour, newMealId } from '../domain/meals';
 import { useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
 import { colors, MAX_FONT_SCALE, fonts } from '../theme';
@@ -17,15 +17,22 @@ type EditableFood = RecognizedFood & { entryId: string };
 
 const moments: MealMoment[] = ['Petit-déjeuner', 'Déjeuner', 'Goûter', 'Dîner', 'Snack'];
 
+/** V4.0 — par où l'ajout commence : la recherche, l'étiquette ou le plat maison. */
+export type AddStart = 'search' | 'label' | 'recipe';
+
 type Props = {
   visible: boolean;
   onClose: () => void;
   onAdded: (meal: Meal) => void;
   /** V1.8 — repas existant à modifier. Absent : nouvelle entrée. */
   meal?: Meal | null;
+  /** V4.0 — le moment choisi d'avance (le + d'une ligne de l'accueil). */
+  initialMoment?: MealMoment;
+  /** V4.0 — ouvrir directement l'étiquette ou le plat maison. */
+  startWith?: AddStart;
 };
 
-export function AddMealModal({ visible, onClose, onAdded, meal = null }: Props) {
+export function AddMealModal({ visible, onClose, onAdded, meal = null, initialMoment, startWith = 'search' }: Props) {
   const { addMeal, updateMeal, selectedDay, today } = useApp();
   const { reducedMotion } = useExperience();
   const editing = meal !== null;
@@ -33,7 +40,7 @@ export function AddMealModal({ visible, onClose, onAdded, meal = null }: Props) 
   const editable = useCallback((item: RecognizedFood): EditableFood => ({ ...item, entryId: String(++entrySequence.current) }), []);
 
   const [draftFood, setDraftFood] = useState(false);
-  const [moment, setMoment] = useState<MealMoment>(meal ? meal.moment : momentForNow());
+  const [moment, setMoment] = useState<MealMoment>(meal ? meal.moment : initialMoment ?? momentForHour(new Date().getHours()));
   const [items, setItems] = useState<EditableFood[]>(() => (meal ? meal.items.map(item => ({ ...item, entryId: String(++entrySequence.current) })) : []));
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
@@ -121,10 +128,10 @@ export function AddMealModal({ visible, onClose, onAdded, meal = null }: Props) 
 
             {notice ? <Text accessibilityLiveRegion="polite" maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.success}>{notice}</Text> : null}
 
-            <UnifiedFoodSearch onAdd={onItem} onDraftChange={setDraftFood} />
+            <UnifiedFoodSearch onAdd={onItem} onDraftChange={setDraftFood} initialSpecial={editing || startWith === 'search' ? null : startWith} />
 
             <View style={form.card}>
-              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.title}>3 · Ton repas · {items.length}</Text>
+              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.title}>Ton repas{items.length ? ` · ${items.length} aliment${items.length > 1 ? 's' : ''}` : ''}</Text>
               {!items.length && <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>Les aliments ajoutés apparaîtront ici avant l’enregistrement.</Text>}
               {items.map((item, index) => (
                 <SelectedItem
@@ -201,10 +208,6 @@ function SelectedItem({ item, onRemove, onChange, onPending }: { item: EditableF
   );
 }
 
-function momentForNow(): MealMoment {
-  const hour = new Date().getHours();
-  return hour < 10 ? 'Petit-déjeuner' : hour < 14 ? 'Déjeuner' : hour < 18 ? 'Goûter' : 'Dîner';
-}
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background, width: '100%', maxWidth: 520, alignSelf: 'center' },

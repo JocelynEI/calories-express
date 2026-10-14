@@ -1,6 +1,16 @@
-# Calories Express — V3.7
+# Calories Express — V4.0
 
-Version de test Expo Go · 11 octobre 2026.
+Version de test Expo Go · 14 octobre 2026.
+
+## Ce qui change en V4.0 — l'accueil en cartes
+
+- **La semaine en une bande** en haut de l'accueil, un point sous les jours où un repas est noté.
+- **L'assiette se colore par repas** (orange le matin, vert le midi, bleu-vert au goûter, prune le soir), avec ce qu'il reste au centre.
+- **« Scanner une étiquette » est le gros bouton de l'accueil** et ouvre directement l'appareil photo.
+- **Les repas sont rangés par moment**, chacun avec son bouton + déjà réglé sur ce moment.
+- **Le bouton + de la barre du bas** réunit scan, recherche, plat maison, activité et pesée.
+- **Jaws parle dans une carte** au lieu d'une fenêtre qui recouvre l'écran.
+- **L'ajout d'un repas est allégé** : « Qu'as-tu mangé ? », le scan à côté du champ, moins de texte technique.
 
 ## Ce qui change en V3.7 — l'icône, et prête pour les stores
 

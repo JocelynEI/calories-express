@@ -1,41 +1,63 @@
-import React, { useMemo, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { CalorieGauge } from '../components/CalorieGauge';
 import { AppIcon } from '../components/AppIcon';
 import { GuideCard } from '../components/GuideCard';
-import { PlateMeals } from '../components/PlateMeals';
-import { DayNavigator, PastDayBanner } from '../components/DayNavigator';
-import { FoodMotion } from '../components/FoodMotion';
+import { MomentMeals } from '../components/MomentMeals';
+import { PastDayBanner } from '../components/DayNavigator';
+import { longDay, WeekStrip } from '../components/WeekStrip';
 import { macroTargets } from '../domain/calories';
 import { useApp } from '../state/AppContext';
-import { colors, fonts, MAX_FONT_SCALE, radii, typeScale } from '../theme';
+import { colors, fonts, MAX_FONT_SCALE, radii, shadows, typeScale } from '../theme';
 import { Entrance, MotionPressable } from '../components/Motion';
 import { greeting } from '../domain/experience';
 import { EnergyPlanCard } from '../components/EnergyEducation';
 import { dailyEnergyPlan } from '../domain/activity-energy';
-import { frequentMeals, mealsForDay, repeatMeal, templateLabel, totalCalories, totalMacros } from '../domain/meals';
+import { frequentMeals, mealsByMoment, mealsForDay, momentForHour, plateSegments, repeatMeal, templateLabel, totalCalories, totalMacros } from '../domain/meals';
 import { dayPraise, mealStreak, streakPraise } from '../domain/praise';
 import { QuickActivity } from '../components/QuickActivity';
 import { PraiseCard } from '../components/PraiseCard';
 import { Story } from '../domain/stories';
 import { GOAL_LABELS, GoalPicker } from '../components/GoalPicker';
-import { Meal } from '../types';
+import { Meal, MealMoment } from '../types';
 
 type Props = {
+  /** Chercher un aliment, au moment de l'heure. */
   onAdd: () => void;
+  /** V4.0 — ajouter à un moment précis, depuis le + de sa ligne. */
+  onAddFor: (moment: MealMoment) => void;
+  /** V4.0 — ouvrir directement la lecture d'étiquette. */
+  onScan: () => void;
   onEditMeal: (meal: Meal) => void;
   onProfile: () => void;
   onActivity: () => void;
   onPlayStory: (story: Story) => void;
+  /** V4.0 — le conseil de Jaws, posé dans le fil plutôt que par-dessus. */
+  coachTip?: ReactNode;
 };
 
-export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlayStory }: Props) {
+/**
+ * V4.0 — l'accueil en cartes.
+ *
+ * De haut en bas : la semaine, l'assiette du jour (ce qu'il reste au centre,
+ * chaque repas en couleur sur le bord), le scan d'étiquette — le geste qui
+ * distingue l'application —, chercher un aliment ou ajouter une activité, puis
+ * les repas rangés par moment, chacun avec son +.
+ *
+ * Ce qui a disparu de la V3.5 : les flèches « ‹ Aujourd'hui › » (remplacées par
+ * la semaine), les deux boutons « Un repas / Une activité » (remplacés par le
+ * scan et deux tuiles), « Dans ton assiette » (remplacé par les moments). Rien
+ * de ce qu'ils permettaient n'a été perdu.
+ */
+export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, onActivity, coachTip }: Props) {
   const { profile, meals, activity, today, selectedDay, isDemo, profileCompleted, startFresh, addMeal } = useApp();
   const [goalOpen, setGoalOpen] = useState(false);
   const [explain, setExplain] = useState(false);
   const [addingActivity, setAddingActivity] = useState(false);
 
   const dayMeals = useMemo(() => mealsForDay(meals, selectedDay), [meals, selectedDay]);
+  const groups = useMemo(() => mealsByMoment(dayMeals), [dayMeals]);
   const consumed = totalCalories(dayMeals);
   const macros = totalMacros(dayMeals);
   const templates = useMemo(() => frequentMeals(meals, selectedDay), [meals, selectedDay]);
@@ -43,6 +65,7 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
   const plan = dailyEnergyPlan(profile, activity, selectedDay, profileCompleted);
   const { target, issue } = plan;
   const targets = macroTargets(profile, target);
+  const segments = useMemo(() => plateSegments(groups, target), [groups, target]);
   const partialMacros = dayMeals.some(meal => meal.items.some(item => item.macrosComplete === false));
   const remaining = target - consumed;
   const isToday = selectedDay === today;
@@ -62,62 +85,54 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
     today,
   });
   /**
-   * Le détail de la ligne « Bougé ». Les pas et les séances y sont
-   * ensemble : c'est le même mouvement pour celui qui l'a fait, et les
-   * séparer obligeait à comprendre le découpage interne de l'application
-   * pour trouver son chiffre.
+   * Le détail de la ligne d'activité. Les pas et les séances y sont
+   * ensemble : c'est le même mouvement pour celui qui l'a fait.
    */
   const activityDetail = plan.activity.report
     ? `Total de ${plan.activity.report.deviceName}`
     : [
       plan.activity.steps === null ? 'Pas à renseigner' : `${plan.activity.steps.toLocaleString('fr-FR')} pas`,
       plan.activity.sessions.length > 0 ? `${plan.activity.sessions.length} séance${plan.activity.sessions.length > 1 ? 's' : ''}` : '',
-    ].filter(Boolean).join(' · ');
+    ].filter(Boolean).join(', ');
 
   const regularity = isToday ? streakPraise(mealStreak(meals, today)) : null;
   // Une seule carte à la fois. Deux félicitations l'une sous l'autre, c'est
   // une de trop : le palier de régularité, plus rare, passe devant.
   const praise = regularity ?? dayWell;
 
-  // L'état de la journée reste descriptif : au-dessus du repère n'est pas une
-  // faute, et l'application ne propose jamais de compenser.
+  // L'état de la journée reste descriptif : au-dessus de l'objectif n'est pas
+  // une faute, et l'application ne propose jamais de compenser.
   const needsSetup = isDemo || !profileCompleted || Boolean(issue);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <View style={styles.headerText}>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.title} numberOfLines={1}>{greeting(profile.firstName)}</Text>
-          <DayNavigator />
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.date} numberOfLines={1}>{longDay(selectedDay)}</Text>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.title} numberOfLines={1} accessibilityRole="header">{greeting(profile.firstName)}</Text>
         </View>
         <MotionPressable onPress={onProfile} accessibilityRole="button" accessibilityLabel="Ouvrir mon profil" style={styles.avatar}>
           <Text maxFontSizeMultiplier={1.2} style={styles.avatarText}>{profile.firstName ? profile.firstName.charAt(0).toUpperCase() : 'CE'}</Text>
         </MotionPressable>
       </View>
 
+      <WeekStrip />
       <PastDayBanner />
 
       {needsSetup && (
-        <View style={styles.guideWrap}>
-          <GuideCard
-            message={isDemo
-              ? 'Je te montre une journée exemple. Quand tu es prêt, créons ton propre repère calorique.'
-              : issue
-                ? 'Ton ancien repère doit être vérifié. Ouvre le profil pour contrôler les informations et enregistrer un objectif adapté.'
-                : 'Ton profil n’est pas encore enregistré. Quelques informations suffisent pour personnaliser le baromètre.'}
-            actionLabel={issue ? 'Vérifier mon profil' : 'Créer mon profil'}
-            onAction={() => { if (isDemo) startFresh(); onProfile(); }}
-          />
-        </View>
+        <GuideCard
+          message={isDemo
+            ? 'Je te montre une journée exemple. Quand tu es prêt, créons ton propre objectif.'
+            : issue
+              ? 'Ton ancien objectif doit être vérifié. Ouvre le profil pour contrôler les informations et enregistrer un objectif adapté.'
+              : 'Ton profil n’est pas encore enregistré. Quelques informations suffisent pour personnaliser ton assiette.'}
+          actionLabel={issue ? 'Vérifier mon profil' : 'Créer mon profil'}
+          onAction={() => { if (isDemo) startFresh(); onProfile(); }}
+        />
       )}
 
-      {/* V3.5 — l'accueil se lit de haut en bas comme une assiette qu'on
-          regarde avant de passer à table : ce qu'il reste, les deux gestes,
-          ce qu'on a bougé, puis ce qu'on a mangé. L'illustration « Mieux
-          manger, sans pression » a cédé sa place à l'assiette elle-même.
-
-          Quand le repère est à vérifier, ce bloc n'aurait rien à montrer :
-          la carte de Jaws, juste au-dessus, dit déjà quoi faire. */}
+      {/* L'assiette du jour. Quand l'objectif est à vérifier, elle n'aurait rien
+          à montrer : la carte de Jaws, juste au-dessus, dit déjà quoi faire. */}
       {!issue && (
       <>
         <Entrance delay={60} style={styles.plate}>
@@ -134,7 +149,7 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
             <MotionPressable
               onPress={() => setExplain(value => !value)}
               accessibilityRole="button"
-              accessibilityLabel={explain ? 'Masquer le calcul du repère' : 'Comment ce repère est calculé'}
+              accessibilityLabel={explain ? 'Masquer le calcul de l’objectif' : 'Comment cet objectif est calculé'}
               accessibilityState={{ expanded: explain }}
               style={styles.infoButton}
             >
@@ -142,11 +157,12 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
             </MotionPressable>
           </View>
 
-          <CalorieGauge consumed={consumed} target={target} />
+          <CalorieGauge consumed={consumed} target={target} segments={segments} />
 
           <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.reference}>
-            {isDemo || !profileCompleted ? 'Repère d’exemple' : 'Ton repère du jour'} : {target.toLocaleString('fr-FR')} kcal
-            {plan.dynamic && plan.creditedKcal > 0 ? ` (dont +${plan.creditedKcal.toLocaleString('fr-FR')} d’activité)` : ''}
+            {consumed.toLocaleString('fr-FR')} kcal mangées sur {target.toLocaleString('fr-FR')}
+            {isDemo || !profileCompleted ? ' (exemple)' : ''}
+            {plan.dynamic && plan.creditedKcal > 0 ? `, dont +${plan.creditedKcal.toLocaleString('fr-FR')} gagnées en bougeant` : ''}
           </Text>
 
           <View style={styles.macros}>
@@ -164,8 +180,8 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
           {profileCompleted && remaining < 0 && (
             <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.note}>
               {plan.direction === 'deficit' && consumed < plan.maintenance
-                ? 'Ton total saisi dépasse l’objectif alimentaire, mais reste sous le maintien estimé. Ce bilan est provisoire tant que la journée n’est pas complète.'
-                : 'Ton total saisi dépasse le repère. Observe plusieurs journées complètes et garde des repas réguliers, sans compensation.'}
+                ? 'Ton total dépasse l’objectif, mais reste sous ton maintien estimé. Ce bilan est provisoire tant que la journée n’est pas complète.'
+                : 'Ton total dépasse l’objectif. Observe plusieurs journées complètes et garde des repas réguliers, sans compensation.'}
             </Text>
           )}
         </Entrance>
@@ -183,49 +199,41 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
       </>
       )}
 
-      {/* V3.5 — les deux gestes, côte à côte. Le texte affiché est court ; le
-          libellé complet est donné aux lecteurs d'écran. */}
-      <View style={styles.actions}>
+      {coachTip}
+
+      {/* Le geste qui distingue l'application : lire l'étiquette d'un paquet.
+          Il est le plus visible de l'écran, et le plus court. */}
+      <MotionPressable onPress={onScan} accessibilityRole="button" accessibilityLabel="Scanner une étiquette" style={styles.scan}>
+        <View style={styles.scanIcon}><ScanIcon /></View>
+        <View style={styles.scanText}>
+          <Text maxFontSizeMultiplier={1.4} style={styles.scanTitle}>Scanner une étiquette</Text>
+          <Text maxFontSizeMultiplier={1.4} style={styles.scanCopy}>Les kcal se remplissent seules</Text>
+        </View>
+        <AppIcon name="chevron" size={20} color={colors.onDarkMuted} strokeWidth={2.4} />
+      </MotionPressable>
+
+      <View style={styles.tiles}>
         <MotionPressable
           onPress={onAdd}
           accessibilityRole="button"
-          accessibilityLabel="Ajouter un repas"
-          containerStyle={styles.actionOuter}
-          style={[styles.action, styles.actionPrimary]}
+          accessibilityLabel="Chercher un aliment"
+          containerStyle={styles.tileOuter}
+          style={styles.tile}
         >
-          <AppIcon name="plus" size={18} color={colors.white} strokeWidth={2.6} />
-          <Text maxFontSizeMultiplier={1.3} style={styles.actionPrimaryText} numberOfLines={1}>Un repas</Text>
+          <View style={[styles.tileIcon, { backgroundColor: colors.violetPale }]}><AppIcon name="search" size={20} color={colors.violet} strokeWidth={2.2} /></View>
+          <Text maxFontSizeMultiplier={1.4} style={styles.tileText}>Chercher un aliment</Text>
         </MotionPressable>
         <MotionPressable
           onPress={() => setAddingActivity(true)}
           accessibilityRole="button"
           accessibilityLabel="Ajouter une activité"
-          containerStyle={styles.actionOuter}
-          style={[styles.action, styles.actionSecondary]}
+          containerStyle={styles.tileOuter}
+          style={styles.tile}
         >
-          <AppIcon name="plus" size={18} color={colors.navy} strokeWidth={2.6} />
-          <Text maxFontSizeMultiplier={1.3} style={styles.actionSecondaryText} numberOfLines={1}>Une activité</Text>
+          <View style={[styles.tileIcon, { backgroundColor: colors.mintPale }]}><AppIcon name="steps" size={20} color={colors.mintInk} strokeWidth={2} /></View>
+          <Text maxFontSizeMultiplier={1.4} style={styles.tileText}>Ajouter une activité</Text>
         </MotionPressable>
       </View>
-
-      {/* Ce qu'on a bougé : les pas et les séances ensemble, et un appui ouvre
-          le détail (pas, séances, kcal de la montre). Ce qu'on a mangé est en
-          tête de la liste des repas, plus bas. */}
-      <MotionPressable
-        onPress={onActivity}
-        accessibilityRole="button"
-        accessibilityLabel={`Ouvrir mon activité : ${plan.activity.activeKcal} kilocalories bougées, ${activityDetail || 'rien de noté'}`}
-        style={styles.moved}
-      >
-        <View style={styles.movedText}>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.movedLabel}>Bougé</Text>
-          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.movedDetail} numberOfLines={1}>{activityDetail || 'Rien de noté pour l’instant'}</Text>
-        </View>
-        <Text maxFontSizeMultiplier={1.3} style={styles.movedValue}>
-          {plan.activity.activeKcal.toLocaleString('fr-FR')} <Text style={styles.movedUnit}>kcal</Text>
-        </Text>
-        <AppIcon name="chevron" size={16} color={colors.muted} strokeWidth={2.2} />
-      </MotionPressable>
 
       {addingActivity && (
         <Entrance>
@@ -239,58 +247,79 @@ export function TodayScreen({ onAdd, onEditMeal, onProfile, onActivity, onPlaySt
         </Entrance>
       )}
 
+      {/* Ce qu'on a bougé : les pas et les séances ensemble, et un appui ouvre
+          le détail (pas, séances, kcal de la montre). */}
+      <MotionPressable
+        onPress={onActivity}
+        accessibilityRole="button"
+        accessibilityLabel={`Ouvrir mon activité : ${plan.activity.activeKcal} kilocalories dépensées, ${activityDetail || 'rien de noté'}`}
+        style={styles.moved}
+      >
+        <View style={styles.movedText}>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.movedLabel}>Ton activité</Text>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.movedDetail} numberOfLines={1}>{activityDetail || 'Rien de noté pour l’instant'}</Text>
+        </View>
+        <Text maxFontSizeMultiplier={1.3} style={styles.movedValue}>
+          {plan.activity.activeKcal.toLocaleString('fr-FR')} <Text style={styles.movedUnit}>kcal</Text>
+        </Text>
+        <AppIcon name="chevron" size={16} color={colors.muted} strokeWidth={2.2} />
+      </MotionPressable>
+
       {plan.activity.partial && (
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.activityWarn}>Bilan partiel : des kcal actives restent à compléter.</Text>
       )}
 
+      <MomentMeals
+        groups={groups}
+        total={consumed}
+        suggested={isToday ? momentForHour(new Date().getHours()) : null}
+        onAddFor={onAddFor}
+        onEdit={onEditMeal}
+      />
+
       {templates.length > 0 && (
-        <View style={styles.repeatRow}>
-          {templates.map(template => (
-            <MotionPressable
-              key={template.meal.id}
-              onPress={() => addMeal(repeatMeal(template.meal, selectedDay))}
-              accessibilityRole="button"
-              accessibilityLabel={`Refaire ${template.meal.description}, ${template.meal.calories.estimated} kilocalories`}
-              containerStyle={styles.repeatOuter}
-              style={styles.repeatChip}
-            >
-              <AppIcon name="repeat" size={15} color={colors.violet} strokeWidth={2.2} />
-              <View style={styles.repeatBody}>
-                <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.repeatTitle} numberOfLines={1}>{template.meal.description}</Text>
-                <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.repeatMeta}>{templateLabel(template)}</Text>
-              </View>
-            </MotionPressable>
-          ))}
+        <View style={styles.repeat}>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.repeatHeading}>Refaire un repas habituel</Text>
+          <View style={styles.repeatRow}>
+            {templates.map(template => (
+              <MotionPressable
+                key={template.meal.id}
+                onPress={() => addMeal(repeatMeal(template.meal, selectedDay))}
+                accessibilityRole="button"
+                accessibilityLabel={`Refaire ${template.meal.description}, ${template.meal.calories.estimated} kilocalories`}
+                containerStyle={styles.repeatOuter}
+                style={styles.repeatChip}
+              >
+                <AppIcon name="repeat" size={15} color={colors.violet} strokeWidth={2.2} />
+                <View style={styles.repeatBody}>
+                  <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.repeatTitle} numberOfLines={1}>{template.meal.description}</Text>
+                  <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.repeatMeta}>{templateLabel(template)}</Text>
+                </View>
+              </MotionPressable>
+            ))}
+          </View>
         </View>
       )}
 
-      {dayMeals.length > 0 ? (
-        <PlateMeals meals={dayMeals} total={consumed} onEdit={onEditMeal} />
-      ) : (
-        <MotionPressable onPress={onAdd} accessibilityRole="button" style={styles.empty}>
-          <View style={styles.emptyArt}>
-            <FoodMotion kind="orbit" size={30} height={104} width={150} />
-          </View>
-          <View style={styles.emptyBody}>
-            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyTitle}>
-              {isToday ? 'Aucun repas pour l’instant' : 'Rien n’a été saisi ce jour-là'}
-            </Text>
-            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyCopy}>Une phrase et une quantité suffisent pour commencer.</Text>
-            <View style={styles.emptyCta}>
-              <AppIcon name="plus" size={16} color={colors.violet} strokeWidth={2.6} />
-              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.emptyCtaText}>Ajouter un repas</Text>
-            </View>
-          </View>
-        </MotionPressable>
-      )}
       {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
 
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.legal}>
-        Valeurs indicatives · ne remplacent pas l’avis d’un professionnel de santé.
+        Valeurs indicatives, qui ne remplacent pas l’avis d’un professionnel de santé.
       </Text>
 
       {goalOpen && <GoalPicker onClose={() => setGoalOpen(false)} />}
     </ScrollView>
+  );
+}
+
+/** Un cadre de visée autour de lignes de texte : l'étiquette qu'on photographie. */
+function ScanIcon() {
+  const common = { fill: 'none', stroke: colors.white, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  return (
+    <Svg width={28} height={28} viewBox="0 0 24 24" accessibilityElementsHidden>
+      <Path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" {...common} />
+      <Path d="M8 9h8M8 12h8M8 15h5" {...common} />
+    </Svg>
   );
 }
 
@@ -299,82 +328,76 @@ function Macro({ label, value, target, color, partial }: { label: string; value:
   const shown = partial && value === 0 ? '—' : Math.round(value);
   return (
     <View style={styles.macro}>
+      <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.macroLabel}>{label}</Text>
+      <View style={styles.macroTrack}><View style={[styles.macroFill, { width: `${Math.round(ratio * 100)}%`, backgroundColor: color }]} /></View>
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.macroValue}>
         {shown} <Text style={styles.macroTarget}>/ {target} g</Text>
       </Text>
-      <View style={styles.macroTrack}><View style={[styles.macroFill, { width: `${Math.round(ratio * 100)}%`, backgroundColor: color }]} /></View>
-      <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.macroLabel}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { paddingHorizontal: 20, paddingTop: 14, paddingBottom: 34, gap: 14 },
+  content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 34, gap: 16 },
 
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   headerText: { flexShrink: 1, minWidth: 0 },
+  date: { color: colors.muted, fontSize: 14, lineHeight: 19, fontFamily: fonts.medium },
   title: { color: colors.ink, ...typeScale.display },
-  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: colors.white, fontSize: 15, fontFamily: fonts.extrabold },
+  avatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { color: colors.white, fontSize: 17, fontFamily: fonts.display },
 
-  guideWrap: { marginTop: 2 },
-
-  plate: { gap: 12 },
+  plate: { gap: 14, backgroundColor: colors.card, borderRadius: 28, paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18, ...shadows.card },
   plateTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  goalChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.violetPale, paddingLeft: 14, paddingRight: 10, paddingVertical: 9, borderRadius: radii.pill },
+  goalChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.violetPale, paddingLeft: 14, paddingRight: 10, minHeight: 40, borderRadius: radii.pill },
   goalChipText: { color: colors.violet, fontSize: 13, fontFamily: fonts.extrabold },
-  infoButton: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  infoButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
 
+  reference: { color: colors.muted, textAlign: 'center', fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
 
-  macros: { flexDirection: 'row', gap: 10, backgroundColor: colors.card, borderRadius: radii.large, padding: 14 },
+  macros: { flexDirection: 'row', gap: 12, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 14 },
   macro: { flex: 1, gap: 6 },
-  macroValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontFamily: fonts.bold },
+  macroLabel: { color: colors.muted, ...typeScale.caption },
+  macroValue: { color: colors.ink, fontSize: 13, lineHeight: 18, fontFamily: fonts.bold },
   macroTarget: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold },
   macroTrack: { height: 6, borderRadius: radii.pill, backgroundColor: colors.track, overflow: 'hidden' },
   macroFill: { height: 6, borderRadius: radii.pill },
-  macroLabel: { color: colors.muted, ...typeScale.caption },
 
-  note: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19, paddingHorizontal: 4 },
-
-  actions: { flexDirection: 'row', gap: 10 },
-  actionOuter: { flex: 1 },
-  action: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 52, borderRadius: radii.medium, paddingHorizontal: 12 },
-  actionPrimary: { backgroundColor: colors.navy },
-  actionPrimaryText: { color: colors.white, fontSize: 15, fontFamily: fonts.bold },
-  actionSecondary: { borderWidth: 2, borderColor: colors.navy },
-  actionSecondaryText: { color: colors.navy, fontSize: 15, fontFamily: fonts.bold },
-
-  moved: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, backgroundColor: colors.card, borderRadius: radii.large, paddingHorizontal: 16, paddingVertical: 10 },
-  movedText: { flex: 1, minWidth: 0 },
-  movedLabel: { color: colors.warmInk, fontSize: 13, lineHeight: 18, fontFamily: fonts.bold },
-  movedDetail: { color: colors.muted, ...typeScale.caption },
-  movedValue: { color: colors.ink, fontSize: 18, lineHeight: 24, fontFamily: fonts.extrabold },
-  movedUnit: { color: colors.muted, fontSize: 13, fontFamily: fonts.semibold },
+  note: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.medium, lineHeight: 19 },
 
   explain: { gap: 8 },
   explainLine: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold },
 
+  scan: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 86, backgroundColor: colors.navy, borderRadius: 26, paddingHorizontal: 18, paddingVertical: 16 },
+  scanIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: colors.violet, alignItems: 'center', justifyContent: 'center' },
+  scanText: { flex: 1, minWidth: 0, gap: 2 },
+  scanTitle: { color: colors.white, fontSize: 19, lineHeight: 24, fontFamily: fonts.display },
+  scanCopy: { color: colors.onDarkMuted, fontSize: 14, lineHeight: 19, fontFamily: fonts.medium },
 
+  tiles: { flexDirection: 'row', gap: 12 },
+  tileOuter: { flex: 1 },
+  tile: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 68, backgroundColor: colors.card, borderRadius: 22, paddingHorizontal: 14, paddingVertical: 12 },
+  tileIcon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  tileText: { flex: 1, color: colors.ink, fontSize: 15, lineHeight: 19, fontFamily: fonts.semibold },
+
+  moved: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, backgroundColor: colors.card, borderRadius: radii.large, paddingHorizontal: 16, paddingVertical: 10 },
+  movedText: { flex: 1, minWidth: 0 },
+  movedLabel: { color: colors.mintInk, fontSize: 13, lineHeight: 18, fontFamily: fonts.bold },
+  movedDetail: { color: colors.muted, ...typeScale.caption },
+  movedValue: { color: colors.ink, fontSize: 18, lineHeight: 24, fontFamily: fonts.extrabold },
+  movedUnit: { color: colors.muted, fontSize: 13, fontFamily: fonts.semibold },
+
+  activityWarn: { color: colors.goldText, fontSize: 12, fontFamily: fonts.bold },
+
+  repeat: { gap: 8 },
+  repeatHeading: { color: colors.inkSoft, fontSize: 14, fontFamily: fonts.bold, paddingHorizontal: 4 },
   repeatRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   repeatOuter: { flexGrow: 1, flexBasis: 150 },
-  repeatChip: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 52, borderRadius: radii.medium, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 12, paddingVertical: 8 },
+  repeatChip: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 52, borderRadius: radii.medium, backgroundColor: colors.card, paddingHorizontal: 12, paddingVertical: 8 },
   repeatBody: { flex: 1, minWidth: 0 },
   repeatTitle: { color: colors.ink, fontSize: 13, fontFamily: fonts.bold },
   repeatMeta: { color: colors.muted, fontSize: 12, fontFamily: fonts.semibold, marginTop: 2 },
-
-  reference: { color: colors.muted, textAlign: 'center', fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
-
-  empty: { alignItems: 'center', backgroundColor: colors.card, borderRadius: radii.large, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 18, paddingTop: 6, paddingBottom: 20 },
-  emptyArt: { height: 104, justifyContent: 'center' },
-  emptyBody: { alignItems: 'center', gap: 4 },
-  emptyTitle: { color: colors.ink, fontSize: 16, fontFamily: fonts.extrabold, textAlign: 'center' },
-  emptyCopy: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium, lineHeight: 18, textAlign: 'center' },
-  emptyCta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, backgroundColor: colors.violetPale, borderRadius: radii.pill, paddingHorizontal: 14, paddingVertical: 9 },
-  emptyCtaText: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold },
-
-  activityWarn: { color: colors.goldText, fontSize: 12, fontFamily: fonts.bold, marginTop: 3 },
-
 
   legal: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, lineHeight: 17, textAlign: 'center', marginTop: 4 },
 });

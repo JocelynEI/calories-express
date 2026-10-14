@@ -94,19 +94,20 @@ test('Le résultat s’annonce aux lecteurs d’écran quand il change', () => {
 /* ------------------------------------------------ la place sur l’accueil */
 
 test('L’estimation vient juste après le baromètre, avant les repas', () => {
-  // V3.5 : les bulles sont devenues deux boutons et une ligne « Bougé », mais
-  // la règle de la V2.9 tient toujours — on voit ce qu'on peut estimer avant
+  // V3.5 : les bulles sont devenues deux boutons et une ligne « Bougé » ; en
+  // V4.0, le scan et deux tuiles. La règle de la V2.9 tient toujours — on voit ce qu'on peut estimer avant
   // d'arriver aux repas, sans faire défiler.
   const jauge = home.indexOf('<CalorieGauge');
   const gestes = home.indexOf('accessibilityLabel="Ajouter une activité"');
   const estimation = home.indexOf('<QuickActivity');
-  const repas = home.indexOf('<PlateMeals');
+  const repas = home.indexOf('<MomentMeals');
   assert.ok(jauge >= 0 && gestes >= 0 && estimation >= 0 && repas >= 0, 'les quatre morceaux doivent exister');
   assert.ok(jauge < gestes, 'le repère du jour reste en premier');
   assert.ok(gestes < repas, 'les deux gestes passent avant la liste des repas');
   assert.ok(estimation < repas, 'l’estimation s’ouvre au-dessus des repas : c’est elle qu’on ne trouvait pas');
   assert.ok(home.includes('accessibilityLabel="Ajouter une activité"'), 'le geste doit être nommé en entier pour les lecteurs d’écran');
-  assert.ok(home.includes('accessibilityLabel="Ajouter un repas"'), 'idem côté repas');
+  assert.ok(home.includes('accessibilityLabel="Chercher un aliment"'), 'idem côté repas');
+  assert.ok(home.includes('accessibilityLabel="Scanner une étiquette"'), 'idem pour l’étiquette');
 });
 
 /* ------------------------------------- aucun choix ne peut afficher zéro */

@@ -192,7 +192,7 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
       <EnergyPlanCard profile={draft} draft />
 
       {!issue && <View style={styles.resultCard}>
-        <View><Text style={styles.resultLabel}>Ton baromètre utilisera</Text><Text style={styles.resultValue}>{shownTarget.toLocaleString('fr-FR')} <Text style={styles.resultUnit}>kcal aujourd’hui</Text></Text></View>
+        <View><Text style={styles.resultLabel}>Ton assiette utilisera</Text><Text style={styles.resultValue}>{shownTarget.toLocaleString('fr-FR')} <Text style={styles.resultUnit}>kcal aujourd’hui</Text></Text></View>
         <View style={styles.resultIcon}><AppIcon name="target" size={24} color={colors.white} /></View>
       </View>}
 
@@ -201,7 +201,7 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
         <Text style={styles.saveText}>{saved ? 'Profil enregistré' : profileCompleted ? 'Enregistrer les modifications' : 'Créer et enregistrer mon profil'}</Text>
       </MotionPressable>
       {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
-      {saved && <Entrance><Text accessibilityLiveRegion="polite" style={styles.savedNotice}>C’est enregistré. Ton baromètre utilise maintenant ces repères.</Text></Entrance>}
+      {saved && <Entrance><Text accessibilityLiveRegion="polite" style={styles.savedNotice}>C’est enregistré. Ton assiette utilise maintenant ces réglages.</Text></Entrance>}
 
       <Text style={styles.sectionTitle}>Une application à ton rythme</Text>
       <View style={styles.formCard}>

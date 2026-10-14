@@ -21,13 +21,13 @@ export function EnergyPlanCard({ profile, draft = false }: { profile: Profile; d
     <View style={styles.cardHeading}><AppIcon name="target" size={18} color={colors.sageDark} /><Text style={styles.cardTitle}>{draft ? 'Comprendre ce repère' : 'Ton objectif expliqué'}</Text></View>
     {!issue ? <>
       <View style={styles.planRow}><View style={styles.rowCopy}><Text style={styles.label}>Maintien estimé</Text><Text style={styles.small}>{plan.dynamic ? 'Base calme + activité supplémentaire' : 'Besoins avec ton activité habituelle'}</Text></View><Text style={styles.number}>{kcal(plan.maintenance)} <Text style={styles.unit}>kcal</Text></Text></View>
-      <View style={styles.planRow}><View style={styles.rowCopy}><Text style={styles.label}>Objectif alimentaire</Text><Text style={styles.small}>{profile.targetMode === 'manual' ? 'La valeur que tu as choisie' : 'Le repère utilisé par le baromètre'}</Text></View><Text style={[styles.number, { color: colors.sageDark }]}>{kcal(plan.target)} <Text style={styles.unit}>kcal</Text></Text></View>
+      <View style={styles.planRow}><View style={styles.rowCopy}><Text style={styles.label}>Objectif alimentaire</Text><Text style={styles.small}>{profile.targetMode === 'manual' ? 'La valeur que tu as choisie' : 'L’objectif utilisé par ton assiette'}</Text></View><Text style={[styles.number, { color: colors.sageDark }]}>{kcal(plan.target)} <Text style={styles.unit}>kcal</Text></Text></View>
       {plan.dynamic && <Text style={styles.copy}>Repère du jour : {kcal(plan.baseTarget)} kcal de base + {kcal(plan.creditedKcal)} kcal actives prises en compte = {kcal(plan.target)} kcal.</Text>}
       <View style={styles.explanation}>
         <Text style={styles.explanationTitle}>{plan.direction === 'deficit' ? `Déficit prévu : ${kcal(plan.plannedDifference)} kcal` : plan.direction === 'surplus' ? `Apport prévu en plus : ${kcal(-plan.plannedDifference)} kcal` : 'Objectif de maintien'}</Text>
         <Text style={styles.copy}>{plan.direction === 'deficit'
           ? 'Cet écart est déjà inclus dans ton objectif alimentaire. Il ne faut pas le retirer une deuxième fois.'
-          : plan.direction === 'surplus' ? 'Cet écart est déjà ajouté au maintien estimé. La valeur du baromètre est ton repère final.'
+          : plan.direction === 'surplus' ? 'Cet écart est déjà ajouté au maintien estimé. Le chiffre de ton assiette est ton objectif final.'
             : 'Ton objectif alimentaire correspond ici à tes besoins estimés pour maintenir ton poids.'}</Text>
       </View>
       {mismatch && <Text style={styles.caution}>{mismatch}</Text>}
@@ -40,7 +40,7 @@ export function EnergyPlanCard({ profile, draft = false }: { profile: Profile; d
 const stepNames = ['Comprendre', 'Un exemple', 'Au quotidien'];
 const guidance = [
   'Le maintien, c’est l’énergie dont ton corps a besoin sur une journée, en comptant ton activité habituelle. On l’estime avec ton profil.',
-  'Compare les repas au maintien pour comprendre le bilan énergétique. Le baromètre, lui, les compare à ton objectif alimentaire.',
+  'Compare les repas au maintien pour comprendre le bilan énergétique. Ton assiette, elle, les compare à ton objectif alimentaire.',
   'L’idée est de trouver des habitudes que tu peux garder. Une journée différente ne demande pas de punition le lendemain.',
 ];
 

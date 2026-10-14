@@ -165,7 +165,8 @@ test('Un liquide se présente en millilitres, sans changer ses calories', () => 
 
 test('L’étape de quantité propose les mesures avant le champ libre', () => {
   const ecran = read('src/components/UnifiedFoodSearch.tsx');
-  assert.ok(ecran.includes('2 · COMBIEN EN AS-TU PRIS ?'), 'la question doit titrer l’étape');
+  // V4.0 : la question n'est plus numérotée ni en capitales, mais elle titre toujours l'étape.
+  assert.ok(ecran.includes('Combien en as-tu pris ?'), 'la question doit titrer l’étape');
   assert.match(ecran, /useState<'mesures' \| 'pesee'>\(saisie \? 'pesee' : 'mesures'\)/, 'les mesures sont le mode par défaut');
   assert.ok(ecran.includes('Revenir aux mesures courantes'), 'le champ libre reste accessible, et réversible');
   assert.ok(ecran.includes('measuresFor'), 'les mesures viennent du domaine');

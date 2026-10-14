@@ -1,3 +1,86 @@
+# V4.0.2 — 14 octobre 2026
+
+La lecture des étiquettes sur un sachet courbé ou un petit tableau.
+
+- **Les unités abîmées sont reconnues** : « keal », « kcol », « kca! » pour
+  kcal, « k) » ou « k] » pour kJ.
+- **Sans unité lisible, la paire suffit.** Une étiquette donne l'énergie deux
+  fois, en kJ puis en kcal (1 kcal = 4,184 kJ). Deux nombres qui tiennent ce
+  rapport, comme 1573 et 375, donnent l'énergie, même si « kJ » et « kcal »
+  ont disparu à la lecture.
+- **Une seconde lecture** en mode « texte épars » quand la première ne trouve
+  ni kcal ni kJ : elle retrouve mieux les chiffres isolés dans les cases.
+- **Si rien n'est lu, la photo s'affiche en grand** au-dessus du champ, pour
+  recopier le chiffre sans quitter l'écran.
+
+# V4.0.1 — 14 octobre 2026
+
+L'étiquette en trois questions, et une lecture qui ne s'invente plus de chiffre.
+
+- **Le « 0 kcal » mal lu ne revient plus.** Sous le tableau, la ligne
+  « apport de référence d'un adulte (8400 kJ / 2000 kcal) » était parfois lue
+  « re 000 kcal » et proposée comme énergie du produit. Ces lignes sont
+  écartées, comme les nombres qui commencent par un zéro. La ligne « Énergie »
+  est proposée en premier, et « kca1 » ou « kcaI » sont reconnus.
+- **Après la photo, trois questions l'une après l'autre** : les kcal lues (en
+  gros, à confirmer d'un appui, ou à recopier), pour quelle quantité (100 g,
+  100 ml, 1 pièce, 1 portion), et combien tu en as mangé (en grammes avec des
+  raccourcis, ou en pièces avec un compteur − / +).
+- **Le résultat en grand avant d'ajouter**, et un bouton qui dit ce qu'il
+  ajoute : « Ajouter 117 kcal au repas ». La case « J'ai vérifié… » disparaît :
+  c'est le chiffre affiché qu'on confirme.
+- Le nom du produit devient facultatif, le texte brut lu passe derrière un lien.
+
+# V4.0 — 14 octobre 2026
+
+L'accueil en cartes : une appli plus simple à prendre en main, avec le scan
+d'étiquette au premier plan.
+
+## L'accueil
+
+- **La semaine en une bande** : les sept jours du lundi au dimanche, un point
+  sous chaque jour où un repas est noté. Un appui ouvre la journée ; les
+  flèches des bords changent de semaine. Elle remplace « ‹ Aujourd'hui › ».
+- **L'assiette se colore par repas** : orange le petit-déjeuner, vert le
+  déjeuner, bleu-vert le goûter, prune le dîner, les teintes du Journal. Le
+  centre dit toujours ce qu'il reste ; dessous, « 662 kcal mangées sur 2 104 ».
+  Les macronutriments sont dans la même carte.
+- **« Scanner une étiquette » devient le gros bouton de l'accueil**, juste
+  sous l'assiette. Il ouvre directement l'appareil photo.
+- **Deux tuiles** : « Chercher un aliment » et « Ajouter une activité ».
+- **« Tes repas », rangés par moment** : petit-déjeuner, déjeuner, goûter,
+  dîner (et « Snack » dès qu'il est utilisé). Chaque ligne a son bouton +,
+  qui ouvre l'ajout déjà réglé sur ce moment. Le + du moment de l'heure est en
+  vert tant qu'il est vide.
+- **Jaws parle dans une carte**, sous l'assiette, au lieu d'une fenêtre qui
+  couvrait la moitié de l'écran après chaque repas.
+
+## Le bouton +
+
+Il ouvre une feuille qui réunit tout ce qu'on peut ajouter : scanner une
+étiquette (en grand), chercher un aliment, un plat maison, une activité, noter
+son poids.
+
+## L'ajout d'un repas
+
+- **« Qu'as-tu mangé ? »** en tête, sans numéro ni capitales. Le scan
+  d'étiquette et le plat maison sont juste sous le champ, plus en cinquième
+  bloc de l'écran.
+- **Moins de texte technique** : plus de badge « HORS LIGNE » ni de paragraphe
+  sur Ciqual avant les résultats. La source reste citée sous la liste.
+- **La recherche de marque n'apparaît qu'une fois un nom écrit.**
+
+## Les mots
+
+« Baromètre » disparaît des écrans : on parle de l'assiette et de l'objectif.
+
+## Tests
+
+`scripts/test-v30.cjs` vérifie le rangement par moment, le partage de
+l'assiette (sans jamais déborder), la semaine du lundi au dimanche, et que le
+scan reste à un appui depuis l'accueil, le bouton + et le champ de recherche.
+Les tests qui décrivaient la mise en page de la V3.5 ont été mis à jour.
+
 # V3.7 — 11 octobre 2026
 
 L'icône « L'assiette », et ce qu'il faut pour construire l'appli pour les stores.

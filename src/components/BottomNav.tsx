@@ -50,7 +50,7 @@ export function BottomNav({ active, onChange, onAdd }: Props) {
       <View style={styles.bar}>
         {items.slice(0, 2).map((item) => <NavItem key={item.id} item={item} active={active === item.id} onPress={() => onChange(item.id)} />)}
         <View style={styles.centerSlot}>
-          <Pressable onPress={onAdd} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Ajouter un repas">
+          <Pressable onPress={onAdd} style={({ pressed }) => [styles.addButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Ajouter : un repas, une étiquette, une activité ou une pesée">
             <AppIcon name="plus" size={29} color={colors.white} strokeWidth={2.2} />
           </Pressable>
           <Text maxFontSizeMultiplier={MAX_FONT_SCALE} numberOfLines={1} style={styles.addLabel}>Ajouter</Text>

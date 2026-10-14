@@ -62,7 +62,7 @@ export const STORIES: Story[] = [
     title: 'Ton repère en une minute',
     theme: 'Comprendre',
     accent: 'violet',
-    summary: 'D’où sort le nombre affiché sur ton baromètre.',
+    summary: 'D’où sort le nombre affiché sur ton assiette.',
     scenes: [
       {
         art: 'clock',
@@ -78,7 +78,7 @@ export const STORIES: Story[] = [
       {
         art: 'ring',
         headline: 'Ton objectif alimentaire',
-        caption: 'Le nombre du baromètre, c’est le maintien une fois l’écart appliqué. L’écart est donc déjà dedans.',
+        caption: 'Le nombre de ton assiette, c’est le maintien une fois l’écart appliqué. L’écart est donc déjà dedans.',
         value: 0.58,
       },
       {
