@@ -51,3 +51,20 @@ export const longDayLabel = (date = new Date()) => {
   const formatted = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };
+
+/**
+ * V4.0 — la bande de la semaine sur l'accueil : les sept journées, du lundi au
+ * dimanche, de la semaine qui contient `day`.
+ */
+export const weekOf = (day: string) => {
+  const date = dayDate(day);
+  const fromMonday = (date.getDay() + 6) % 7;
+  const monday = shiftDay(day, -fromMonday);
+  return Array.from({ length: 7 }, (_, index) => shiftDay(monday, index));
+};
+
+/** « lun. », « mar. »… et le numéro du jour, pour une case de la semaine. */
+export const weekdayInitials = (day: string) => {
+  const name = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(dayDate(day)).replace('.', '');
+  return { name, number: dayDate(day).getDate() };
+};

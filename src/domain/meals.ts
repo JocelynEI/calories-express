@@ -1,4 +1,4 @@
-import { Meal } from '../types';
+import { Meal, MealMoment } from '../types';
 import { dayKey, timestampForDay } from './date';
 
 export const mealDay = (meal: Meal) => dayKey(new Date(meal.createdAt));
@@ -86,4 +86,74 @@ export function mealPhoto(meal: Meal): string | undefined {
 export function mealSubject(meal: Meal): string {
   const first = meal.items.find(item => item.name.trim());
   return (first?.name ?? meal.description).trim();
+}
+
+/* -------------------------------------------------------------------------- */
+/* V4.0 — l'accueil en cartes : les repas rangés par moment de la journée.     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Les quatre moments toujours affichés sur l'accueil, dans l'ordre de la
+ * journée. « Snack » n'a pas de ligne à lui tant qu'il est vide : il apparaît,
+ * juste après le goûter, dès qu'un repas y est noté.
+ */
+export const HOME_MOMENTS: MealMoment[] = ['Petit-déjeuner', 'Déjeuner', 'Goûter', 'Dîner'];
+
+export type MomentGroup = { moment: MealMoment; meals: Meal[]; kcal: number };
+
+/** Les repas d'une journée regroupés par moment, du matin au soir. */
+export function mealsByMoment(meals: Meal[]): MomentGroup[] {
+  const order: MealMoment[] = ['Petit-déjeuner', 'Déjeuner', 'Goûter', 'Snack', 'Dîner'];
+  return order
+    .map(moment => {
+      const found = meals
+        .filter(meal => meal.moment === moment)
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      return { moment, meals: found, kcal: totalCalories(found) };
+    })
+    .filter(group => HOME_MOMENTS.includes(group.moment) || group.meals.length > 0);
+}
+
+export type PlateSegment = { moment: MealMoment; start: number; length: number };
+
+/**
+ * Les parts de l'assiette : chaque moment occupe sur le bord la fraction de
+ * l'objectif qu'il représente. Au-delà de l'objectif, le bord est plein et les
+ * parts gardent leurs proportions entre elles, plutôt que de déborder.
+ *
+ * `start` et `length` sont des fractions du tour complet (0 à 1). Un petit
+ * espace sépare deux parts voisines, pour qu'on les distingue sans légende.
+ */
+export function plateSegments(groups: MomentGroup[], target: number, gap = 0.008): PlateSegment[] {
+  const total = groups.reduce((sum, group) => sum + Math.max(0, group.kcal), 0);
+  const scale = Math.max(target, total);
+  if (scale <= 0 || total <= 0) return [];
+  const filled = groups.filter(group => group.kcal > 0);
+  const segments: PlateSegment[] = [];
+  let start = 0;
+  for (const group of filled) {
+    const share = group.kcal / scale;
+    const length = filled.length > 1 ? Math.max(0, share - gap) : share;
+    segments.push({ moment: group.moment, start, length });
+    start += share;
+  }
+  return segments;
+}
+
+/**
+ * Ce que contient un repas, en quelques mots : « Riz blanc, Oeuf dur ».
+ * Le nom Ciqual complet (« Riz blanc, cuit, sans sel ajouté ») est coupé à sa
+ * première virgule ; un repas sans aliments détaillés garde sa description.
+ */
+export function mealSummary(meal: Meal): string {
+  const names = meal.items
+    .map(item => item.name.split(',')[0].trim())
+    .filter(Boolean);
+  const unique = names.filter((name, index) => names.indexOf(name) === index);
+  return unique.length ? unique.join(', ') : meal.description;
+}
+
+/** Le moment qui correspond à l'heure : c'est lui qu'on propose d'abord. */
+export function momentForHour(hour: number): MealMoment {
+  return hour < 10 ? 'Petit-déjeuner' : hour < 14 ? 'Déjeuner' : hour < 18 ? 'Goûter' : 'Dîner';
 }

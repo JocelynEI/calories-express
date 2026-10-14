@@ -12,7 +12,7 @@ import { Action, Choice, Field, form } from './FormControls';
 import { OcrReader } from './OcrReader';
 
 const BASES: Record<LabelBasis, string> = { '100g': '100 g', '100ml': '100 ml', piece: '1 pièce', serving: 'Une portion de plusieurs pièces' };
-export function LabelFoodForm({ initialName, onAdd, onCancel }: { initialName: string; onAdd: (food: RecognizedFood) => void; onCancel: () => void }) {
+export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false }: { initialName: string; onAdd: (food: RecognizedFood) => void; onCancel: () => void; autoStart?: boolean }) {
   const { rememberFood } = useApp();
   const [name, setName] = useState(initialName), [uri, setUri] = useState(''), [base64, setBase64] = useState(''), [busy, setBusy] = useState(false), [progress, setProgress] = useState(0);
   const [detected, setDetected] = useState<LabelDetection | null>(null), [raw, setRaw] = useState(''), [showRaw, setShowRaw] = useState(false), [permissionDenied, setPermissionDenied] = useState(false);
@@ -44,6 +44,15 @@ export function LabelFoodForm({ initialName, onAdd, onCancel }: { initialName: s
       setUri(image.uri); setRaw(''); setDetected(null); setEnergy(''); setBasis(null); setGrams(''); setPiecesRef(''); setPackGrams(''); setPackCount(''); setPackMode(false); setBase64(image.base64);
     } catch (e) { if (alive.current && token === sequence.current) fail(e instanceof Error ? e.message : 'La photo n’a pas pu être ouverte.'); }
   };
+  // V4.0 — ouverte depuis « Scanner une étiquette », la lecture démarre sans
+  // second appui : l'appareil photo s'ouvre tout de suite. Une seule fois.
+  const started = useRef(false);
+  useEffect(() => {
+    if (!autoStart || started.current) return;
+    started.current = true;
+    void scan(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart]);
   const acceptText = (text: string) => {
     setBusy(false); setBase64(''); setRaw(text); const result = parseLabelText(text); setDetected(result);
     // V3.1 — le journal de test retient qu'une étiquette a été lue, jamais ce
@@ -65,7 +74,7 @@ export function LabelFoodForm({ initialName, onAdd, onCancel }: { initialName: s
   } catch (e) { issue = e instanceof Error ? e.message : 'Vérifie les valeurs.'; }
   return <View style={{ gap: 14 }}>
     <Action label="Retour à la recherche" secondary onPress={onCancel} />
-    <View style={form.card}><Text style={form.title}>Du paquet à ton assiette</Text><Text style={form.copy}>Cadre le tableau nutritionnel, avec les kcal et la taille de portion si elle est indiquée. La liste d’ingrédients seule ne suffit pas.</Text>
+    <View style={form.card}><Text style={form.title}>Scanner une étiquette</Text><Text style={form.copy}>Cadre le tableau nutritionnel : les kcal, et la taille de portion si elle est indiquée. La liste d’ingrédients seule ne suffit pas.</Text>
       <Action label="Prendre une photo de l’étiquette" disabled={busy} onPress={() => void scan(true)} /><Action secondary label="Choisir une photo" disabled={busy} onPress={() => void scan(false)} />
       {permissionDenied && Platform.OS !== 'web' && <Action secondary label="Ouvrir les réglages de l’appareil photo" onPress={() => { void Linking.openSettings().catch(() => setError('Ouvre les réglages du téléphone pour autoriser la caméra.')); }} />}
       <Text style={form.muted}>La photo est lue sur ton appareil, sans envoi à un service d’analyse. Internet est nécessaire pour charger le lecteur. La photo n’est pas enregistrée dans ton journal.</Text>

@@ -1,3 +1,53 @@
+# V4.0 — 14 octobre 2026
+
+L'accueil en cartes : une appli plus simple à prendre en main, avec le scan
+d'étiquette au premier plan.
+
+## L'accueil
+
+- **La semaine en une bande** : les sept jours du lundi au dimanche, un point
+  sous chaque jour où un repas est noté. Un appui ouvre la journée ; les
+  flèches des bords changent de semaine. Elle remplace « ‹ Aujourd'hui › ».
+- **L'assiette se colore par repas** : orange le petit-déjeuner, vert le
+  déjeuner, bleu-vert le goûter, prune le dîner, les teintes du Journal. Le
+  centre dit toujours ce qu'il reste ; dessous, « 662 kcal mangées sur 2 104 ».
+  Les macronutriments sont dans la même carte.
+- **« Scanner une étiquette » devient le gros bouton de l'accueil**, juste
+  sous l'assiette. Il ouvre directement l'appareil photo.
+- **Deux tuiles** : « Chercher un aliment » et « Ajouter une activité ».
+- **« Tes repas », rangés par moment** : petit-déjeuner, déjeuner, goûter,
+  dîner (et « Snack » dès qu'il est utilisé). Chaque ligne a son bouton +,
+  qui ouvre l'ajout déjà réglé sur ce moment. Le + du moment de l'heure est en
+  vert tant qu'il est vide.
+- **Jaws parle dans une carte**, sous l'assiette, au lieu d'une fenêtre qui
+  couvrait la moitié de l'écran après chaque repas.
+
+## Le bouton +
+
+Il ouvre une feuille qui réunit tout ce qu'on peut ajouter : scanner une
+étiquette (en grand), chercher un aliment, un plat maison, une activité, noter
+son poids.
+
+## L'ajout d'un repas
+
+- **« Qu'as-tu mangé ? »** en tête, sans numéro ni capitales. Le scan
+  d'étiquette et le plat maison sont juste sous le champ, plus en cinquième
+  bloc de l'écran.
+- **Moins de texte technique** : plus de badge « HORS LIGNE » ni de paragraphe
+  sur Ciqual avant les résultats. La source reste citée sous la liste.
+- **La recherche de marque n'apparaît qu'une fois un nom écrit.**
+
+## Les mots
+
+« Baromètre » disparaît des écrans : on parle de l'assiette et de l'objectif.
+
+## Tests
+
+`scripts/test-v30.cjs` vérifie le rangement par moment, le partage de
+l'assiette (sans jamais déborder), la semaine du lundi au dimanche, et que le
+scan reste à un appui depuis l'accueil, le bouton + et le champ de recherche.
+Les tests qui décrivaient la mise en page de la V3.5 ont été mis à jour.
+
 # V3.7 — 11 octobre 2026
 
 L'icône « L'assiette », et ce qu'il faut pour construire l'appli pour les stores.

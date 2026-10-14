@@ -27,8 +27,10 @@ import { StoryPlayer } from './src/components/StoryPlayer';
 import { ExperienceProvider, useExperience } from './src/state/ExperienceContext';
 import { AppProvider, useApp } from './src/state/AppContext';
 import { colors, MAX_FONT_SCALE, fonts } from './src/theme';
-import { Meal } from './src/types';
-import { MealCoachPopup } from './src/components/MealCoachPopup';
+import { Meal, MealMoment } from './src/types';
+import { MealCoachCard } from './src/components/MealCoachPopup';
+import { AddChoice, AddSheet } from './src/components/AddSheet';
+import { AddStart } from './src/components/AddMealModal';
 import { canShowMealPrompt, mealEncouragement, MealEncouragement } from './src/domain/coaching';
 import { orderedStories, Story } from './src/domain/stories';
 import { shouldShowOnboarding } from './src/domain/onboarding';
@@ -108,6 +110,10 @@ function AppShell() {
   const [onboardingSkipped, setOnboardingSkipped] = useState(false);
   const [tab, setTab] = useState<TabName>('today');
   const [addVisible, setAddVisible] = useState(false);
+  // V4.0 — l'ajout peut s'ouvrir déjà réglé : sur un moment (le + d'une ligne)
+  // ou directement sur la lecture d'étiquette (le scan).
+  const [addOptions, setAddOptions] = useState<{ moment?: MealMoment; start?: AddStart }>({});
+  const [sheetVisible, setSheetVisible] = useState(false);
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
   const [suggestion, setSuggestion] = useState<MealEncouragement | null>(null);
   const [activityIdea, setActivityIdea] = useState<'walk' | 'mobility' | null>(null);
@@ -131,12 +137,18 @@ function AppShell() {
   }, [ready, settings.welcome]);
 
   const clearOverlays = () => { setSuggestion(null); setNotice(false); };
-  const openAdd = () => { clearOverlays(); setEditingMeal(null); track('ouvre-ajout-repas'); setAddVisible(true); };
-  const openEdit = (meal: Meal) => { clearOverlays(); setEditingMeal(meal); setAddVisible(true); };
+  const openAdd = (options: { moment?: MealMoment; start?: AddStart } = {}) => {
+    clearOverlays(); setSheetVisible(false); setEditingMeal(null); setAddOptions(options);
+    // Le journal de test garde une seule action d'ouverture, quel que soit le
+    // point de départ : le script Google n'a pas à changer.
+    track('ouvre-ajout-repas');
+    setAddVisible(true);
+  };
+  const openEdit = (meal: Meal) => { clearOverlays(); setEditingMeal(meal); setAddOptions({}); setAddVisible(true); };
   const closeAdd = () => { setAddVisible(false); setEditingMeal(null); };
   const changeTab = (next: TabName) => { clearOverlays(); setTab(next); };
   const openActivity = () => {
-    clearOverlays(); setActivityIdea(null);
+    clearOverlays(); setSheetVisible(false); setActivityIdea(null);
     sessionsWhenOpened.current = activity.sessions.length;
     track('ouvre-activite');
     setActivityVisible(true);
@@ -149,6 +161,16 @@ function AppShell() {
   // utile du journal, celui qui dit où le formulaire décourage.
   const abandonAdd = () => { track('ajout-repas-abandonne'); closeAdd(); };
   const playStory = (next: Story) => { clearOverlays(); setStory(next); };
+
+  /** V4.0 — ce que propose la feuille du bouton +. */
+  const chooseAdd = (choice: AddChoice) => {
+    setSheetVisible(false);
+    if (choice === 'scan') openAdd({ start: 'label' });
+    else if (choice === 'recipe') openAdd({ start: 'recipe' });
+    else if (choice === 'activity') openActivity();
+    else if (choice === 'weight') changeTab('progress');
+    else openAdd();
+  };
 
   const saved = (meal: Meal) => {
     const wasEditing = editingMeal !== null;
@@ -175,6 +197,7 @@ function AppShell() {
       if (replayOnboarding) { setReplayOnboarding(false); return true; }
       if (suggestion) { setSuggestion(null); return true; }
       if (notice) { setNotice(false); return true; }
+      if (sheetVisible) { setSheetVisible(false); return true; }
       if (replayWelcome) { setReplayWelcome(false); return true; }
       // Les modales gèrent elles-mêmes `onRequestClose` : elles peuvent avoir
       // une saisie en cours à confirmer, on ne les ferme pas d'autorité ici.
@@ -184,7 +207,7 @@ function AppShell() {
       return false;
     });
     return () => subscription.remove();
-  }, [story, suggestion, notice, replayWelcome, replayOnboarding, addVisible, activityVisible, selectedDay, today, setSelectedDay, tab]);
+  }, [story, suggestion, notice, sheetVisible, replayWelcome, replayOnboarding, addVisible, activityVisible, selectedDay, today, setSelectedDay, tab]);
 
   const stories = orderedStories(storyHistory);
   const nextStory = story ? stories.find(item => item.id !== story.id && !storyHistory.seen.includes(item.id)) ?? null : null;
@@ -236,20 +259,32 @@ function AppShell() {
               <Entrance key={tab} style={styles.screen}>
                 {tab === 'today' && (
                   <TodayScreen
-                    onAdd={openAdd}
+                    onAdd={() => openAdd()}
+                    onAddFor={moment => openAdd({ moment })}
+                    onScan={() => openAdd({ start: 'label' })}
                     onEditMeal={openEdit}
                     onProfile={() => changeTab('profile')}
                     onActivity={openActivity}
                     onPlayStory={playStory}
+                    coachTip={suggestion && !activityVisible && !addVisible && !story ? (
+                      <MealCoachCard
+                        suggestion={suggestion}
+                        onClose={() => setSuggestion(null)}
+                        onSnooze={() => { snoozeCoach(); setSuggestion(null); }}
+                        onDisable={() => { setSetting('activityPrompts', false); setSuggestion(null); }}
+                        onIdea={() => { setActivityIdea(suggestion.idea); setSuggestion(null); setActivityVisible(true); }}
+                      />
+                    ) : null}
                   />
                 )}
-                {tab === 'journal' && <JournalScreen onEditMeal={openEdit} onAdd={openAdd} />}
+                {tab === 'journal' && <JournalScreen onEditMeal={openEdit} onAdd={() => openAdd()} />}
                 {tab === 'progress' && <ProgressScreen onPlayStory={playStory} />}
                 {tab === 'profile' && <ProfileScreen onReplayWelcome={() => setReplayWelcome(true)} onReplayOnboarding={() => setReplayOnboarding(true)} />}
               </Entrance>
             </ErrorBoundary>
-            <BottomNav active={tab} onChange={changeTab} onAdd={openAdd} />
-            {addVisible && <AddMealModal visible onClose={abandonAdd} onAdded={saved} meal={editingMeal} />}
+            <BottomNav active={tab} onChange={changeTab} onAdd={() => { clearOverlays(); setSheetVisible(true); }} />
+            {sheetVisible && <AddSheet onChoose={chooseAdd} onClose={() => setSheetVisible(false)} />}
+            {addVisible && <AddMealModal visible onClose={abandonAdd} onAdded={saved} meal={editingMeal} initialMoment={addOptions.moment} startWith={addOptions.start} />}
             {activityVisible && (
               <ActivityModal
                 initialTab={activityIdea ? 'ideas' : 'journal'}
@@ -266,15 +301,6 @@ function AppShell() {
                 onSeen={markStoryWatched}
                 nextStory={nextStory}
                 onPlayNext={setStory}
-              />
-            )}
-            {suggestion && !activityVisible && !addVisible && !story && (
-              <MealCoachPopup
-                suggestion={suggestion}
-                onClose={() => setSuggestion(null)}
-                onSnooze={() => { snoozeCoach(); setSuggestion(null); }}
-                onDisable={() => { setSetting('activityPrompts', false); setSuggestion(null); }}
-                onIdea={() => { setActivityIdea(suggestion.idea); setSuggestion(null); setActivityVisible(true); }}
               />
             )}
             {notice && !activityVisible && !addVisible && !story && <FeedbackToast onDismiss={dismissNotice} />}

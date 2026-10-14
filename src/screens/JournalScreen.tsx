@@ -98,7 +98,7 @@ export function JournalScreen({ onEditMeal, onAdd }: { onEditMeal: (meal: Meal) 
             {confirming === meal.id && (
               <View style={styles.confirm}>
                 <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.confirmText}>
-                  Supprimer cette entrée ? Le baromètre de cette journée sera recalculé.
+                  Supprimer cette entrée ? L’assiette de cette journée sera recalculée.
                 </Text>
                 <View style={styles.confirmRow}>
                   <MotionPressable onPress={() => setConfirming(null)} accessibilityRole="button" style={[styles.confirmButton, styles.keep]}>

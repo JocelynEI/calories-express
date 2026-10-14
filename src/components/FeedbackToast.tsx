@@ -9,7 +9,7 @@ export function FeedbackToast({ onDismiss }: { onDismiss: () => void }) {
   return <Entrance style={styles.position}>
     <View style={styles.card} accessibilityLiveRegion="polite">
       <View style={styles.check}><FoodMotion kind="rain" size={24} height={44} width={44} foods={['pomme', 'brocoli']} /></View>
-      <View style={styles.body}><Text style={styles.title}>Repas enregistré</Text><Text style={styles.copy}>Ton baromètre est à jour.</Text></View>
+      <View style={styles.body}><Text style={styles.title}>Repas enregistré</Text><Text style={styles.copy}>Ton assiette est à jour.</Text></View>
       <MotionPressable onPress={onDismiss} accessibilityRole="button" accessibilityLabel="Fermer la confirmation" style={styles.close}><Text style={styles.closeText}>×</Text></MotionPressable>
     </View>
   </Entrance>;

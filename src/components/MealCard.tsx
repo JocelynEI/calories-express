@@ -111,10 +111,10 @@ export function toneFor(moment: Meal['moment']) {
   // V2.7 — les catégories du brief : petit-déjeuner orangé, déjeuner vert,
   // dîner violet doux, collation menthe. L'aplat est la couleur pastel exacte
   // du brief ; la pastille et les icônes prennent son encre lisible.
-  if (moment === 'Petit-déjeuner') return { pale: colors.warmPale, ink: colors.warmInk };
-  if (moment === 'Goûter' || moment === 'Snack') return { pale: colors.mintPale, ink: colors.mintInk };
-  if (moment === 'Dîner') return { pale: colors.purplePale, ink: colors.purpleInk };
-  return { pale: colors.greenPale, ink: colors.greenInk };
+  if (moment === 'Petit-déjeuner') return { pale: colors.warmPale, ink: colors.warmInk, fill: colors.warmFill };
+  if (moment === 'Goûter' || moment === 'Snack') return { pale: colors.mintPale, ink: colors.mintInk, fill: colors.mintFill };
+  if (moment === 'Dîner') return { pale: colors.purplePale, ink: colors.purpleInk, fill: colors.purpleFill };
+  return { pale: colors.greenPale, ink: colors.greenInk, fill: colors.greenFill };
 }
 
 const styles = StyleSheet.create({

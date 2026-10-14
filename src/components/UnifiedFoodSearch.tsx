@@ -15,11 +15,14 @@ import { RecipeBuilder } from './RecipeBuilder';
 import { LabelFoodForm } from './LabelFoodForm';
 import { isBurgerQuery } from '../domain/recipes';
 import { MotionPressable } from './Motion';
+import { AppIcon } from './AppIcon';
 
-export function UnifiedFoodSearch({ onAdd, onDraftChange }: { onAdd: (item: RecognizedFood) => void; onDraftChange: (dirty: boolean) => void }) {
+export function UnifiedFoodSearch({ onAdd, onDraftChange, initialSpecial = null }: { onAdd: (item: RecognizedFood) => void; onDraftChange: (dirty: boolean) => void; initialSpecial?: 'recipe' | 'label' | null }) {
   const { savedFoods, forgetFood } = useApp();
   const [text, setText] = useState(''), [current, setCurrent] = useState(0), [manual, setManual] = useState(false);
-  const [special, setSpecial] = useState<'recipe' | 'label' | null>(null);
+  const [special, setSpecial] = useState<'recipe' | 'label' | null>(initialSpecial);
+  // V4.0 — ouverte depuis le scan, l'étiquette déclenche l'appareil photo d'elle-même.
+  const [autoScan, setAutoScan] = useState(initialSpecial === 'label');
   const [selection, setSelection] = useState<SavedFood | ProductCandidate | null>(null);
   const [results, setResults] = useState<ProductCandidate[]>([]), [busy, setBusy] = useState(false), [searched, setSearched] = useState(false), [error, setError] = useState('');
   const request = useRef<AbortController | null>(null), sequence = useRef(0);
@@ -39,29 +42,41 @@ export function UnifiedFoodSearch({ onAdd, onDraftChange }: { onAdd: (item: Reco
     finally { if (token === sequence.current) setBusy(false); }
   };
   if (special === 'recipe') return <RecipeBuilder initialName={segment.query} onCancel={() => setSpecial(null)} onAdd={complete} />;
-  if (special === 'label') return <LabelFoodForm initialName={segment.query} onCancel={() => setSpecial(null)} onAdd={complete} />;
+  if (special === 'label') return <LabelFoodForm initialName={segment.query} autoStart={autoScan} onCancel={() => { setAutoScan(false); setSpecial(null); }} onAdd={item => { setAutoScan(false); complete(item); }} />;
   if (selection) return <Quantity key={`${selection.id}-${segment.text}`} selection={selection} segment={segment} onCancel={() => setSelection(null)} onAdd={complete} onForget={'reference' in selection && savedFoods.some(f => f.id === selection.id) ? () => { forgetFood(selection.id); setSelection(null); } : undefined} />;
   return <View style={{ gap: 14 }}>
+    {/* V4.0 — une seule carte en tête : écrire, ou scanner, ou composer. Le
+        scan d'étiquette n'est plus le cinquième bloc de l'écran, il est à côté
+        du champ. */}
     <View style={form.card}>
-      <Text style={styles.eyebrow}>1 · CE QUE TU AS MANGÉ</Text>
-      <Text style={form.title}>Un aliment ou ton repas en une phrase</Text>
-      <TextInput accessibilityLabel="Aliment, quantité ou description du repas" value={text} onChangeText={change} multiline maxLength={400} placeholder="150 g de riz cuit et 2 œufs" placeholderTextColor={colors.muted} style={[form.input, { minHeight: 82, textAlignVertical: 'top' }]} />
-      <Text style={form.muted}>Choisis chaque aliment proposé, puis vérifie la quantité. Les calories se calculent automatiquement.</Text>
+      <Text style={styles.heading1}>Qu’as-tu mangé ?</Text>
+      <TextInput accessibilityLabel="Aliment, quantité ou description du repas" value={text} onChangeText={change} multiline maxLength={400} placeholder="Riz, 2 œufs, une pomme…" placeholderTextColor={colors.muted} style={[form.input, styles.search]} />
+      <Text style={form.muted}>Un aliment ou tout ton repas : les calories se calculent seules, parmi {CIQUAL_COUNT.toLocaleString('fr-FR')} aliments, même sans connexion.</Text>
       {segments.length > 1 && <View style={form.row}>{segments.map((s, index) => <Choice key={`${index}-${s.text}`} label={s.text} selected={current === index} onPress={() => { cancelRequest(); setCurrent(index); setManual(false); }} />)}</View>}
-      {text.trim() ? <MotionPressable accessibilityRole="button" onPress={() => change('')} style={styles.linkButton}><Text style={styles.link}>Effacer la saisie restante</Text></MotionPressable> : <View style={form.row}>{['Burger maison au bœuf', 'Riz cuit', 'Œuf dur'].map(example => <Choice key={example} label={example} selected={false} onPress={() => change(example)} />)}</View>}
+      {text.trim() ? <MotionPressable accessibilityRole="button" onPress={() => change('')} style={styles.linkButton}><Text style={styles.link}>Effacer la saisie restante</Text></MotionPressable> : <View style={form.row}>{['Riz cuit', 'Œuf dur', 'Burger maison au bœuf'].map(example => <Choice key={example} label={example} selected={false} onPress={() => change(example)} />)}</View>}
+      <View style={styles.shortcuts}>
+        <MotionPressable accessibilityRole="button" accessibilityLabel="Scanner une étiquette" onPress={() => setSpecial('label')} containerStyle={styles.shortcutOuter} style={[styles.shortcut, styles.shortcutScan]}>
+          <AppIcon name="camera" size={20} color={colors.white} strokeWidth={2} />
+          <Text style={styles.shortcutScanText}>Scanner une étiquette</Text>
+        </MotionPressable>
+        <MotionPressable accessibilityRole="button" accessibilityLabel="Composer un plat maison" onPress={() => setSpecial('recipe')} containerStyle={styles.shortcutOuter} style={styles.shortcut}>
+          <AppIcon name="list" size={20} color={colors.violet} strokeWidth={2} />
+          <Text style={styles.shortcutText}>Plat maison</Text>
+        </MotionPressable>
+      </View>
     </View>
     {!manual && <>
       {isBurgerQuery(segment.query) && <View style={[form.card, { backgroundColor: colors.violetPale }]}><Text style={form.title}>Burger maison au bœuf</Text><Text style={form.copy}>Pain, steak, fromage, sauce… ajuste ta recette et calcule les kcal de ton burger.</Text><Action label="Personnaliser mon burger" onPress={() => setSpecial('recipe')} /></View>}
 
-      <View style={form.card}>
-        <View style={styles.heading}><Text style={form.title}>Estimations disponibles</Text><Text style={styles.badge}>HORS LIGNE</Text></View>
-        <Text style={form.muted}>{CIQUAL_COUNT.toLocaleString('fr-FR')} aliments Ciqual et tes aliments mémorisés. Les recettes, les marques et la cuisson peuvent changer les valeurs.</Text>
-        {local.map(food => <Result key={food.id} name={food.name} imageUrl={food.reference.imageUrl} detail={`≈ ${Math.round(food.reference.calories.estimated)} kcal / ${food.reference.amount} ${food.reference.unit} · ${food.reference.source === 'ciqual' ? 'Ciqual 2025' : 'Mes aliments'}`} onPress={() => { track('aliment-cherche'); setSelection(food); }} />)}
-        {segment.query && !local.length && <Text style={form.copy}>Aucune correspondance exacte. Compose ton plat maison avec ses ingrédients, essaie un nom simple ou photographie son étiquette.</Text>}
-        <SourceLink url={CIQUAL_SOURCE} label="Source : Anses · Ciqual 2025 · Licence ouverte" />
-      </View>
-      <View style={form.card}><Text style={form.title}>Un paquet ou un plat maison ?</Text><Action label="Photographier une étiquette" secondary onPress={() => setSpecial('label')} /><Text style={form.muted}>Lis les valeurs du paquet, puis indique ton nombre de biscuits ou la quantité mangée.</Text><Action label="Composer un plat maison" secondary onPress={() => setSpecial('recipe')} /></View>
-      <View style={form.card}>
+      {segment.query ? <View style={form.card}>
+        <Text style={form.title}>Choisis ton aliment</Text>
+        {local.map(food => <Result key={food.id} name={food.name} imageUrl={food.reference.imageUrl} detail={`${Math.round(food.reference.calories.estimated)} kcal pour ${food.reference.amount} ${food.reference.unit}${food.reference.source === 'ciqual' ? '' : ', dans tes aliments'}`} onPress={() => { track('aliment-cherche'); setSelection(food); }} />)}
+        {!local.length && <Text style={form.copy}>Aucune correspondance exacte. Compose ton plat maison avec ses ingrédients, essaie un nom simple ou scanne son étiquette.</Text>}
+        <SourceLink url={CIQUAL_SOURCE} label="Valeurs moyennes : Anses, Ciqual 2025, licence ouverte" />
+      </View> : null}
+      {/* La recherche de marque n'a de sens qu'avec un nom : elle reste cachée
+          tant que le champ est vide. */}
+      {segment.query.length >= 3 && <View style={form.card}>
         <Text style={form.title}>Tu cherches une marque précise ?</Text>
         <Text style={form.copy}>Écris son nom ou les chiffres du code-barres dans le même champ.</Text>
         <Action label={busy ? 'Recherche de la marque…' : 'Chercher une marque en ligne'} disabled={busy || segment.query.length < 3} onPress={() => void search()} />
@@ -71,7 +86,7 @@ export function UnifiedFoodSearch({ onAdd, onDraftChange }: { onAdd: (item: Reco
         {results.map(product => <Result key={product.id} name={product.name} imageUrl={product.imageUrl} detail={`${product.brand} · ≈ ${Math.round(product.kcal100)} kcal / 100 g ou ml`} onPress={() => { track('aliment-cherche'); setSelection(product); }} />)}
         <Text style={form.muted}>Cette recherche envoie seulement les mots recherchés à Open Food Facts. Le profil et le journal restent sur ton appareil.</Text>
         {results.length > 0 && <SourceLink />}
-      </View>
+      </View>}
       <Action label="Je connais les kcal : saisir une étiquette" secondary onPress={() => setManual(true)} />
     </>}
     {manual && <><Action label="Revenir aux estimations automatiques" secondary onPress={() => setManual(false)} /><ManualFoodForm initialName={segment.query} onAdd={complete} /></>}
@@ -118,7 +133,7 @@ function Quantity({ selection, segment, onAdd, onCancel, onForget }: { selection
 
   return <View style={form.card}>
     <Action label="Retour à la recherche" secondary onPress={onCancel} />
-    <Text style={styles.eyebrow}>2 · COMBIEN EN AS-TU PRIS ?</Text>
+    <Text style={styles.heading1}>Combien en as-tu pris ?</Text>
     <Text style={form.title}>{selection.name}</Text>
     {product && <><Text style={form.copy}>{product.brand} {product.package}</Text><Text style={form.label}>Sur l’étiquette : pour 100 g ou 100 ml ?</Text><Text style={form.muted}>Le service fournit une référence normalisée : vérifie son unité. Le poids et le volume ne sont pas convertis.</Text><View style={form.row}>{(['g', 'ml'] as const).map(u => <Choice key={u} label={`Pour 100 ${u}`} selected={unit === u} onPress={() => { setUnit(u); setMode('mesures'); setCount(1); }} />)}</View></>}
 
@@ -193,7 +208,14 @@ const styles = StyleSheet.create({
   compteurCentre: { flex: 1, alignItems: 'center' },
   compteurTexte: { color: colors.navy, fontSize: 17, lineHeight: 22, fontFamily: fonts.extrabold },
   compteurEquiv: { color: colors.violet, fontSize: 12, lineHeight: 16, fontFamily: fonts.semibold },
-  eyebrow: { color: colors.sageDark, fontSize: 12, letterSpacing: 1.2, fontFamily: fonts.extrabold },
+  heading1: { color: colors.navy, fontSize: 22, lineHeight: 28, fontFamily: fonts.display, letterSpacing: -0.3 },
+  search: { minHeight: 64, fontSize: 16, textAlignVertical: 'top' },
+  shortcuts: { flexDirection: 'row', gap: 10 },
+  shortcutOuter: { flex: 1 },
+  shortcut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 52, borderRadius: 16, paddingHorizontal: 10, backgroundColor: colors.violetPale },
+  shortcutScan: { backgroundColor: colors.navy },
+  shortcutScanText: { flexShrink: 1, color: colors.white, fontSize: 14, fontFamily: fonts.bold },
+  shortcutText: { flexShrink: 1, color: colors.navy, fontSize: 14, fontFamily: fonts.bold },
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, justifyContent: 'space-between' },
   badge: { color: colors.sageDark, backgroundColor: colors.aquaPale, padding: 6, borderRadius: 8, fontFamily: fonts.extrabold, fontSize: 12 },
   result: { borderTopColor: colors.line, borderTopWidth: 1, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 58 },

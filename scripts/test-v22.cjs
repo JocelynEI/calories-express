@@ -102,10 +102,11 @@ test('Les polices Figtree et Bricolage Grotesque sont chargées au démarrage (V
 test('La jauge est une assiette pleine, avec ce qu’il reste au centre (V3.5)', () => {
   const gauge = read('src/components/CalorieGauge.tsx');
   assert.ok(gauge.includes('2 * Math.PI * rimRadius'), 'le bord fait tout le tour de l’assiette');
-  assert.ok(gauge.includes('rotation={-90}'), 'la progression part du haut');
+  // V4.0 : une part par moment ; la première part toujours du haut (-90°).
+  assert.ok(gauge.includes('rotation={-90 + part.start * 360}'), 'la progression part du haut');
   assert.ok(gauge.includes("'Il te reste'") && gauge.includes("'Au-dessus de'"), 'le centre annonce le restant ou l’écart');
-  // Une information, un seul endroit : le repère est écrit sous l'assiette, le
-  // total mangé en tête de « Dans ton assiette ».
+  // Une information, un seul endroit : l'objectif et le total mangé sont
+  // écrits sous l'assiette, pas au centre.
   assert.ok(!gauge.includes('sur ${target.toLocaleString'), 'le total et le repère ne sont plus répétés au centre');
 });
 
@@ -113,7 +114,7 @@ test('Les moments de la journée suivent les catégories du brief', () => {
   const card = read('src/components/MealCard.tsx');
   assert.ok(/Petit-déjeuner'\) return \{ pale: colors\.warmPale/.test(card), 'petit-déjeuner orangé');
   assert.ok(/Dîner'\) return \{ pale: colors\.purplePale/.test(card), 'dîner violet doux');
-  assert.ok(/return \{ pale: colors\.greenPale, ink: colors\.greenInk \}/.test(card), 'déjeuner vert');
+  assert.ok(/return \{ pale: colors\.greenPale, ink: colors\.greenInk, fill: colors\.greenFill \}/.test(card), 'déjeuner vert');
   assert.ok(/Snack'\) return \{ pale: colors\.mintPale/.test(card), 'collation menthe');
 });
 
