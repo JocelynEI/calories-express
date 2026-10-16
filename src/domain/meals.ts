@@ -157,3 +157,14 @@ export function mealSummary(meal: Meal): string {
 export function momentForHour(hour: number): MealMoment {
   return hour < 10 ? 'Petit-déjeuner' : hour < 14 ? 'Déjeuner' : hour < 18 ? 'Goûter' : 'Dîner';
 }
+
+/**
+ * V4.3 — protéines, glucides, lipides d'un moment, pour les pastilles de
+ * « Tes repas ». Rien n'est affiché si une valeur manque : un zéro inventé
+ * se lirait comme « pas de protéines ».
+ */
+export function groupMacros(meals: Meal[]): { protein: number; carbs: number; fat: number } | null {
+  if (!meals.length || meals.some(meal => meal.items.some(item => item.macrosComplete === false))) return null;
+  const sum = (key: 'protein' | 'carbs' | 'fat') => Math.round(meals.reduce((n, meal) => n + (meal.macros?.[key] ?? 0), 0));
+  return { protein: sum('protein'), carbs: sum('carbs'), fat: sum('fat') };
+}

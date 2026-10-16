@@ -1,6 +1,8 @@
 export type Goal = 'maintain' | 'lose' | 'gain';
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active';
 export type SexForFormula = 'female' | 'male';
+/** V4.3 — le personnage qui représente la personne sur la page Activités. */
+export type AvatarChoice = 'homme' | 'femme' | 'aucun';
 export type MealMoment = 'Petit-déjeuner' | 'Déjeuner' | 'Goûter' | 'Dîner' | 'Snack';
 export type EntryMethod = 'phrase' | 'manual' | 'product';
 
@@ -91,6 +93,8 @@ export type Profile = {
   targetMode: 'automatic' | 'manual';
   activityBudgetMode?: 'fixed' | 'daily';
   manualTarget: number;
+  /** V4.3 — absent : déduit du profil une fois rempli. */
+  avatar?: AvatarChoice;
 };
 
 export type AppState = {

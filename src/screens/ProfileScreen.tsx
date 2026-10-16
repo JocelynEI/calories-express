@@ -3,6 +3,8 @@ import { Alert, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Swi
 import { AppIcon } from '../components/AppIcon';
 import { GuideAvatar } from '../components/GuideAvatar';
 import { GuideCard } from '../components/GuideCard';
+import { UserAvatar } from '../components/UserAvatar';
+import { AVATAR_CHOICES, avatarFor } from '../domain/activity-hero';
 import { calculateBmr } from '../domain/calories';
 import { useApp } from '../state/AppContext';
 import { colors, radii, fonts } from '../theme';
@@ -141,6 +143,24 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
           style={styles.nameInput}
         />
       </View>
+
+      {/* V4.3 — le personnage de la page Activités. Jaws reste le coach. */}
+      <Text style={styles.sectionTitle}>Ton personnage</Text>
+      <View style={styles.avatarRow}>
+        {AVATAR_CHOICES.map(choice => {
+          const current = avatarFor(draft, profileCompleted) ?? 'aucun';
+          const active = current === choice.id;
+          return (
+            <Pressable key={choice.id} onPress={() => patch('avatar', choice.id)} accessibilityRole="radio" accessibilityState={{ selected: active }} accessibilityLabel={`Personnage : ${choice.label}`} style={[styles.avatarCard, active && styles.avatarCardOn]}>
+              <View style={styles.avatarImage}>
+                {choice.id === 'aucun' ? <AppIcon name="close" size={28} color={colors.muted} strokeWidth={2} /> : <UserAvatar choice={choice.id} pose="face" height={104} />}
+              </View>
+              <Text style={[styles.avatarLabel, active && styles.avatarLabelOn]}>{choice.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <Text style={styles.formHelp}>Il t’accompagne sur la page Activités. Jaws reste ton coach.</Text>
 
       <Text style={styles.sectionTitle}>Objectif</Text>
       <View style={styles.goalList}>
@@ -454,4 +474,10 @@ const styles = StyleSheet.create({
   legalLink: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
   legalLinkText: { color: colors.violet, fontSize: 14, fontFamily: fonts.bold, textDecorationLine: 'underline' },
   demoLinkText: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, textDecorationLine: 'underline' },
+  avatarRow: { flexDirection: 'row', gap: 10 },
+  avatarCard: { flex: 1, alignItems: 'center', gap: 6, paddingTop: 10, paddingBottom: 10, borderRadius: 18, borderWidth: 1.5, borderColor: colors.line, backgroundColor: colors.white },
+  avatarCardOn: { borderColor: colors.violet, backgroundColor: colors.violetPale },
+  avatarImage: { height: 104, justifyContent: 'center', alignItems: 'center' },
+  avatarLabel: { color: colors.inkSoft, fontSize: 14, fontFamily: fonts.bold },
+  avatarLabelOn: { color: colors.violet },
 });

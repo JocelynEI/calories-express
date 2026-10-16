@@ -114,5 +114,6 @@ export function readProfile(value: unknown, fallback: Profile): Profile {
     targetMode: value.targetMode === 'manual' ? 'manual' : 'automatic',
     activityBudgetMode: value.activityBudgetMode === 'daily' ? 'daily' : 'fixed',
     manualTarget: bounded(value.manualTarget, 1, 100000, fallback.manualTarget),
+    ...(value.avatar === 'homme' || value.avatar === 'femme' || value.avatar === 'aucun' ? { avatar: value.avatar } : {}),
   };
 }
