@@ -35,6 +35,26 @@ export function catalogReference(item: RecognizedFood): RecognizedFood {
   return { ...item, macrosComplete: true, reference: { amount: 1, unit: 'portion', calories: food.calories, macros: food.macros, macrosComplete: true, source: 'catalog', description: food.description } };
 }
 
+/**
+ * V4.2 — d'où vient le chiffre, en mots simples.
+ *
+ * Les avis sur les applis concurrentes le montrent : on ne sait jamais si une
+ * valeur est lue, devinée ou recopiée par un inconnu. Chaque aliment du repas
+ * dit maintenant si ses kcal sont lues sur ton étiquette, saisies par toi, ou
+ * une moyenne de la table Ciqual.
+ */
+export function sourceLabel(source?: FoodReference['source']): string | null {
+  switch (source) {
+    case 'label': return 'Lu sur ton étiquette';
+    case 'manual': return 'Ta valeur';
+    case 'recipe': return 'Ta recette';
+    case 'ciqual': return 'Moyenne Ciqual, à ajuster';
+    case 'off': return 'Fiche Open Food Facts';
+    case 'catalog': return 'Estimation moyenne';
+    default: return null;
+  }
+}
+
 export function itemQuantityLabel(item: RecognizedFood) {
   const unit = item.reference?.unit ?? 'portion';
   return `${item.quantity.toLocaleString('fr-FR')} ${unit === 'portion' ? `${item.reference?.portionName ?? 'portion'}${item.quantity > 1 ? 's' : ''}` : unit}`;

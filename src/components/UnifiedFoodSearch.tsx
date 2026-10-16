@@ -17,6 +17,8 @@ import { isBurgerQuery } from '../domain/recipes';
 import { MotionPressable } from './Motion';
 import { AppIcon } from './AppIcon';
 
+const DRINKS = ['Eau', 'Café', 'Thé', 'Lait', 'Jus d’orange', 'Cola'];
+
 export function UnifiedFoodSearch({ onAdd, onDraftChange, initialSpecial = null, autoFocus = false }: { onAdd: (item: RecognizedFood) => void; onDraftChange: (dirty: boolean) => void; initialSpecial?: 'recipe' | 'label' | null; autoFocus?: boolean }) {
   const { savedFoods, forgetFood, meals } = useApp();
   const [text, setText] = useState(''), [current, setCurrent] = useState(0), [manual, setManual] = useState(false);
@@ -86,6 +88,12 @@ export function UnifiedFoodSearch({ onAdd, onDraftChange, initialSpecial = null,
       {!typed && recents.length === 0 && <View style={form.card}>
         <Text style={form.title}>Un essai ?</Text>
         <View style={form.row}>{['Riz cuit', 'Œuf dur', 'Banane', 'Yaourt nature'].map(example => <Choice key={example} label={example} selected={false} onPress={() => change(example)} />)}</View>
+      </View>}
+      {/* V4.2 — les boissons comptent aussi, et on les oublie : un raccourci par
+          boisson courante, qui ouvre la bonne entrée (le café tel qu'on le boit). */}
+      {!typed && <View style={form.card}>
+        <Text style={form.title}>Une boisson ?</Text>
+        <View style={form.row}>{DRINKS.map(drink => <Choice key={drink} label={drink} selected={false} onPress={() => change(drink)} />)}</View>
       </View>}
 
       {typed ? <View style={form.card}>

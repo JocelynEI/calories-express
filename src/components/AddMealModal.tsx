@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, Te
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { totalRecognized } from '../domain/calories';
 import { dayLabel, timestampForDay } from '../domain/date';
-import { itemQuantityLabel, portionIssue, readNumber, scaleReference } from '../domain/foods';
+import { itemQuantityLabel, portionIssue, readNumber, scaleReference, sourceLabel } from '../domain/foods';
 import { momentForHour, newMealId } from '../domain/meals';
 import { useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
@@ -205,6 +205,9 @@ function SelectedItem({ item, onRemove, onChange, onPending }: { item: EditableF
         </MotionPressable>
       </View>
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.copy}>{itemQuantityLabel(item)} · {item.calories.estimated} kcal</Text>
+      {sourceLabel(item.reference?.source) ? (
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.origin, item.reference?.source === 'label' && styles.originRead]}>{sourceLabel(item.reference?.source)}</Text>
+      ) : null}
       <View style={styles.quantity}>
         <TextInput accessibilityLabel={`Quantité de ${item.name}`} keyboardType="decimal-pad" value={quantity} maxLength={12} onChangeText={setQuantity} style={[form.input, { flex: 1, minWidth: 0 }]} />
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>{item.reference?.portionName ?? item.reference?.unit ?? ''}</Text>
@@ -235,5 +238,7 @@ const styles = StyleSheet.create({
   summary: { minHeight: 44, justifyContent: 'center' },
   summaryKcal: { fontSize: 20, lineHeight: 24, color: colors.navy, fontFamily: fonts.extrabold },
   summaryCount: { fontSize: 12, lineHeight: 16, color: colors.muted, fontFamily: fonts.semibold },
+  origin: { alignSelf: 'flex-start', color: colors.muted, backgroundColor: colors.background, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, fontSize: 12, lineHeight: 16, fontFamily: fonts.semibold, overflow: 'hidden' },
+  originRead: { color: colors.violet, backgroundColor: colors.violetPale },
   notice: { color: '#096B5B', fontSize: 13, lineHeight: 18, fontFamily: fonts.bold },
 });

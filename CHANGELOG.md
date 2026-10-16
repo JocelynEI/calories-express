@@ -1,3 +1,24 @@
+# V4.2.0 — 16 octobre 2026
+
+Corrections tirées de l'analyse des avis sur les applis concurrentes.
+
+- **Chaque aliment du repas dit d'où vient son chiffre** : « Lu sur ton
+  étiquette », « Ta valeur », « Ta recette » ou « Moyenne Ciqual, à ajuster ».
+  Les avis reprochent aux concurrents des valeurs dont on ne sait pas d'où elles
+  viennent.
+- **Une boisson ?** Raccourcis Eau, Café, Thé, Lait, Jus d'orange, Cola avant de
+  taper.
+- **Les boissons se trouvent telles qu'on les boit** : « café » proposait d'abord
+  le café moulu (341 kcal pour 100 g), « thé » les feuilles, « lait » un yaourt,
+  « fromage » le fromage de tête. Le + sert un café ou un thé à la tasse.
+- **Le + sert une portion raisonnable** : « 1 portion » plutôt qu'une assiette
+  pleine, et 30 g pour un aliment très calorique sans mesure (chocolat,
+  biscuits, fruits secs) au lieu de 100 g.
+- Les noms de la table Ciqual ne contiennent plus de retour à la ligne (818 noms
+  concernés).
+- Vérifié : 15 ajouts à la suite dans le navigateur, processeur ralenti 4 fois,
+  environ 0,4 s par ajout, sans erreur.
+
 # V4.1.0 — 16 octobre 2026
 
 Chercher et ajouter un aliment en quelques secondes.
