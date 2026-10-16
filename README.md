@@ -1,4 +1,4 @@
-# Calories Express — V4.0
+# Calories Express — V4.1
 
 Version de test Expo Go · 14 octobre 2026.
 

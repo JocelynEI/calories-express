@@ -1,5 +1,7 @@
 import data from '../data/ciqual2025.json';
-import { SavedFood } from '../types';
+import { RecognizedFood, SavedFood } from '../types';
+import { measuresFor, quantityFor, referenceForDisplay } from './measures';
+import { scaleReference } from './foods';
 
 export const CIQUAL_SOURCE = 'https://doi.org/10.57745/RDMHWY';
 type Row = [string, string, number, number | null, number | null, number | null];
@@ -22,15 +24,56 @@ export function ciqualFood(row: Row): SavedFood {
 export function searchFoods(query: string, personal: SavedFood[] = [], limit = 8): SavedFood[] {
   const tokens = words(query);
   if (!tokens.length) return personal.slice(0, limit);
-  const rank = (name: string[], boost = 0) => {
-    if (!tokens.every(token => name.some(w => w === token || (token.length >= 3 && w.startsWith(token))))) return -1;
-    return tokens.reduce((n, token) => n + (name.includes(token) ? 30 : 10), 0) + boost - name.length * 0.3;
+  const last = tokens.length - 1;
+  // V4.1 — l'autocomplétion : le mot en cours d'écriture compte dès sa 2e lettre
+  // (dès la 1re pour tes aliments), les mots déjà écrits dès la 3e.
+  const rank = (name: string[], boost: number, minPrefix: number) => {
+    if (tokens[last].length < minPrefix) return -1;
+    const found = tokens.every((token, index) => name.some(w => w === token || w.startsWith(token) && token.length >= (index === last ? minPrefix : 3)));
+    if (!found) return -1;
+    const start = name[0]?.startsWith(tokens[0]) ? 12 : 0;
+    return tokens.reduce((n, token) => n + (name.includes(token) ? 30 : 10), 0) + boost + start - name.length * 0.3;
   };
   const found: { food?: SavedFood; row?: Row; score: number }[] = [];
-  for (const food of personal) { const score = rank(words(food.name), 5); if (score >= 0) found.push({ food, score }); }
-  for (const entry of indexed) { const score = rank(entry.tokens, COMMON.has(entry.row[0]) ? 15 : 0); if (score >= 0) found.push({ row: entry.row, score }); }
+  for (const food of personal) { const score = rank(words(food.name), 5, 1); if (score >= 0) found.push({ food, score }); }
+  for (const entry of indexed) { const score = rank(entry.tokens, COMMON.has(entry.row[0]) ? 15 : 0, 2); if (score >= 0) found.push({ row: entry.row, score }); }
   const seen = new Set<string>();
   return found.sort((a, b) => b.score - a.score).filter(hit => { const id = hit.food?.id ?? `ciqual-${hit.row![0]}`; if (seen.has(id)) return false; seen.add(id); return true; }).slice(0, limit).map(hit => hit.food ?? ciqualFood(hit.row!));
+}
+
+/**
+ * V4.1 — les aliments déjà mangés, du plus récent au plus ancien.
+ *
+ * Ouvrir l'ajout sur un champ vide ne dit pas quoi taper. On propose d'abord ce
+ * que la personne a vraiment noté dans ses repas, puis ses aliments mémorisés :
+ * le plus souvent, on remange la même chose.
+ */
+export function recentFoods(meals: { createdAt: string; items: RecognizedFood[] }[], saved: SavedFood[], limit = 6): SavedFood[] {
+  const out = new Map<string, SavedFood>();
+  const recent = [...meals].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  for (const meal of recent) {
+    for (const item of [...meal.items].reverse()) {
+      if (out.size >= limit) return [...out.values()];
+      if (!item.reference || out.has(item.foodId)) continue;
+      out.set(item.foodId, { id: item.foodId, name: item.name, reference: item.reference });
+    }
+  }
+  for (const food of saved) if (out.size < limit && !out.has(food.id)) out.set(food.id, food);
+  return [...out.values()];
+}
+
+/**
+ * V4.1 — « une portion », pour ajouter en un appui sans passer par l'étape de
+ * quantité : la première mesure courante de l'aliment (1 verre, 1 bol, 1 portion…),
+ * ou sa référence si elle est déjà en portion. L'étiquette dit laquelle, et la
+ * quantité reste modifiable dans le repas.
+ */
+export function quickPortion(food: SavedFood): { item: RecognizedFood; label: string } {
+  const reference = referenceForDisplay(food);
+  const measure = reference.unit === 'portion' ? undefined : measuresFor(food.name)[0];
+  const quantity = measure ? quantityFor(measure, 1) : reference.amount;
+  const label = measure ? measure.label : reference.unit === 'portion' ? '1 portion' : `${reference.amount} ${reference.unit}`;
+  return { item: scaleReference({ ...food, reference }, quantity), label };
 }
 
 export type FoodSegment = { text: string; query: string; quantity: number | null; unit: 'g' | 'ml' | 'piece' | null };

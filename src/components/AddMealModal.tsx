@@ -61,7 +61,7 @@ export function AddMealModal({ visible, onClose, onAdded, meal = null, initialMo
   const onItem = (item: RecognizedFood) => {
     setItems(current => [...current, editable(item)]);
     setError('');
-    setNotice(`${item.name} ajouté au repas. Valide le repas en bas de l’écran.`);
+    setNotice(`Ajouté : ${item.name}`);
   };
 
   const close = () => {
@@ -126,13 +126,11 @@ export function AddMealModal({ visible, onClose, onAdded, meal = null, initialMo
               {moments.map(value => <Choice key={value} label={value} selected={moment === value} onPress={() => setMoment(value)} />)}
             </ScrollView>
 
-            {notice ? <Text accessibilityLiveRegion="polite" maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.success}>{notice}</Text> : null}
-
-            <UnifiedFoodSearch onAdd={onItem} onDraftChange={setDraftFood} initialSpecial={editing || startWith === 'search' ? null : startWith} />
+            <UnifiedFoodSearch onAdd={onItem} onDraftChange={setDraftFood} initialSpecial={editing || startWith === 'search' ? null : startWith} autoFocus={!editing && startWith === 'search'} />
 
             <View style={form.card}>
               <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.title}>Ton repas{items.length ? ` · ${items.length} aliment${items.length > 1 ? 's' : ''}` : ''}</Text>
-              {!items.length && <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>Les aliments ajoutés apparaîtront ici avant l’enregistrement.</Text>}
+              {!items.length && <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>Les aliments ajoutés apparaîtront ici.</Text>}
               {items.map((item, index) => (
                 <SelectedItem
                   key={item.entryId}
@@ -142,23 +140,32 @@ export function AddMealModal({ visible, onClose, onAdded, meal = null, initialMo
                   onChange={next => setItems(current => current.map((value, position) => (position === index ? { ...next, entryId: value.entryId } : value)))}
                 />
               ))}
-              <Text maxFontSizeMultiplier={1.3} style={styles.total}>{total.calories.estimated.toLocaleString('fr-FR')} kcal</Text>
               {items.some(item => item.macrosComplete === false) && (
                 <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>
                   Macronutriments partiels : les valeurs manquantes ne sont pas assimilées à zéro dans le bilan.
                 </Text>
               )}
-              {error ? <Text accessibilityRole="alert" maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.error}>{error}</Text> : null}
-              {pending.length > 0 && (
-                <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.error}>Applique les quantités modifiées pour actualiser ce total et enregistrer le repas.</Text>
-              )}
-              <Action
-                label={editing ? 'Enregistrer les modifications' : 'Enregistrer ce repas au journal'}
-                disabled={!items.length || pending.length > 0}
-                onPress={confirm}
-              />
             </View>
           </ScrollView>
+
+          {/* V4.1 — le total et l'enregistrement restent sous le pouce : on ajoute
+              d'un appui sur un +, et on voit tout de suite le repas grossir. */}
+          {(items.length > 0 || editing) && (
+            <View style={styles.footer}>
+              {notice ? <Text accessibilityLiveRegion="polite" maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.notice} numberOfLines={1}>✓ {notice}</Text> : null}
+              {error ? <Text accessibilityRole="alert" maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.error}>{error}</Text> : null}
+              {pending.length > 0 && <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.error}>Applique les quantités modifiées pour actualiser ce total.</Text>}
+              <View style={styles.footerRow}>
+                <MotionPressable accessibilityRole="button" accessibilityLabel="Voir les aliments de ce repas" onPress={() => scroll.current?.scrollToEnd({ animated: !reducedMotion })} containerStyle={{ flexShrink: 1 }} style={styles.summary}>
+                  <Text maxFontSizeMultiplier={1.3} style={styles.summaryKcal}>{total.calories.estimated.toLocaleString('fr-FR')} kcal</Text>
+                  <Text maxFontSizeMultiplier={1.3} style={styles.summaryCount}>{items.length} aliment{items.length > 1 ? 's' : ''}</Text>
+                </MotionPressable>
+                <View style={{ flex: 1 }}>
+                  <Action label={editing ? 'Enregistrer' : 'Enregistrer le repas'} disabled={!items.length || pending.length > 0} onPress={confirm} />
+                </View>
+              </View>
+            </View>
+          )}
         </KeyboardAvoidingView>
       </SafeAreaView>
       </SafeAreaProvider>
@@ -199,7 +206,7 @@ function SelectedItem({ item, onRemove, onChange, onPending }: { item: EditableF
       </View>
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.copy}>{itemQuantityLabel(item)} · {item.calories.estimated} kcal</Text>
       <View style={styles.quantity}>
-        <TextInput accessibilityLabel={`Quantité de ${item.name}`} keyboardType="decimal-pad" value={quantity} maxLength={12} onChangeText={setQuantity} style={[form.input, { flex: 1 }]} />
+        <TextInput accessibilityLabel={`Quantité de ${item.name}`} keyboardType="decimal-pad" value={quantity} maxLength={12} onChangeText={setQuantity} style={[form.input, { flex: 1, minWidth: 0 }]} />
         <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>{item.reference?.portionName ?? item.reference?.unit ?? ''}</Text>
         <Action label="Appliquer" secondary onPress={update} />
       </View>
@@ -223,5 +230,10 @@ const styles = StyleSheet.create({
   quantity: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   remove: { minHeight: 44, justifyContent: 'center' },
   link: { fontSize: 13, fontFamily: fonts.extrabold, color: colors.sageDark },
-  total: { fontSize: 27, color: colors.navy, fontFamily: fonts.extrabold, letterSpacing: -0.6 },
+  footer: { paddingHorizontal: 18, paddingTop: 10, paddingBottom: 10, gap: 8, backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.line },
+  footerRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  summary: { minHeight: 44, justifyContent: 'center' },
+  summaryKcal: { fontSize: 20, lineHeight: 24, color: colors.navy, fontFamily: fonts.extrabold },
+  summaryCount: { fontSize: 12, lineHeight: 16, color: colors.muted, fontFamily: fonts.semibold },
+  notice: { color: '#096B5B', fontSize: 13, lineHeight: 18, fontFamily: fonts.bold },
 });

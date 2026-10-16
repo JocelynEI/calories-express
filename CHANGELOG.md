@@ -1,3 +1,27 @@
+# V4.1.0 — 16 octobre 2026
+
+Chercher et ajouter un aliment en quelques secondes.
+
+- **Les propositions suivent la frappe** dès la 2e lettre : « po » propose pomme,
+  poireau, potiron. Ce que tu écris en premier passe devant.
+- **Un + sur chaque proposition** ajoute une portion courante (1 verre, 1 bol,
+  1 portion…) sans passer par l'étape de quantité. Un appui sur la ligne ouvre
+  toujours le choix de la quantité.
+- **Tes aliments récents** s'affichent dès l'ouverture, avant d'avoir tapé :
+  ce que tu as noté dans tes repas, puis tes aliments mémorisés.
+- **Ajouter son propre aliment** n'est plus caché en bas : « Mon aliment » est à
+  côté du scan, et « Ajouter « … » moi-même » termine chaque liste. Le formulaire
+  ne demande plus que le nom et les calories (une portion). Le « pour 100 g », les
+  macros et la mémoire sont derrière « Plus d'options ».
+- **Le total et « Enregistrer le repas » restent en bas de l'écran**, avec un
+  message à chaque ajout.
+- Le clavier s'ouvre tout seul sur la recherche.
+- Les textes d'explication (nombre d'aliments, source, avertissements) ne
+  s'affichent plus qu'en cas de besoin.
+- Correction : un aliment compté en portions (le tien, un plat maison) ne se voit
+  plus proposer de mesures en grammes (« 1 tranche », « 1 assiette ») qui
+  faussaient son total.
+
 # V4.0.2 — 14 octobre 2026
 
 La lecture des étiquettes sur un sachet courbé ou un petit tableau.
