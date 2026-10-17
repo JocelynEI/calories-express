@@ -16,6 +16,7 @@ import { MotionPressable } from './Motion';
 import { ActivityCelebration, ActivityFeedback } from './ActivityCelebration';
 import { ActivityBalance } from './ActivityBalance';
 import { SessionEntryForm } from './SessionEntryForm';
+import { QuickActivity } from './QuickActivity';
 import { DayEnergyForm } from './DayEnergyForm';
 import { GoalPicker } from './GoalPicker';
 import { AppIcon } from './AppIcon';
@@ -51,9 +52,19 @@ export function ActivityModal({ onClose, onSettings, initialTab = 'journal', ini
   const totals = kindTotals(summary.rows);
   const formY = useRef(0);
   const toForm = () => requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, formY.current - 12), animated: !reducedMotion }));
+  // Une tuile ouvre, juste en dessous, la durée et le chiffre : deux appuis de
+  // plus et la séance est enregistrée, l'en-tête se met à jour sous les yeux.
+  const [quickKind, setQuickKind] = useState<ActivityKind | null>(null);
+  // On descend vers le bloc une seule fois, à son ouverture : pas à chaque
+  // changement de taille (le message de Jaws, après l'enregistrement).
+  const quickScrolled = useRef(false);
   const pickKind = (kind: ActivityKind) => {
     if (dirty) { setError('Enregistre ou annule la saisie en cours avant de choisir une autre activité.'); top(); return; }
-    setEditing(null); setIdea(kind); setPanel('session'); setEntryKey(n => n + 1); setFeedback(null); setError(''); setNotice('');
+    quickScrolled.current = false; setQuickKind(kind); setFeedback(null); setError(''); setNotice('');
+  };
+  // « Tout régler » : le formulaire complet, déjà réglé sur la même activité.
+  const openFullForm = (kind: ActivityKind) => {
+    setQuickKind(null); setEditing(null); setIdea(kind); setPanel('session'); setEntryKey(n => n + 1);
     toForm();
   };
   const pickSteps = () => {
@@ -134,6 +145,11 @@ export function ActivityModal({ onClose, onSettings, initialTab = 'journal', ini
               );
             })}
           </View>
+          {quickKind ? (
+            <View onLayout={e => { if (quickScrolled.current) return; quickScrolled.current = true; const y = e.nativeEvent.layout.y; requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, y - 120), animated: !reducedMotion })); }}>
+              <QuickActivity key={`${quickKind}-${day}`} startOpen initialKind={quickKind} day={day} onProfile={onSettings} onDetails={() => openFullForm(quickKind)} onDismiss={() => setQuickKind(null)} onSaved={top} />
+            </View>
+          ) : null}
           <ActivityBalance plan={plan} profileCompleted={profileCompleted} onSettings={settings} />
           <Text style={form.title} onLayout={e => { formY.current = e.nativeEvent.layout.y; }}>Que veux-tu renseigner ?</Text>
           <View style={form.row}><Choice label="Ma séance" selected={panel === 'session'} onPress={() => changePanel('session')} /><Choice label="Mes pas" selected={panel === 'steps'} onPress={() => changePanel('steps')} /><Choice label="Total montre" selected={panel === 'watch'} onPress={() => changePanel('watch')} /></View>

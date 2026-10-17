@@ -61,7 +61,7 @@ test('L’interface : en-tête avec personnage, tuiles en un appui, choix dans l
   assert.ok(modal.includes('setIdea(kind)'));
   assert.ok(modal.includes('kcal brûlées en bougeant'));
   const profile = read('src/screens/ProfileScreen.tsx');
-  assert.ok(profile.includes('Ton personnage') && profile.includes("patch('avatar', choice.id)"));
+  assert.ok(profile.includes('Ton personnage') && profile.includes("onChange={choice => patch('avatar', choice)}"));
   assert.ok(read('src/components/MomentMeals.tsx').includes('<MacroDots meals={group.meals} />'));
 });
 
@@ -73,4 +73,21 @@ test('Les images des personnages sont légères et sans fond', () => {
     const buf = fs.readFileSync(file);
     assert.equal(buf[25], 6, `${name} : PNG avec couche transparente (RGBA)`);
   }
+});
+
+test('Moins d’appuis : l’accueil ouvre la page Activités, une tuile ouvre la durée sur place', () => {
+  const home = read('src/screens/TodayScreen.tsx');
+  assert.ok(!home.includes('setAddingActivity'), 'plus de bloc d’activité à part sur l’accueil');
+  const modal = read('src/components/ActivityModal.tsx');
+  assert.ok(modal.includes('initialKind={quickKind}'), 'la tuile choisit l’activité');
+  const quick = read('src/components/QuickActivity.tsx');
+  assert.ok(quick.includes("startOpen ? (initialKind ? 'minutes' : 'kind') : null"), 'on passe directement à la durée');
+});
+
+test('Le personnage se choisit dès l’inscription, sans être obligatoire', () => {
+  const onboarding = read('src/screens/OnboardingScreen.tsx');
+  assert.ok(onboarding.includes('<AvatarPicker value={avatar} onChange={setAvatar}'));
+  assert.ok(onboarding.includes('useState<AvatarChoice | null>(null)'), 'rien n’est coché d’avance');
+  assert.ok(onboarding.includes('...(avatar ? { avatar } : {})'), 'sans choix, le profil reste sans personnage imposé');
+  assert.ok(read('src/screens/ProfileScreen.tsx').includes('<AvatarPicker'));
 });

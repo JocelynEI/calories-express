@@ -6,6 +6,7 @@ import {
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { AppIcon } from '../components/AppIcon';
 import { GuideAvatar } from '../components/GuideAvatar';
+import { AvatarPicker } from '../components/AvatarPicker';
 import { MotionPressable } from '../components/Motion';
 import { readNumber } from '../domain/foods';
 import {
@@ -16,7 +17,7 @@ import { track } from '../services/test-journal';
 import { DEFAULT_PROFILE, useApp } from '../state/AppContext';
 import { useExperience } from '../state/ExperienceContext';
 import { colors, MAX_FONT_SCALE, radii, shadows, fonts } from '../theme';
-import { Profile } from '../types';
+import { AvatarChoice, Profile } from '../types';
 
 /**
  * V1.9 — le parcours de création du profil, au premier lancement.
@@ -47,6 +48,8 @@ export function OnboardingScreen({ onDone }: Props) {
   const [activityLevel, setActivityLevel] = useState<Profile['activityLevel']>('light');
   const [sexForFormula, setSexForFormula] = useState<Profile['sexForFormula']>('female');
   const [firstName, setFirstName] = useState('');
+  // V4.3 — facultatif : sans choix, le personnage suivra le paramètre de la formule.
+  const [avatar, setAvatar] = useState<AvatarChoice | null>(null);
   const [fields, setFields] = useState({ age: '', heightCm: '', weightKg: '' });
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
@@ -62,7 +65,8 @@ export function OnboardingScreen({ onDone }: Props) {
     age: readNumber(fields.age) ?? NaN,
     heightCm: readNumber(fields.heightCm) ?? NaN,
     weightKg: readNumber(fields.weightKg) ?? NaN,
-  }), [firstName, sexForFormula, goal, activityLevel, fields]);
+    ...(avatar ? { avatar } : {}),
+  }), [firstName, sexForFormula, goal, activityLevel, fields, avatar]);
 
   const progress = progressAt(step);
   const meta = STEPS[step];
@@ -266,6 +270,9 @@ export function OnboardingScreen({ onDone }: Props) {
                     Bonjour{firstName.trim() ? ` ${firstName.trim()}` : ''}
                   </Text>
                 </View>
+                <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.label}>Ton personnage — facultatif</Text>
+                <AvatarPicker value={avatar} onChange={setAvatar} imageHeight={96} />
+                <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.avatarHelp}>Il t’accompagne sur la page Activités. Tu pourras le changer dans ton profil.</Text>
               </Animated.View>
             )}
 
@@ -587,6 +594,7 @@ const styles = StyleSheet.create({
 
   nameInput: { backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.fieldEdge, color: colors.ink, fontSize: 18, fontFamily: fonts.bold, paddingHorizontal: 16, paddingVertical: 15 },
   preview: { backgroundColor: colors.violetPale, borderRadius: radii.medium, padding: 14 },
+  avatarHelp: { color: colors.muted, fontSize: 13, lineHeight: 18, fontFamily: fonts.medium },
   previewLabel: { color: colors.violet, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.1 },
   previewValue: { color: colors.violetInk, fontSize: 24, fontFamily: fonts.extrabold, letterSpacing: -0.5, marginTop: 5 },
 

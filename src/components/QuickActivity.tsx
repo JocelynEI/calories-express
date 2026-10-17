@@ -61,18 +61,22 @@ type Props = {
   startOpen?: boolean;
   /** Appelé quand la personne referme le bloc, ou quand elle a terminé. */
   onDismiss?: () => void;
+  /** V4.3 — ouvert depuis une tuile : l'activité est déjà choisie, on passe à la durée. */
+  initialKind?: ActivityKind;
+  /** V4.3 — prévenu après l'enregistrement (la page Activités remonte sur son chiffre). */
+  onSaved?: () => void;
 };
 type Open = 'kind' | 'minutes' | null;
 
-export function QuickActivity({ day, onProfile, onDetails, startOpen = false, onDismiss }: Props) {
+export function QuickActivity({ day, onProfile, onDetails, startOpen = false, onDismiss, initialKind, onSaved }: Props) {
   const { profile, profileCompleted, activity, recordActivity } = useApp();
   const [editing, setEditing] = useState(startOpen);
   // Volontairement `null` au départ, et jamais rempli par défaut : un blanc
   // vide se remarque, une valeur d'exemple se prend pour une réponse.
-  const [kind, setKind] = useState<ActivityKind | null>(null);
+  const [kind, setKind] = useState<ActivityKind | null>(initialKind ?? null);
   const [minutes, setMinutes] = useState<number | null>(null);
   // Ouvert depuis l'accueil, le premier blanc se déplie tout de suite.
-  const [open, setOpen] = useState<Open>(startOpen ? 'kind' : null);
+  const [open, setOpen] = useState<Open>(startOpen ? (initialKind ? 'minutes' : 'kind') : null);
   const [praise, setPraise] = useState<Praise | null>(null);
   const [error, setError] = useState('');
 
@@ -81,9 +85,9 @@ export function QuickActivity({ day, onProfile, onDetails, startOpen = false, on
 
   const reset = () => {
     setEditing(startOpen);
-    setKind(null);
+    setKind(initialKind ?? null);
     setMinutes(null);
-    setOpen(startOpen ? 'kind' : null);
+    setOpen(startOpen ? (initialKind ? 'minutes' : 'kind') : null);
     setError('');
   };
 
@@ -124,6 +128,7 @@ export function QuickActivity({ day, onProfile, onDetails, startOpen = false, on
         journal: { ...activity, sessions: [record, ...activity.sessions] }, day, id: record.id,
       }));
       reset();
+      onSaved?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'La séance n’a pas pu être enregistrée.');
     }
@@ -138,9 +143,9 @@ export function QuickActivity({ day, onProfile, onDetails, startOpen = false, on
           accessibilityRole="button"
           style={styles.link}
         >
-          <AppIcon name="plus" size={16} color={colors.violet} strokeWidth={2.4} />
+          {initialKind ? null : <AppIcon name="plus" size={16} color={colors.violet} strokeWidth={2.4} />}
           <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.linkText}>
-            {startOpen ? 'Revenir à ma journée' : 'Ajouter une autre activité'}
+            {initialKind ? 'Fermer' : startOpen ? 'Revenir à ma journée' : 'Ajouter une autre activité'}
           </Text>
         </MotionPressable>
       </View>

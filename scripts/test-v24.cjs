@@ -27,13 +27,15 @@ test('Au repos, le bloc ne montre qu’un bouton, comme pour un repas', () => {
 });
 
 test('Les deux blancs partent vides, et le restent d’une séance à l’autre', () => {
-  assert.match(quick, /useState<ActivityKind \| null>\(null\)/, 'aucune activité ne doit être choisie d’avance');
+  // V4.3 : la seule activité de départ possible est celle de la tuile touchée,
+  // donc choisie par la personne. L'application n'en propose jamais d'elle-même.
+  assert.match(quick, /useState<ActivityKind \| null>\(initialKind \?\? null\)/, 'aucune activité ne doit être choisie d’avance par l’application');
   assert.match(quick, /useState<number \| null>\(null\)/, 'aucune durée ne doit être choisie d’avance');
   assert.ok(quick.includes('quelle activité ?'), 'le blanc de l’activité doit se nommer');
   assert.ok(quick.includes('combien de temps ?'), 'le blanc de la durée doit se nommer');
   // `reset()` est appelé après l'enregistrement : la séance suivante repart
   // de zéro, rien n'est mémorisé.
-  assert.match(quick, /const reset = \(\) => \{[\s\S]*?setKind\(null\);[\s\S]*?setMinutes\(null\);/, 'tout doit se vider');
+  assert.match(quick, /const reset = \(\) => \{[\s\S]*?setKind\(initialKind \?\? null\);[\s\S]*?setMinutes\(null\);/, 'tout doit se vider (sauf la tuile choisie)');
   assert.match(quick, /recordActivity\(record\);[\s\S]*?reset\(\);/, 'la séance enregistrée doit vider la phrase');
 });
 
@@ -99,12 +101,12 @@ test('L’estimation vient juste après le baromètre, avant les repas', () => {
   // d'arriver aux repas, sans faire défiler.
   const jauge = home.indexOf('<CalorieGauge');
   const gestes = home.indexOf('accessibilityLabel="Ajouter une activité"');
-  const estimation = home.indexOf('<QuickActivity');
   const repas = home.indexOf('<MomentMeals');
-  assert.ok(jauge >= 0 && gestes >= 0 && estimation >= 0 && repas >= 0, 'les quatre morceaux doivent exister');
+  assert.ok(jauge >= 0 && gestes >= 0 && repas >= 0, 'les trois morceaux doivent exister');
   assert.ok(jauge < gestes, 'le repère du jour reste en premier');
   assert.ok(gestes < repas, 'les deux gestes passent avant la liste des repas');
-  assert.ok(estimation < repas, 'l’estimation s’ouvre au-dessus des repas : c’est elle qu’on ne trouvait pas');
+  // V4.3 : l'estimation s'ouvre sur la page Activités, à un appui du bouton.
+  assert.ok(home.includes('onPress={onActivity}'), 'le bouton mène tout droit à l’estimation');
   assert.ok(home.includes('accessibilityLabel="Ajouter une activité"'), 'le geste doit être nommé en entier pour les lecteurs d’écran');
   assert.ok(home.includes('accessibilityLabel="Chercher un aliment"'), 'idem côté repas');
   assert.ok(home.includes('accessibilityLabel="Scanner une étiquette"'), 'idem pour l’étiquette');

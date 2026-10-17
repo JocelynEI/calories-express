@@ -154,10 +154,14 @@ test('La saisie rapide écrit son intensité et signale le poids supposé', () =
   assert.ok(quick.includes('ASSUMED_WEIGHT_KG'), 'le poids moyen doit être annoncé à l’écran');
 });
 
-test('La saisie rapide est sur l’accueil, et le formulaire complet reste accessible', () => {
+test('La saisie rapide est à un appui de l’accueil, et le formulaire complet reste accessible', () => {
+  // V4.3 : la saisie rapide a quitté l'accueil pour la page Activités, où une
+  // tuile l'ouvre déjà réglée ; le formulaire complet est derrière « tout régler ».
   const home = read('src/screens/TodayScreen.tsx');
-  assert.ok(home.includes('<QuickActivity'), 'le bloc rapide doit être sur l’accueil');
-  assert.ok(home.includes('onDetails={onActivity}'), 'le formulaire complet doit rester joignable');
+  assert.ok(home.includes('onPress={onActivity}'), 'le bouton de l’accueil ouvre la page Activités');
+  const modal = read('src/components/ActivityModal.tsx');
+  assert.ok(modal.includes('<QuickActivity'), 'le bloc rapide est sur la page Activités');
+  assert.ok(modal.includes('onDetails={() => openFullForm(quickKind)}'), 'le formulaire complet doit rester joignable');
   const form = read('src/components/SessionEntryForm.tsx');
   assert.ok(form.includes('Intensité réellement effectuée'), 'les réglages fins ne doivent pas disparaître');
 });
