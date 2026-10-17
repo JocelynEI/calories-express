@@ -5,10 +5,13 @@ import { CalorieGauge } from '../components/CalorieGauge';
 import { AppIcon } from '../components/AppIcon';
 import { GuideCard } from '../components/GuideCard';
 import { MomentMeals } from '../components/MomentMeals';
+import { DayTemplates } from '../components/DayTemplates';
 import { PastDayBanner } from '../components/DayNavigator';
 import { longDay, WeekStrip } from '../components/WeekStrip';
 import { macroTargets } from '../domain/calories';
+import { effectiveMacroGoals } from '../domain/premium';
 import { useApp } from '../state/AppContext';
+import { usePaywall } from '../state/PaywallContext';
 import { colors, fonts, MAX_FONT_SCALE, radii, shadows, typeScale } from '../theme';
 import { Entrance, MotionPressable } from '../components/Motion';
 import { greeting } from '../domain/experience';
@@ -62,7 +65,11 @@ export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, on
 
   const plan = dailyEnergyPlan(profile, activity, selectedDay, profileCompleted);
   const { target, issue } = plan;
-  const targets = macroTargets(profile, target);
+  // V5.0 — les objectifs fixés par la personne (premium) prennent la place des
+  // repères automatiques, qui restent gratuits et inchangés sinon.
+  const { macroGoals, premium } = useApp();
+  const { openPaywall } = usePaywall();
+  const { goals: targets, custom: customGoals } = effectiveMacroGoals(macroTargets(profile, target), macroGoals, premium.unlocked);
   const segments = useMemo(() => plateSegments(groups, target), [groups, target]);
   const partialMacros = dayMeals.some(meal => meal.items.some(item => item.macrosComplete === false));
   const remaining = target - consumed;
@@ -168,6 +175,18 @@ export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, on
             <Macro label="Glucides" value={macros.carbs} target={targets.carbs} color={colors.carbs} partial={partialMacros} />
             <Macro label="Lipides" value={macros.fat} target={targets.fat} color={colors.fat} partial={partialMacros} />
           </View>
+
+          {/* V5.0 — discret : un lien, jamais une fenêtre qui s'impose. */}
+          <MotionPressable
+            onPress={() => (premium.unlocked ? onProfile() : openPaywall('objectifs'))}
+            accessibilityRole="button"
+            accessibilityLabel={premium.unlocked ? 'Modifier mes objectifs de macros' : 'Choisir mes objectifs de macros, fonction premium'}
+            style={styles.goalsLink}
+          >
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.goalsLinkText}>
+              {premium.unlocked ? (customGoals ? 'Modifier mes objectifs' : 'Choisir mes objectifs') : 'Choisir mes objectifs · Premium'}
+            </Text>
+          </MotionPressable>
 
           {partialMacros && (
             <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.note}>
@@ -291,6 +310,9 @@ export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, on
         </View>
       )}
 
+      {/* V5.0 — la journée entière, après « Refaire un repas habituel » qui, lui, reste gratuit. */}
+      <DayTemplates />
+
       {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
 
       <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.legal}>
@@ -347,6 +369,8 @@ const styles = StyleSheet.create({
   reference: { color: colors.muted, textAlign: 'center', fontSize: 14, lineHeight: 20, fontFamily: fonts.medium },
 
   macros: { flexDirection: 'row', gap: 12, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 14 },
+  goalsLink: { alignSelf: 'flex-start', paddingVertical: 4 },
+  goalsLinkText: { color: colors.violet, fontSize: 13, fontFamily: fonts.bold, textDecorationLine: 'underline' },
   macro: { flex: 1, gap: 6 },
   macroLabel: { color: colors.muted, ...typeScale.caption },
   macroValue: { color: colors.ink, fontSize: 13, lineHeight: 18, fontFamily: fonts.bold },

@@ -10,6 +10,8 @@ import { CoachHistory, EMPTY_COACH_HISTORY, markMealPrompt, readCoachHistory } f
 import { readWeightLog, removeWeight, saveWeight } from '../domain/weight';
 import { EMPTY_STORY_HISTORY, markStorySeen, readStoryHistory, StoryHistory } from '../domain/stories';
 import { readMeal, readProfile } from '../domain/persistence';
+import { FREE_LABEL_MACRO_READS, LOCKED, MacroGoals, PremiumState, readLabelMacroReads, readMacroGoals, readPremium, unlockedState } from '../domain/premium';
+import { DayTemplate, MAX_TEMPLATES, readDayTemplates } from '../domain/day-template';
 
 // Clé inchangée depuis la V1 : la mise à jour ne fait pas perdre le journal.
 const STORAGE_KEY = '@calories-express/v1';
@@ -65,6 +67,12 @@ type PersistedState = {
   coachHistory: CoachHistory;
   weightLog: WeightEntry[];
   storyHistory: StoryHistory;
+  /** V5.0 — le premium et les objectifs de macros fixés par la personne. */
+  premium: PremiumState;
+  macroGoals: MacroGoals | null;
+  /** V5.0 — les journées types et les lectures d'étiquette offertes déjà utilisées. */
+  dayTemplates: DayTemplate[];
+  labelMacroReads: number;
 };
 
 type AppContextValue = PersistedState & {
@@ -76,6 +84,8 @@ type AppContextValue = PersistedState & {
   markCoachShown: () => void;
   snoozeCoach: () => void;
   addMeal: (meal: Meal) => void;
+  /** V5.0 — plusieurs repas d'un coup (une journée type), en une seule écriture. */
+  addMeals: (meals: Meal[]) => void;
   updateMeal: (meal: Meal) => void;
   removeMeal: (id: string) => void;
   updateProfile: (profile: Profile) => void;
@@ -91,6 +101,15 @@ type AppContextValue = PersistedState & {
   recordWeight: (day: string, kg: number) => void;
   forgetWeight: (day: string) => void;
   markStoryWatched: (id: string) => void;
+  /** V5.0 — débloquer après un achat réussi ; `lockPremium` ne sert qu'aux essais en développement. */
+  unlockPremium: (source: 'store' | 'test') => void;
+  lockPremium: () => void;
+  /** Enregistre les objectifs de macros ; `null` revient aux repères automatiques. */
+  saveMacroGoals: (goals: MacroGoals | null) => void;
+  saveDayTemplate: (template: DayTemplate) => void;
+  forgetDayTemplate: (id: string) => void;
+  /** Décompte une lecture offerte des macros d'une étiquette. Sans effet si le premium est débloqué. */
+  useLabelMacroRead: () => void;
   /** Tout l'état, en JSON lisible, pour une sauvegarde hors de l'application. */
   exportData: () => string;
   storageError: boolean;
@@ -111,6 +130,10 @@ export function AppProvider({ children }: PropsWithChildren) {
   const [activity, setActivity] = useState<ActivityJournal>({ sessions: [], stepsByDay: {} });
   const [weightLog, setWeightLog] = useState<WeightEntry[]>([]);
   const [storyHistory, setStoryHistory] = useState<StoryHistory>({ ...EMPTY_STORY_HISTORY });
+  const [premium, setPremium] = useState<PremiumState>({ ...LOCKED });
+  const [macroGoals, setMacroGoals] = useState<MacroGoals | null>(null);
+  const [dayTemplates, setDayTemplates] = useState<DayTemplate[]>([]);
+  const [labelMacroReads, setLabelMacroReads] = useState(0);
   const [storageError, setStorageError] = useState(false);
   const storageLoaded = useRef(false);
   const writes = useRef(Promise.resolve());
@@ -158,6 +181,10 @@ export function AppProvider({ children }: PropsWithChildren) {
         setCoachHistory(readCoachHistory(parsed.coachHistory));
         setWeightLog(readWeightLog(parsed.weightLog));
         setStoryHistory(readStoryHistory(parsed.storyHistory));
+        setPremium(readPremium(parsed.premium));
+        setMacroGoals(readMacroGoals(parsed.macroGoals));
+        setDayTemplates(readDayTemplates(parsed.dayTemplates));
+        setLabelMacroReads(readLabelMacroReads(parsed.labelMacroReads));
         storageLoaded.current = true;
       })
       .catch(() => setStorageError(true))
@@ -167,7 +194,7 @@ export function AppProvider({ children }: PropsWithChildren) {
   // L'état à écrire est gardé dans une référence : la sérialisation n'a lieu
   // qu'au moment de l'écriture, pas à chaque frappe dans un formulaire.
   const latest = useRef<PersistedState | null>(null);
-  latest.current = { profile, meals, isDemo, profileCompleted, savedFoods, activity, coachHistory, weightLog, storyHistory };
+  latest.current = { profile, meals, isDemo, profileCompleted, savedFoods, activity, coachHistory, weightLog, storyHistory, premium, macroGoals, dayTemplates, labelMacroReads };
 
   const flush = useCallback(() => {
     if (timer.current) { clearTimeout(timer.current); timer.current = null; }
@@ -190,7 +217,7 @@ export function AppProvider({ children }: PropsWithChildren) {
     pending.current = true;
     if (timer.current) return;
     timer.current = setTimeout(() => { timer.current = null; flush(); }, 600);
-  }, [hydrated, flush, profile, meals, isDemo, profileCompleted, savedFoods, activity, coachHistory, weightLog, storyHistory]);
+  }, [hydrated, flush, profile, meals, isDemo, profileCompleted, savedFoods, activity, coachHistory, weightLog, storyHistory, premium, macroGoals, dayTemplates, labelMacroReads]);
 
   // Une mise en arrière-plan ou une fermeture ne doit pas perdre les 600 ms
   // en attente : on écrit tout de suite dans ce cas.
@@ -201,6 +228,14 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const addMeal = useCallback((meal: Meal) => {
     setMeals((current) => [meal, ...(isDemo ? [] : current)]);
+    setIsDemo(false);
+  }, [isDemo]);
+
+  // Un par un, les trois repas d'une journée type se seraient écrasés tant que
+  // le journal d'exemple est encore affiché : ils sont donc ajoutés ensemble.
+  const addMeals = useCallback((entries: Meal[]) => {
+    if (!entries.length) return;
+    setMeals((current) => [...entries, ...(isDemo ? [] : current)]);
     setIsDemo(false);
   }, [isDemo]);
 
@@ -264,23 +299,35 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   const forgetWeight = useCallback((day: string) => setWeightLog(current => removeWeight(current, day)), []);
   const markStoryWatched = useCallback((id: string) => setStoryHistory(current => markStorySeen(current, id)), []);
+  // Effacer le profil, repartir de zéro ou revoir la démo ne touche jamais au
+  // premium : un achat ne s'efface pas avec les réglages personnels.
+  const unlockPremium = useCallback((source: 'store' | 'test') => setPremium(unlockedState(source)), []);
+  const lockPremium = useCallback(() => setPremium({ ...LOCKED }), []);
+  const saveMacroGoals = useCallback((goals: MacroGoals | null) => setMacroGoals(goals ? readMacroGoals(goals) : null), []);
+  const saveDayTemplate = useCallback((template: DayTemplate) => setDayTemplates(current =>
+    [template, ...current.filter(entry => entry.id !== template.id && entry.name.trim() !== template.name.trim())].slice(0, MAX_TEMPLATES)), []);
+  const forgetDayTemplate = useCallback((id: string) => setDayTemplates(current => current.filter(template => template.id !== id)), []);
+  const useLabelMacroRead = useCallback(() => setLabelMacroReads(current => Math.min(FREE_LABEL_MACRO_READS, current + 1)), []);
 
   const exportData = useCallback(() => JSON.stringify({
     application: 'Calories Express',
     exportedAt: new Date().toISOString(),
     format: 1,
-    profile, profileCompleted, meals, activity, weightLog, savedFoods,
-  }, null, 2), [profile, profileCompleted, meals, activity, weightLog, savedFoods]);
+    profile, profileCompleted, meals, activity, weightLog, savedFoods, macroGoals, dayTemplates,
+  }, null, 2), [profile, profileCompleted, meals, activity, weightLog, savedFoods, macroGoals, dayTemplates]);
 
   const value = useMemo(() => ({
-    profile, meals, isDemo, profileCompleted, hydrated, addMeal, updateMeal, removeMeal, updateProfile, startFresh, resetProfile, restoreDemo,
+    profile, meals, isDemo, profileCompleted, hydrated, addMeal, addMeals, updateMeal, removeMeal, updateProfile, startFresh, resetProfile, restoreDemo,
     today, selectedDay, setSelectedDay, coachHistory, markCoachShown, snoozeCoach, savedFoods, activity, rememberFood, forgetFood,
     recordActivity, removeActivity, recordSteps, recordDayEnergy, weightLog, recordWeight, forgetWeight,
     storyHistory, markStoryWatched, exportData, storageError,
-  }), [profile, meals, isDemo, profileCompleted, hydrated, addMeal, updateMeal, removeMeal, updateProfile, startFresh, resetProfile, restoreDemo,
+    premium, macroGoals, unlockPremium, lockPremium, saveMacroGoals,
+    dayTemplates, saveDayTemplate, forgetDayTemplate, labelMacroReads, useLabelMacroRead,
+  }), [profile, meals, isDemo, profileCompleted, hydrated, addMeal, addMeals, updateMeal, removeMeal, updateProfile, startFresh, resetProfile, restoreDemo,
     today, selectedDay, setSelectedDay, coachHistory, markCoachShown, snoozeCoach, savedFoods, activity, rememberFood, forgetFood,
     recordActivity, removeActivity, recordSteps, recordDayEnergy, weightLog, recordWeight, forgetWeight,
-    storyHistory, markStoryWatched, exportData, storageError]);
+    storyHistory, markStoryWatched, exportData, storageError, premium, macroGoals, unlockPremium, lockPremium, saveMacroGoals,
+    dayTemplates, saveDayTemplate, forgetDayTemplate, labelMacroReads, useLabelMacroRead]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

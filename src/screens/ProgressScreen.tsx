@@ -5,6 +5,8 @@ import { AppIcon } from '../components/AppIcon';
 import { MotionPressable } from '../components/Motion';
 import { StoryList } from '../components/StoryRail';
 import { WeightCard } from '../components/WeightCard';
+import { PeriodReportCard } from '../components/PeriodReportCard';
+import { GhostBars, PremiumLock } from '../components/PremiumLock';
 import { dailyEnergyPlan } from '../domain/activity-energy';
 import { dayLabel, shiftDay, shortDayLabel } from '../domain/date';
 import { mealsForDay, totalCalories } from '../domain/meals';
@@ -15,7 +17,7 @@ import { colors, MAX_FONT_SCALE, radii, fonts } from '../theme';
 const CHART_HEIGHT = 168;
 
 export function ProgressScreen({ onPlayStory }: { onPlayStory: (story: Story) => void }) {
-  const { meals, profile, activity, today, selectedDay, setSelectedDay, profileCompleted, storyHistory } = useApp();
+  const { meals, profile, activity, today, selectedDay, setSelectedDay, profileCompleted, storyHistory, premium } = useApp();
   const [width, setWidth] = useState(0);
 
   const days = useMemo(() => Array.from({ length: 7 }, (_, index) => {
@@ -116,6 +118,20 @@ export function ProgressScreen({ onPlayStory }: { onPlayStory: (story: Story) =>
           )}
         </View>
       </View>
+
+      {/* V5.0 — le bilan de la semaine et du mois (premium). Il vient juste
+          après le graphique des 7 jours, qui reste gratuit, tel qu'il a toujours été. */}
+      {premium.unlocked ? (
+        <PeriodReportCard />
+      ) : (
+        <PremiumLock
+          feature="bilans"
+          icon="chart"
+          title="Bilan de la semaine et du mois"
+          copy="Ta moyenne, tes macros, ton activité, et la comparaison avec la période d’avant."
+          preview={<GhostBars heights={[38, 54, 30, 62, 46, 58, 40]} />}
+        />
+      )}
 
       <View style={styles.insight}>
         <View style={styles.insightIcon}><AppIcon name="sparkle" size={20} color={colors.goldText} strokeWidth={2} /></View>

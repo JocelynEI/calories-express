@@ -26,6 +26,7 @@ import { FeedbackToast } from './src/components/FeedbackToast';
 import { StoryPlayer } from './src/components/StoryPlayer';
 import { ExperienceProvider, useExperience } from './src/state/ExperienceContext';
 import { AppProvider, useApp } from './src/state/AppContext';
+import { PaywallProvider } from './src/state/PaywallContext';
 import { colors, MAX_FONT_SCALE, fonts } from './src/theme';
 import { Meal, MealMoment } from './src/types';
 import { MealCoachCard } from './src/components/MealCoachPopup';
@@ -92,7 +93,7 @@ export default function App() {
     <ErrorBoundary>
       <SafeAreaProvider>
         <AppProvider>
-          <ExperienceProvider><AppShell /></ExperienceProvider>
+          <ExperienceProvider><PaywallProvider><AppShell /></PaywallProvider></ExperienceProvider>
         </AppProvider>
       </SafeAreaProvider>
     </ErrorBoundary>

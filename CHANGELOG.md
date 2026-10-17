@@ -1,3 +1,40 @@
+# V5.0.0 — 17 octobre 2026
+
+Le premium : un achat unique « à vie », sans toucher à ce qui est gratuit.
+
+- **L'étiquette complète** (scan, premium) : la photo d'un tableau nutritionnel
+  donne aussi les protéines, les glucides et les lipides, et plus seulement les
+  kcal — donc plus de « bilan partiel » sur l'accueil. « dont sucres » n'est
+  jamais pris pour un glucide, ni « dont acides gras saturés » pour un lipide,
+  et le tableau des apports de référence est ignoré. Les grammes sont
+  modifiables, et mis à l'échelle comme les kcal (par pièce, par portion).
+  Un mot illisible laisse la valeur vide plutôt que d'inventer un chiffre.
+  **Trois lectures offertes**, annoncées dès la première, décomptées seulement
+  quand l'aliment est ajouté. Les kcal, elles, restent gratuites et inchangées.
+- **Ma journée type** (accueil, premium) : enregistrer une journée entière et la
+  rejouer en un appui, chaque repas à son heure d'origine. Cinq modèles au plus.
+  Les repas s'ajoutent à la journée sans remplacer ceux qui s'y trouvent, et la
+  carte le dit avant. « Refaire un repas habituel » reste gratuit.
+- **Bilans de la semaine et du mois** (Progression, premium) : moyenne par jour
+  renseigné, repère moyen, écart, jours au-dessus du repère, comparaison avec la
+  période d'avant (si les deux ont au moins 3 jours), macros moyennes et activité.
+  Une journée sans repas n'est jamais comptée comme zéro, et une journée dont les
+  macros sont incomplètes n'entre pas dans leur moyenne. Les journées d'exemple
+  sont écartées. Le graphique des 7 jours reste gratuit.
+- **Objectifs de macros** (Profil, premium) : trois modèles (équilibré, plus de
+  protéines, moins de glucides) ou tes propres grammes. Ils remplacent les repères
+  automatiques sur l'accueil et dans le bilan ; « Revenir aux repères
+  automatiques » les efface. Les repères automatiques restent gratuits.
+- **Écran du premium** : s'ouvre seulement quand on touche une fonction verrouillée
+  ou la rubrique du profil. Il dit ce que contient le premium, le prix, et ce qui
+  reste gratuit. « Restaurer mes achats » est dans le profil et sur l'écran.
+- **Fonctions verrouillées visibles** : un cadenas et une silhouette grise, jamais
+  de faux chiffres.
+- **Achats pas encore branchés** : dans Expo Go l'achat est simulé (« mode test »,
+  réservé au développement) ; dans une version publiée il est indisponible et
+  l'écran le dit. Effacer le profil ne touche jamais au premium. Le vrai paiement se
+  branchera dans `src/services/purchases.ts` à la publication.
+
 # V4.3.0 — 16 octobre 2026
 
 Ton personnage et la page Activités en tuiles.
