@@ -3,6 +3,8 @@ import { Alert, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Swi
 import { AppIcon } from '../components/AppIcon';
 import { GuideAvatar } from '../components/GuideAvatar';
 import { GuideCard } from '../components/GuideCard';
+import { AvatarPicker } from '../components/AvatarPicker';
+import { avatarFor } from '../domain/activity-hero';
 import { calculateBmr } from '../domain/calories';
 import { useApp } from '../state/AppContext';
 import { colors, radii, fonts } from '../theme';
@@ -141,6 +143,11 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
           style={styles.nameInput}
         />
       </View>
+
+      {/* V4.3 — le personnage de la page Activités. Jaws reste le coach. */}
+      <Text style={styles.sectionTitle}>Ton personnage</Text>
+      <AvatarPicker value={avatarFor(draft, profileCompleted) ?? 'aucun'} onChange={choice => patch('avatar', choice)} />
+      <Text style={styles.formHelp}>Il t’accompagne sur la page Activités. Jaws reste ton coach.</Text>
 
       <Text style={styles.sectionTitle}>Objectif</Text>
       <View style={styles.goalList}>

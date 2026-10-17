@@ -1,3 +1,23 @@
+# V4.3.0 — 16 octobre 2026
+
+Ton personnage et la page Activités en tuiles.
+
+- **Ton personnage** : une femme ou un homme en 3D (images de Jocelyn, sans
+  marque), ou aucun. Il se choisit dans le profil, rubrique « Ton personnage ».
+  Sans choix, il suit le profil une fois rempli. Jaws reste le coach.
+- **Page Activités** : en tête, les kcal brûlées du jour en grand, avec minutes,
+  séances et pas, et ton personnage à côté.
+- **« Ajoute en un appui »** : une tuile par activité (pas, marche, course, vélo,
+  natation, renfo, fractionné, aquagym, mobilité), avec ses kcal et ses minutes
+  du jour. Un appui ouvre la séance déjà réglée sur cette activité.
+- **Le personnage se choisit dès l'inscription**, sur l'écran du prénom (facultatif).
+- **Moins d'appuis pour une activité** : « Ajouter une activité » ouvre directement
+  la page Activités. Une tuile ouvre la durée sur place, le chiffre s'affiche,
+  et après « Enregistrer » l'écran remonte sur l'en-tête mis à jour. Quatre
+  appuis depuis l'accueil, contre cinq avant, et on voit enfin le résultat.
+- **Tes repas** : trois pastilles par moment, protéines, glucides et lipides en
+  grammes. Rien ne s'affiche si une valeur manque, plutôt qu'un zéro inventé.
+
 # V4.2.0 — 16 octobre 2026
 
 Corrections tirées de l'analyse des avis sur les applis concurrentes.

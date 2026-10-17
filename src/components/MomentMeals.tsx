@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
-import { mealSummary, MomentGroup } from '../domain/meals';
+import { groupMacros, mealSummary, MomentGroup } from '../domain/meals';
 import { colors, fonts, MAX_FONT_SCALE, radii, typeScale } from '../theme';
 import { Meal, MealMoment } from '../types';
 import { AppIcon } from './AppIcon';
@@ -55,6 +55,7 @@ export function MomentMeals({ groups, total, suggested, onAddFor, onEdit }: Prop
                   >
                     <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.moment}>{group.moment}</Text>
                     <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.summary} numberOfLines={1}>{mealSummary(group.meals[0])}</Text>
+                    <MacroDots meals={group.meals} />
                   </MotionPressable>
                 ) : (
                   <View style={[styles.textOuter, styles.text]}>
@@ -62,6 +63,7 @@ export function MomentMeals({ groups, total, suggested, onAddFor, onEdit }: Prop
                     <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.summary} numberOfLines={1}>
                       {group.meals.length === 0 ? 'Pas encore noté' : `${group.meals.length} repas notés`}
                     </Text>
+                    <MacroDots meals={group.meals} />
                   </View>
                 )}
                 {group.kcal > 0 && (
@@ -94,6 +96,27 @@ export function MomentMeals({ groups, total, suggested, onAddFor, onEdit }: Prop
           );
         })}
       </View>
+    </View>
+  );
+}
+
+/** V4.3 — trois pastilles : protéines, glucides, lipides, en grammes. */
+function MacroDots({ meals }: { meals: Meal[] }) {
+  const macros = groupMacros(meals);
+  if (!macros) return null;
+  const items = [
+    { key: 'P', label: 'protéines', value: macros.protein, color: colors.protein },
+    { key: 'G', label: 'glucides', value: macros.carbs, color: colors.carbs },
+    { key: 'L', label: 'lipides', value: macros.fat, color: colors.fat },
+  ];
+  return (
+    <View style={styles.macros} accessible accessibilityLabel={items.map(item => `${item.value} grammes de ${item.label}`).join(', ')}>
+      {items.map(item => (
+        <View key={item.key} style={styles.macro}>
+          <View style={[styles.macroDot, { backgroundColor: item.color }]} />
+          <Text maxFontSizeMultiplier={1.3} style={styles.macroText}>{item.key} {item.value} g</Text>
+        </View>
+      ))}
     </View>
   );
 }
@@ -138,4 +161,8 @@ const styles = StyleSheet.create({
   sub: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44, marginLeft: 56, paddingRight: 56 },
   subText: { flex: 1, color: colors.inkSoft, fontSize: 14, lineHeight: 19, fontFamily: fonts.medium },
   subKcal: { color: colors.ink, fontSize: 14, lineHeight: 19, fontFamily: fonts.bold },
+  macros: { flexDirection: 'row', gap: 10, marginTop: 3 },
+  macro: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  macroDot: { width: 7, height: 7, borderRadius: 4 },
+  macroText: { color: colors.muted, fontSize: 12, lineHeight: 16, fontFamily: fonts.semibold },
 });

@@ -16,7 +16,6 @@ import { EnergyPlanCard } from '../components/EnergyEducation';
 import { dailyEnergyPlan } from '../domain/activity-energy';
 import { frequentMeals, mealsByMoment, mealsForDay, momentForHour, plateSegments, repeatMeal, templateLabel, totalCalories, totalMacros } from '../domain/meals';
 import { dayPraise, mealStreak, streakPraise } from '../domain/praise';
-import { QuickActivity } from '../components/QuickActivity';
 import { PraiseCard } from '../components/PraiseCard';
 import { Story } from '../domain/stories';
 import { GOAL_LABELS, GoalPicker } from '../components/GoalPicker';
@@ -54,7 +53,6 @@ export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, on
   const { profile, meals, activity, today, selectedDay, isDemo, profileCompleted, startFresh, addMeal } = useApp();
   const [goalOpen, setGoalOpen] = useState(false);
   const [explain, setExplain] = useState(false);
-  const [addingActivity, setAddingActivity] = useState(false);
 
   const dayMeals = useMemo(() => mealsForDay(meals, selectedDay), [meals, selectedDay]);
   const groups = useMemo(() => mealsByMoment(dayMeals), [dayMeals]);
@@ -224,7 +222,7 @@ export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, on
           <Text maxFontSizeMultiplier={1.4} style={styles.tileText}>Chercher un aliment</Text>
         </MotionPressable>
         <MotionPressable
-          onPress={() => setAddingActivity(true)}
+          onPress={onActivity}
           accessibilityRole="button"
           accessibilityLabel="Ajouter une activité"
           containerStyle={styles.tileOuter}
@@ -235,17 +233,9 @@ export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, on
         </MotionPressable>
       </View>
 
-      {addingActivity && (
-        <Entrance>
-          <QuickActivity
-            startOpen
-            day={selectedDay}
-            onProfile={onProfile}
-            onDetails={onActivity}
-            onDismiss={() => setAddingActivity(false)}
-          />
-        </Entrance>
-      )}
+      {/* V4.3 — « Ajouter une activité » ouvre la page Activités : on y choisit
+          sa tuile, sa durée, et on voit le chiffre monter, sans repasser par
+          « Ton activité ». */}
 
       {/* Ce qu'on a bougé : les pas et les séances ensemble, et un appui ouvre
           le détail (pas, séances, kcal de la montre). */}

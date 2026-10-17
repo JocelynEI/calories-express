@@ -3,7 +3,9 @@ import Svg, { Circle, Line, Path, Polyline, Rect } from 'react-native-svg';
 
 export type IconName = 'search' | 'home' | 'journal' | 'plus' | 'chart' | 'profile' | 'camera' | 'type' | 'list' | 'trash' | 'chevron' | 'sparkle' | 'target' | 'info' | 'check' | 'volume' | 'stop'
   // V1.8 — navigation par date, lecteur de séquences, poids et export.
-  | 'play' | 'pause' | 'close' | 'chevronLeft' | 'calendar' | 'weight' | 'film' | 'download' | 'edit' | 'repeat' | 'steps';
+  | 'play' | 'pause' | 'close' | 'chevronLeft' | 'calendar' | 'weight' | 'film' | 'download' | 'edit' | 'repeat' | 'steps'
+  // V4.3 — les kcal brûlées.
+  | 'flame';
 
 type Props = { name: IconName; size?: number; color?: string; strokeWidth?: number };
 
@@ -38,6 +40,7 @@ export function AppIcon({ name, size = 24, color = '#183230', strokeWidth = 1.8 
       {name === 'download' && <><Path d="M12 4v10.5M8 11.5l4 4 4-4" {...common} /><Path d="M5 17.5v1.5a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-1.5" {...common} /></>}
       {name === 'edit' && <><Path d="M15.2 4.8a2 2 0 0 1 2.8 2.8L8.6 17 4.5 18.2l1.2-4.1Z" {...common} /><Line x1="13.4" y1="6.6" x2="16.2" y2="9.4" {...common} /></>}
       {name === 'repeat' && <><Path d="M4.5 12a7.5 7.5 0 0 1 13-5" {...common} /><Path d="M19.5 12a7.5 7.5 0 0 1-13 5" {...common} /><Polyline points="17.5 3.4 17.5 7.4 13.5 7.4" {...common} /><Polyline points="6.5 20.6 6.5 16.6 10.5 16.6" {...common} /></>}
+      {name === 'flame' && <Path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3 2-5.1 3.6-6.9.4 1.9 1.4 3 2.6 3.5-.3-3.2 1.1-6 3.3-7.9.2 3 1.8 4.6 3 6.4.8 1.2 1.5 2.7 1.5 4.6C19.5 18.3 16 21 12 21Z" {...common} />}
       {name === 'steps' && <><Path d="M7.5 4.5c1.7 0 2.6 1.4 2.4 3.4-.2 2-.6 3.3-2.3 3.3S5 9.8 5.2 7.6C5.4 5.6 5.8 4.5 7.5 4.5Z" {...common} /><Path d="M6 12.8h3.3c.5 1 .4 2.2-.2 2.8-.8.8-2.5.7-3.1-.2-.4-.7-.4-1.8 0-2.6Z" {...common} /><Path d="M16.5 8.8c1.7 0 2.6 1.4 2.4 3.4-.2 2-.6 3.3-2.3 3.3S14 14.1 14.2 11.9c.2-2 .6-3.1 2.3-3.1Z" {...common} /><Path d="M15 17.1h3.3c.5 1 .4 2.2-.2 2.8-.8.8-2.5.7-3.1-.2-.4-.7-.4-1.8 0-2.6Z" {...common} /></>}
     </Svg>
   );

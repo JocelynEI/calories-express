@@ -16,8 +16,12 @@ import { MotionPressable } from './Motion';
 import { ActivityCelebration, ActivityFeedback } from './ActivityCelebration';
 import { ActivityBalance } from './ActivityBalance';
 import { SessionEntryForm } from './SessionEntryForm';
+import { QuickActivity } from './QuickActivity';
 import { DayEnergyForm } from './DayEnergyForm';
 import { GoalPicker } from './GoalPicker';
+import { AppIcon } from './AppIcon';
+import { UserAvatar } from './UserAvatar';
+import { avatarFor, kindTotals, TILE_KINDS, TILE_LABELS } from '../domain/activity-hero';
 
 type Panel = 'session' | 'steps' | 'watch';
 type Props = { onClose: () => void; onSettings: () => void; initialTab?: 'journal' | 'ideas'; initialIdea?: 'walk' | 'mobility' | null; initialDay?: string };
@@ -43,6 +47,31 @@ export function ActivityModal({ onClose, onSettings, initialTab = 'journal', ini
   const stepPreview = stepEnergy(readNumber(steps), readNumber(stepWeight) ?? undefined, readNumber(baseline) ?? NaN);
   const scroll = useRef<ScrollView>(null);
   const top = () => scroll.current?.scrollTo({ y: 0, animated: !reducedMotion });
+  // V4.3 — l'en-tête avec ton personnage, et les tuiles « en un appui ».
+  const avatar = avatarFor(profile, profileCompleted);
+  const totals = kindTotals(summary.rows);
+  const formY = useRef(0);
+  const toForm = () => requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, formY.current - 12), animated: !reducedMotion }));
+  // Une tuile ouvre, juste en dessous, la durée et le chiffre : deux appuis de
+  // plus et la séance est enregistrée, l'en-tête se met à jour sous les yeux.
+  const [quickKind, setQuickKind] = useState<ActivityKind | null>(null);
+  // On descend vers le bloc une seule fois, à son ouverture : pas à chaque
+  // changement de taille (le message de Jaws, après l'enregistrement).
+  const quickScrolled = useRef(false);
+  const pickKind = (kind: ActivityKind) => {
+    if (dirty) { setError('Enregistre ou annule la saisie en cours avant de choisir une autre activité.'); top(); return; }
+    quickScrolled.current = false; setQuickKind(kind); setFeedback(null); setError(''); setNotice('');
+  };
+  // « Tout régler » : le formulaire complet, déjà réglé sur la même activité.
+  const openFullForm = (kind: ActivityKind) => {
+    setQuickKind(null); setEditing(null); setIdea(kind); setPanel('session'); setEntryKey(n => n + 1);
+    toForm();
+  };
+  const pickSteps = () => {
+    if (dirty && panel !== 'steps') { setError('Enregistre ou annule la saisie en cours avant de passer aux pas.'); top(); return; }
+    setPanel('steps'); setFeedback(null); setError('');
+    toForm();
+  };
   useEffect(() => { if (error) scroll.current?.scrollTo({ y: 0, animated: !reducedMotion }); }, [error, reducedMotion]);
   const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(`${today}T12:00:00`); d.setDate(d.getDate() - i); return { key: dayKey(d), label: i === 0 ? 'Aujourd’hui' : new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric' }).format(d) }; });
   const resetSession = () => { setEditing(null); setIdea(null); setSessionDirty(false); setEntryKey(n => n + 1); };
@@ -86,8 +115,43 @@ export function ActivityModal({ onClose, onSettings, initialTab = 'journal', ini
         {error ? <Text style={form.error} accessibilityRole="alert">{error}</Text> : null}
         {tab === 'journal' ? <>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={form.row}>{dates.map(d => <Choice key={d.key} label={d.label} selected={day === d.key} onPress={() => { if (dirty) { setError('Enregistre ou annule ta saisie avant de changer de journée.'); return; } setDay(d.key); resetSession(); resetWatch(); setError(''); setNotice(''); setFeedback(null); setDeleting(null); }} />)}</ScrollView>
+          <View style={styles.hero}>
+            <View style={styles.heroText}>
+              <Text style={styles.heroLabel}>{dates.find(d => d.key === day)?.label ?? 'Ce jour-là'}</Text>
+              <View style={styles.heroRow}>
+                <AppIcon name="flame" size={30} color={colors.carbs} strokeWidth={2.2} />
+                <Text style={styles.heroNumber} accessibilityLabel={`${kcal(summary.activeKcal)} kilocalories brûlées en bougeant`}>{kcal(summary.activeKcal)}</Text>
+              </View>
+              <Text style={styles.heroUnit}>kcal brûlées en bougeant</Text>
+              <Text style={styles.heroDetail}>{summary.minutes.toLocaleString('fr-FR')} min · {summary.sessions.length} séance{summary.sessions.length > 1 ? 's' : ''}{summary.steps !== null ? ` · ${summary.steps.toLocaleString('fr-FR')} pas` : ''}</Text>
+            </View>
+            {avatar ? <UserAvatar choice={avatar} height={176} /> : null}
+          </View>
+          <Text style={form.title}>Ajoute en un appui</Text>
+          <View style={styles.tiles}>
+            <MotionPressable onPress={pickSteps} accessibilityRole="button" accessibilityLabel={`Renseigner mes pas${summary.steps !== null ? `, ${summary.steps} pas notés` : ''}`} containerStyle={styles.tileOuter} style={[styles.tile, summary.steps !== null && styles.tileDone]}>
+              <View style={styles.tileTop}><AppIcon name="steps" size={20} color={colors.mintInk} strokeWidth={2} /><View style={styles.tilePlus}><AppIcon name="plus" size={14} color={colors.white} strokeWidth={2.8} /></View></View>
+              <Text style={styles.tileName}>Pas</Text>
+              <Text style={styles.tileMeta}>{summary.steps !== null ? summary.steps.toLocaleString('fr-FR') : 'À noter'}</Text>
+            </MotionPressable>
+            {TILE_KINDS.map(kind => {
+              const done = totals[kind];
+              return (
+                <MotionPressable key={kind} onPress={() => pickKind(kind)} accessibilityRole="button" accessibilityLabel={`Ajouter : ${ACTIVITY_LABELS[kind]}${done ? `, déjà ${done.minutes} minutes ce jour-là` : ''}`} containerStyle={styles.tileOuter} style={[styles.tile, done && styles.tileDone]}>
+                  <View style={styles.tileTop}><Text style={styles.tileKcal}>{done ? `${kcal(done.kcal)} kcal` : '0 kcal'}</Text><View style={styles.tilePlus}><AppIcon name="plus" size={14} color={colors.white} strokeWidth={2.8} /></View></View>
+                  <Text style={styles.tileName}>{TILE_LABELS[kind]}</Text>
+                  <Text style={styles.tileMeta}>{done ? `${done.minutes} min` : 'Pas encore'}</Text>
+                </MotionPressable>
+              );
+            })}
+          </View>
+          {quickKind ? (
+            <View onLayout={e => { if (quickScrolled.current) return; quickScrolled.current = true; const y = e.nativeEvent.layout.y; requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, y - 120), animated: !reducedMotion })); }}>
+              <QuickActivity key={`${quickKind}-${day}`} startOpen initialKind={quickKind} day={day} onProfile={onSettings} onDetails={() => openFullForm(quickKind)} onDismiss={() => setQuickKind(null)} onSaved={top} />
+            </View>
+          ) : null}
           <ActivityBalance plan={plan} profileCompleted={profileCompleted} onSettings={settings} />
-          <Text style={form.title}>Que veux-tu renseigner ?</Text>
+          <Text style={form.title} onLayout={e => { formY.current = e.nativeEvent.layout.y; }}>Que veux-tu renseigner ?</Text>
           <View style={form.row}><Choice label="Ma séance" selected={panel === 'session'} onPress={() => changePanel('session')} /><Choice label="Mes pas" selected={panel === 'steps'} onPress={() => changePanel('steps')} /><Choice label="Total montre" selected={panel === 'watch'} onPress={() => changePanel('watch')} /></View>
           {panel === 'session' && <SessionEntryForm key={`session-${day}-${entryKey}-${editing ?? 'new'}`} day={day} entry={activity.sessions.find(s => s.id === editing)} idea={idea} onSave={save} onCancel={resetSession} onDirty={setSessionDirty} />}
           {panel === 'steps' && <View style={form.card}><Text style={form.title}>Pas de la journée</Text><Text style={form.copy}>Recopie le total du téléphone ou de la montre. Il remplace le précédent total, sans s’y ajouter.</Text><Field label="Total de pas" numeric value={steps} onChange={setSteps} placeholder="Ex. 6500" maxLength={6} /><Field label="Poids pour estimer les pas (kg)" numeric value={stepWeight} onChange={setStepWeight} maxLength={6} />
@@ -111,4 +175,20 @@ export function ActivityModal({ onClose, onSettings, initialTab = 'journal', ini
     </KeyboardAvoidingView></SafeAreaView></SafeAreaProvider>}
   </Modal>;
 }
-const styles = StyleSheet.create({ safe: { flex: 1, width: '100%', maxWidth: 520, alignSelf: 'center', backgroundColor: colors.background }, header: { paddingHorizontal: 20, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, eyebrow: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.2 }, title: { color: colors.navy, fontSize: 26, fontFamily: fonts.extrabold, marginTop: 4 }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22, backgroundColor: colors.white }, cross: { color: colors.ink, fontSize: 27, fontFamily: fonts.medium }, tabs: { flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingBottom: 10 }, content: { padding: 18, paddingBottom: 36, gap: 16 }, duration: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.4 }, note: { backgroundColor: colors.aquaPale, padding: 16, borderRadius: 18, gap: 8 }, energy: { fontSize: 32, color: colors.navy, fontFamily: fonts.extrabold } });
+const styles = StyleSheet.create({ safe: { flex: 1, width: '100%', maxWidth: 520, alignSelf: 'center', backgroundColor: colors.background }, header: { paddingHorizontal: 20, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, eyebrow: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.2 }, title: { color: colors.navy, fontSize: 26, fontFamily: fonts.extrabold, marginTop: 4 }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22, backgroundColor: colors.white }, cross: { color: colors.ink, fontSize: 27, fontFamily: fonts.medium }, tabs: { flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingBottom: 10 }, content: { padding: 18, paddingBottom: 36, gap: 16 }, duration: { color: colors.sageDark, fontSize: 12, fontFamily: fonts.extrabold, letterSpacing: 1.4 }, note: { backgroundColor: colors.aquaPale, padding: 16, borderRadius: 18, gap: 8 }, energy: { fontSize: 32, color: colors.navy, fontFamily: fonts.extrabold },
+  hero: { flexDirection: 'row', alignItems: 'flex-end', backgroundColor: colors.card, borderRadius: 24, paddingLeft: 18, paddingRight: 8, paddingTop: 16, overflow: 'hidden', minHeight: 176 },
+  heroText: { flex: 1, gap: 2, paddingBottom: 18 },
+  heroLabel: { color: colors.muted, fontSize: 13, lineHeight: 18, fontFamily: fonts.semibold },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  heroNumber: { color: colors.navy, fontSize: 46, lineHeight: 52, fontFamily: fonts.display, letterSpacing: -1.2 },
+  heroUnit: { color: colors.inkSoft, fontSize: 14, lineHeight: 19, fontFamily: fonts.semibold },
+  heroDetail: { color: colors.muted, fontSize: 13, lineHeight: 18, fontFamily: fonts.medium, marginTop: 6 },
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tileOuter: { width: '31.5%', flexGrow: 1 },
+  tile: { minHeight: 92, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, padding: 10, gap: 3, justifyContent: 'space-between' },
+  tileDone: { backgroundColor: colors.mintPale, borderColor: colors.mintPale },
+  tileTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 4 },
+  tileKcal: { color: colors.mintInk, fontSize: 12, lineHeight: 16, fontFamily: fonts.bold, flexShrink: 1 },
+  tilePlus: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.violet, alignItems: 'center', justifyContent: 'center' },
+  tileName: { color: colors.ink, fontSize: 15, lineHeight: 20, fontFamily: fonts.bold },
+  tileMeta: { color: colors.muted, fontSize: 12, lineHeight: 16, fontFamily: fonts.medium } });
