@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Platform, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { foodFromLabel, LabelBasis, LabelDetection, parseLabelText, pieceWeightFromPack } from '../domain/labels';
+import { foodFromLabel, LabelBasis, LabelDetection, LabelMacros, macrosFound, parseLabelText, pieceWeightFromPack } from '../domain/labels';
 import { readNumber, scaleReference } from '../domain/foods';
+import { labelMacroTrial, trialNotice } from '../domain/premium';
 import { track } from '../services/test-journal';
 import { useApp } from '../state/AppContext';
-import { colors, fonts, MAX_FONT_SCALE } from '../theme';
+import { usePaywall } from '../state/PaywallContext';
+import { colors, fonts, MAX_FONT_SCALE, radii } from '../theme';
 import { RecognizedFood } from '../types';
+import { AppIcon } from './AppIcon';
 import { Action, Choice, Field, form } from './FormControls';
 import { MotionPressable } from './Motion';
 import { OcrReader } from './OcrReader';
@@ -20,6 +23,10 @@ const BASES: { id: LabelBasis; label: string; hint: string }[] = [
   { id: 'serving', label: 'Pour 1 portion', hint: 'Plusieurs pièces' },
 ];
 const PIECE_NAMES = ['biscuit', 'barre', 'gâteau', 'carré', 'tranche', 'pièce'];
+/** V5.0 — les trois lignes du tableau, dans l'ordre où l'étiquette les écrit. */
+const MACRO_FIELDS: { key: 'fat' | 'carbs' | 'protein'; label: string }[] = [
+  { key: 'fat', label: 'Lipides' }, { key: 'carbs', label: 'Glucides' }, { key: 'protein', label: 'Protéines' },
+];
 const GRAM_SHORTCUTS = [30, 50, 100, 150];
 const ML_SHORTCUTS = [150, 250, 330, 500];
 const FALLBACK_NAME = 'Produit scanné';
@@ -44,7 +51,13 @@ type Props = { initialName: string; onAdd: (food: RecognizedFood) => void; onCan
  * Le calcul ne change pas : il reste dans `foodFromLabel`.
  */
 export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false }: Props) {
-  const { rememberFood } = useApp();
+  const { rememberFood, premium, labelMacroReads, useLabelMacroRead } = useApp();
+  const { openPaywall } = usePaywall();
+  // V5.0 — les macronutriments lus sur l'étiquette : trois lectures offertes,
+  // annoncées, puis le premium. Les kcal, elles, ne changent pas d'un cheveu.
+  const trial = labelMacroTrial(labelMacroReads, premium.unlocked);
+  const [macroFields, setMacroFields] = useState({ protein: '', carbs: '', fat: '' });
+  const [showMacros, setShowMacros] = useState(false);
   const [name, setName] = useState(initialName), [uri, setUri] = useState(''), [base64, setBase64] = useState(''), [busy, setBusy] = useState(false), [progress, setProgress] = useState(0);
   const [detected, setDetected] = useState<LabelDetection | null>(null), [raw, setRaw] = useState(''), [showRaw, setShowRaw] = useState(false), [permissionDenied, setPermissionDenied] = useState(false);
   const [energy, setEnergy] = useState(''), [typing, setTyping] = useState(false), [basis, setBasis] = useState<LabelBasis | null>(null);
@@ -73,7 +86,7 @@ export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false 
       const image = await rendered.saveAsync({ format: SaveFormat.JPEG, compress: 0.9, base64: true });
       if (!alive.current || token !== sequence.current) return;
       if (!image.base64 || image.base64.length > 12000000) throw new Error('La photo est trop grande. Rapproche-toi du tableau nutritionnel.');
-      setUri(image.uri); setRaw(''); setDetected(null); setEnergy(''); setTyping(false); setBasis(null); setGrams(''); setPiecesRef(''); setPackGrams(''); setPackCount(''); setPackMode(false); setQuantity(''); setBase64(image.base64);
+      setUri(image.uri); setRaw(''); setDetected(null); setEnergy(''); setTyping(false); setBasis(null); setGrams(''); setPiecesRef(''); setPackGrams(''); setPackCount(''); setPackMode(false); setQuantity(''); setMacroFields({ protein: '', carbs: '', fat: '' }); setShowMacros(false); setBase64(image.base64);
     } catch (e) { if (alive.current && token === sequence.current) fail(e instanceof Error ? e.message : 'La photo n’a pas pu être ouverte.'); }
   };
 
@@ -98,6 +111,9 @@ export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false 
     if (result.only100g || /\b100\s*g\b/i.test(text)) setBasis('100g');
     if (result.gramsPerPiece) { setGrams(String(Math.round(result.gramsPerPiece * 100) / 100)); setByPiece(true); setQuantity('1'); }
     if (result.piecesPerServing) setPiecesRef(String(result.piecesPerServing));
+    const text3 = (value: number | null) => (value === null ? '' : String(value).replace('.', ','));
+    setMacroFields({ protein: text3(result.macros.protein), carbs: text3(result.macros.carbs), fat: text3(result.macros.fat) });
+    setShowMacros(macrosFound(result.macros) > 0);
     setError(result.energies.length ? '' : 'Je n’ai pas trouvé les kcal sur la photo. Recopie le chiffre écrit à côté de « Énergie ».');
   };
 
@@ -112,11 +128,15 @@ export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false 
   const weight = packMode ? pieceWeightFromPack(readNumber(packGrams), readNumber(packCount)) : readNumber(grams);
   const kcal = readNumber(energy);
   const label = unitCount ? pieceName : basis === '100ml' ? 'ml' : 'g';
+  // Hors premium et sans lecture offerte, les grammes ne sont pas transmis :
+  // l'aliment est ajouté exactement comme avant la V5.0, avec ses seules kcal.
+  const typedMacros: LabelMacros = { protein: readNumber(macroFields.protein), carbs: readNumber(macroFields.carbs), fat: readNumber(macroFields.fat) };
+  const usingMacros = trial.allowed && showMacros && macrosFound(typedMacros) > 0;
   let food = null, preview = null, issue = '';
   try {
     if (kcal === null) throw new Error('Indique les kcal de l’étiquette.');
     if (!basis) throw new Error('Choisis pour quelle quantité sont ces kcal.');
-    food = foodFromLabel({ name: name.trim() || FALLBACK_NAME, kcal, basis, byPiece: unitCount, gramsPerPiece: weight, piecesPerServing: readNumber(piecesRef), portionName: pieceName });
+    food = foodFromLabel({ name: name.trim() || FALLBACK_NAME, kcal, basis, byPiece: unitCount, gramsPerPiece: weight, piecesPerServing: readNumber(piecesRef), portionName: pieceName, ...(usingMacros ? { macros: typedMacros } : {}) });
     const qty = readNumber(quantity);
     if (qty === null) throw new Error('Indique combien tu en as mangé.');
     preview = scaleReference(food, qty);
@@ -244,6 +264,63 @@ export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false 
         </>}
       </>}
 
+      {/* 4 — les macronutriments. Trois lectures offertes, puis le premium ;
+          les kcal ci-dessus, elles, restent gratuites et inchangées. */}
+      {kcal !== null && basis && (trial.allowed ? (showMacros ? <>
+        <Step number={4} title="Protéines, glucides, lipides" />
+        <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>
+          {detected && macrosFound(detected.macros) > 0
+            ? 'Lus sur la photo. Vérifie qu’ils viennent de la même colonne que les kcal, et corrige si besoin.'
+            : 'Recopie-les si tu veux les suivre. Laisse vide ce qui manque.'}
+        </Text>
+        <View style={styles.macroRow}>
+          {MACRO_FIELDS.map(field => (
+            <View key={field.key} style={styles.macroField}>
+              <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.macroLabel}>{field.label}</Text>
+              <View style={styles.macroInputWrap}>
+                <TextInput
+                  value={macroFields[field.key]}
+                  onChangeText={value => { setMacroFields(current => ({ ...current, [field.key]: value.replace(/[^0-9.,]/g, '') })); setError(''); }}
+                  keyboardType="decimal-pad"
+                  maxLength={6}
+                  placeholder="—"
+                  placeholderTextColor={colors.muted}
+                  accessibilityLabel={`${field.label} de l’étiquette, en grammes`}
+                  style={styles.macroInput}
+                />
+                <Text maxFontSizeMultiplier={1.2} style={styles.macroUnit}>g</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+        {trialNotice(trial) ? (
+          <View style={styles.trial}>
+            <AppIcon name="sparkle" size={16} color={colors.warmInk} strokeWidth={2.2} />
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.trialText}>{trialNotice(trial)}</Text>
+          </View>
+        ) : null}
+      </> : (
+        <MotionPressable accessibilityRole="button" onPress={() => setShowMacros(true)} style={styles.link}>
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.linkText}>Ajouter les protéines, glucides et lipides</Text>
+        </MotionPressable>
+      )) : (
+        <MotionPressable
+          accessibilityRole="button"
+          accessibilityLabel="Protéines, glucides et lipides. Fonction premium. Voir ce que contient le premium."
+          onPress={() => openPaywall('etiquette')}
+          style={styles.lock}
+        >
+          <View style={styles.lockIcon}><AppIcon name="lock" size={20} color={colors.warmInk} strokeWidth={2.2} /></View>
+          <View style={{ flex: 1 }}>
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.lockTitle}>
+              {detected && macrosFound(detected.macros) > 0 ? 'Les macros sont sur cette étiquette' : 'Protéines, glucides, lipides'}
+            </Text>
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.lockCopy}>Tes trois lectures offertes sont utilisées. Le premium les lit sur chaque étiquette, pour toujours. Les kcal, elles, restent gratuites.</Text>
+            <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.lockCta}>Voir ce que contient le premium</Text>
+          </View>
+        </MotionPressable>
+      ))}
+
       {/* Le résultat, en grand, avant d'ajouter. */}
       {preview && <View style={styles.result} accessibilityLiveRegion="polite">
         <Text maxFontSizeMultiplier={1.4} style={styles.resultValue}>≈ {preview.calories.estimated.toLocaleString('fr-FR')} kcal</Text>
@@ -252,6 +329,12 @@ export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false 
             ? `${quantity} ${pieceName}${count > 1 ? 's' : ''}, à ${Number(food!.reference.calories.estimated.toFixed(1)).toLocaleString('fr-FR')} kcal l’un${pieceName === 'barre' || pieceName === 'tranche' || pieceName === 'pièce' ? 'e' : ''}`
             : `${quantity} ${label} à ${kcal?.toLocaleString('fr-FR')} kcal pour 100 ${label}`}
         </Text>
+        {usingMacros && (
+          <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={styles.resultMacros}>
+            {preview.macros.protein.toLocaleString('fr-FR')} g de protéines · {preview.macros.carbs.toLocaleString('fr-FR')} g de glucides · {preview.macros.fat.toLocaleString('fr-FR')} g de lipides
+            {preview.macrosComplete ? '' : ' (incomplet)'}
+          </Text>
+        )}
       </View>}
 
       {preview && <>
@@ -262,7 +345,14 @@ export function LabelFoodForm({ initialName, onAdd, onCancel, autoStart = false 
       <Action
         label={preview ? `Ajouter ${preview.calories.estimated.toLocaleString('fr-FR')} kcal au repas` : 'Ajouter au repas'}
         disabled={!preview}
-        onPress={() => { if (!preview || !food) { setError(issue); return; } if (remember) rememberFood(food); onAdd(preview); }}
+        onPress={() => {
+          if (!preview || !food) { setError(issue); return; }
+          // La lecture offerte n'est décomptée qu'ici : regarder les grammes
+          // ne coûte rien, seul l'aliment réellement ajouté compte.
+          if (usingMacros && !premium.unlocked) useLabelMacroRead();
+          if (remember) rememberFood(food);
+          onAdd(preview);
+        }}
       />
       {!preview && kcal !== null && basis ? <Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={form.muted}>{issue}</Text> : null}
 
@@ -333,4 +423,20 @@ const styles = StyleSheet.create({
 
   result: { backgroundColor: colors.violetPale, borderRadius: 18, padding: 16, gap: 4 },
   resultValue: { color: colors.navy, fontSize: 32, lineHeight: 38, fontFamily: fonts.displayHeavy },
+  resultMacros: { color: colors.navy, fontSize: 14, lineHeight: 20, fontFamily: fonts.bold, marginTop: 2 },
+
+  // V5.0 — les macronutriments de l'étiquette.
+  macroRow: { flexDirection: 'row', gap: 10 },
+  macroField: { flex: 1, gap: 5 },
+  macroLabel: { color: colors.inkSoft, fontSize: 13, fontFamily: fonts.bold },
+  macroInputWrap: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.fieldEdge, borderRadius: radii.medium, paddingHorizontal: 10, minHeight: 52 },
+  macroInput: { flex: 1, color: colors.ink, fontSize: 19, fontFamily: fonts.bold, paddingVertical: 8, minWidth: 0 },
+  macroUnit: { color: colors.muted, fontSize: 14, fontFamily: fonts.bold },
+  trial: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.goldPale, borderRadius: radii.medium, paddingHorizontal: 12, paddingVertical: 10 },
+  trialText: { flex: 1, color: colors.warmInk, fontSize: 13, lineHeight: 19, fontFamily: fonts.semibold },
+  lock: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', backgroundColor: colors.goldPale, borderRadius: 18, borderWidth: 1, borderColor: colors.warmEdge, padding: 14 },
+  lockIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
+  lockTitle: { color: colors.ink, fontSize: 16, fontFamily: fonts.extrabold },
+  lockCopy: { color: '#6F4E07', fontSize: 13, lineHeight: 19, fontFamily: fonts.medium, marginTop: 3 },
+  lockCta: { color: colors.violet, fontSize: 14, fontFamily: fonts.extrabold, marginTop: 8 },
 });

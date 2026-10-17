@@ -5,6 +5,7 @@ import { CalorieGauge } from '../components/CalorieGauge';
 import { AppIcon } from '../components/AppIcon';
 import { GuideCard } from '../components/GuideCard';
 import { MomentMeals } from '../components/MomentMeals';
+import { DayTemplates } from '../components/DayTemplates';
 import { PastDayBanner } from '../components/DayNavigator';
 import { longDay, WeekStrip } from '../components/WeekStrip';
 import { macroTargets } from '../domain/calories';
@@ -308,6 +309,9 @@ export function TodayScreen({ onAdd, onAddFor, onScan, onEditMeal, onProfile, on
           </View>
         </View>
       )}
+
+      {/* V5.0 — la journée entière, après « Refaire un repas habituel » qui, lui, reste gratuit. */}
+      <DayTemplates />
 
       {praise ? <PraiseCard praise={praise} tone={praise === regularity ? 'mint' : 'violet'} /> : null}
 

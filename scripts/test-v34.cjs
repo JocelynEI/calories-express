@@ -40,7 +40,7 @@ test('Débloquer garde la source et la date', () => {
 });
 
 test('Le premium annonce deux fonctions, un prix, et ce qui reste gratuit', () => {
-  assert.deepEqual(PREMIUM_FEATURES.map(f => f.id), ['bilans', 'objectifs']);
+  assert.deepEqual(PREMIUM_FEATURES.map(f => f.id), ['etiquette', 'journee', 'bilans', 'objectifs']);
   assert.equal(PREMIUM_PRODUCT_ID, 'premium_vie');
   assert.equal(PREMIUM_PRICE_LABEL, '14,99 €');
   for (const word of ['scan', 'recherche', 'plats maison', 'activités', 'poids', 'repères automatiques']) {
@@ -174,7 +174,7 @@ test('Les durées et les écarts s’écrivent comme on les lit', () => {
 
 test('Rien de gratuit n’est verrouillé : ces écrans ne connaissent pas le premium', () => {
   for (const file of [
-    'src/components/UnifiedFoodSearch.tsx', 'src/components/OcrReader.tsx', 'src/components/LabelFoodForm.tsx',
+    'src/components/UnifiedFoodSearch.tsx', 'src/components/OcrReader.tsx',
     'src/components/RecipeBuilder.tsx', 'src/components/FoodEntryForms.tsx', 'src/components/AddMealModal.tsx',
     'src/components/ActivityModal.tsx', 'src/components/QuickActivity.tsx', 'src/components/WeightCard.tsx',
     'src/components/AvatarPicker.tsx', 'src/components/AddSheet.tsx', 'src/screens/JournalScreen.tsx',
@@ -206,7 +206,7 @@ test('Le profil propose les objectifs de macros et le statut, avec « Restaurer 
 
 test('Le premium est enregistré, et effacer le profil n’y touche jamais', () => {
   const ctx = read('src/state/AppContext.tsx');
-  assert.ok(ctx.includes('storyHistory, premium, macroGoals };'), 'écrit avec le reste de l’état');
+  assert.ok(ctx.includes('storyHistory, premium, macroGoals, dayTemplates, labelMacroReads };'), 'écrit avec le reste de l’état');
   assert.ok(ctx.includes('setPremium(readPremium(parsed.premium))'), 'relu défensivement');
   assert.ok(ctx.includes('setMacroGoals(readMacroGoals(parsed.macroGoals))'));
   for (const name of ['startFresh', 'resetProfile', 'restoreDemo', 'updateProfile']) {

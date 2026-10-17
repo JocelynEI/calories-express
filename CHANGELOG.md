@@ -2,6 +2,19 @@
 
 Le premium : un achat unique « à vie », sans toucher à ce qui est gratuit.
 
+- **L'étiquette complète** (scan, premium) : la photo d'un tableau nutritionnel
+  donne aussi les protéines, les glucides et les lipides, et plus seulement les
+  kcal — donc plus de « bilan partiel » sur l'accueil. « dont sucres » n'est
+  jamais pris pour un glucide, ni « dont acides gras saturés » pour un lipide,
+  et le tableau des apports de référence est ignoré. Les grammes sont
+  modifiables, et mis à l'échelle comme les kcal (par pièce, par portion).
+  Un mot illisible laisse la valeur vide plutôt que d'inventer un chiffre.
+  **Trois lectures offertes**, annoncées dès la première, décomptées seulement
+  quand l'aliment est ajouté. Les kcal, elles, restent gratuites et inchangées.
+- **Ma journée type** (accueil, premium) : enregistrer une journée entière et la
+  rejouer en un appui, chaque repas à son heure d'origine. Cinq modèles au plus.
+  Les repas s'ajoutent à la journée sans remplacer ceux qui s'y trouvent, et la
+  carte le dit avant. « Refaire un repas habituel » reste gratuit.
 - **Bilans de la semaine et du mois** (Progression, premium) : moyenne par jour
   renseigné, repère moyen, écart, jours au-dessus du repère, comparaison avec la
   période d'avant (si les deux ont au moins 3 jours), macros moyennes et activité.

@@ -16,9 +16,21 @@ export const PREMIUM_PRODUCT_ID = 'premium_vie';
 /** Prix affiché tant que le store n'a pas renvoyé le sien. Modifiable plus tard sans toucher aux acheteurs. */
 export const PREMIUM_PRICE_LABEL = '14,99 €';
 
-export type PremiumFeature = 'bilans' | 'objectifs';
+export type PremiumFeature = 'etiquette' | 'journee' | 'bilans' | 'objectifs';
 
-export const PREMIUM_FEATURES: { id: PremiumFeature; title: string; copy: string; icon: 'chart' | 'target' }[] = [
+export const PREMIUM_FEATURES: { id: PremiumFeature; title: string; copy: string; icon: 'chart' | 'target' | 'camera' | 'repeat' }[] = [
+  {
+    id: 'etiquette',
+    title: 'L’étiquette complète',
+    copy: 'Le scan lit aussi les protéines, les glucides et les lipides, pas seulement les kcal. Fini le « bilan partiel ».',
+    icon: 'camera',
+  },
+  {
+    id: 'journee',
+    title: 'Ma journée type',
+    copy: 'Enregistre une journée entière et rejoue-la en un appui, au lieu de ressaisir chaque repas.',
+    icon: 'repeat',
+  },
   {
     id: 'bilans',
     title: 'Bilans de la semaine et du mois',
@@ -34,7 +46,7 @@ export const PREMIUM_FEATURES: { id: PremiumFeature; title: string; copy: string
 ];
 
 /** Ce qui reste gratuit, dit sur l'écran du premium pour que personne n'ait à le deviner. */
-export const STAYS_FREE = 'Tout ce que tu utilises déjà reste gratuit : scan d’étiquette, recherche, plats maison, activités, poids, personnages et repères automatiques.';
+export const STAYS_FREE = 'Tout ce que tu utilises déjà reste gratuit : le scan et ses kcal, la recherche, les plats maison, les activités, le poids, les personnages et les repères automatiques.';
 
 export type PremiumState = {
   unlocked: boolean;
@@ -63,6 +75,40 @@ export function readPremium(value: unknown): PremiumState {
 export const unlockedState = (source: 'store' | 'test', now = new Date()): PremiumState => ({
   unlocked: true, source, unlockedAt: now.toISOString(),
 });
+
+/* -------------------------------------------------------------------------- */
+/* Les lectures offertes                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Trois étiquettes lues avec leurs macronutriments, offertes.
+ *
+ * Le compte est annoncé avant la première, pas découvert à la troisième : les
+ * avis des applications concurrentes reprochent avant tout le « gratuit qui
+ * devient payant » sans prévenir. Une lecture n'est décomptée que lorsque
+ * l'aliment est réellement ajouté au repas avec ses grammes.
+ */
+export const FREE_LABEL_MACRO_READS = 3;
+
+export const readLabelMacroReads = (value: unknown): number =>
+  typeof value === 'number' && Number.isInteger(value) && value > 0 ? Math.min(value, FREE_LABEL_MACRO_READS) : 0;
+
+export type TrialState = { unlocked: boolean; allowed: boolean; left: number; used: number };
+
+export function labelMacroTrial(used: number, unlocked: boolean): TrialState {
+  const safe = readLabelMacroReads(used);
+  const left = Math.max(0, FREE_LABEL_MACRO_READS - safe);
+  return { unlocked, allowed: unlocked || left > 0, left, used: safe };
+}
+
+/** Ce qu'on annonce au-dessus des grammes lus, avant d'en consommer une. */
+export function trialNotice(trial: TrialState): string | null {
+  if (trial.unlocked) return null;
+  if (trial.left === FREE_LABEL_MACRO_READS) return `${FREE_LABEL_MACRO_READS} lectures offertes, puis Premium. Celle-ci est la première.`;
+  if (trial.left > 1) return `Il te reste ${trial.left} lectures offertes, puis Premium.`;
+  if (trial.left === 1) return 'Dernière lecture offerte, puis Premium.';
+  return null;
+}
 
 /* -------------------------------------------------------------------------- */
 /* Objectifs de macros                                                         */
