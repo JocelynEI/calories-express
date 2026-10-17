@@ -1,3 +1,48 @@
+# V4.2.0 — 16 octobre 2026
+
+Corrections tirées de l'analyse des avis sur les applis concurrentes.
+
+- **Chaque aliment du repas dit d'où vient son chiffre** : « Lu sur ton
+  étiquette », « Ta valeur », « Ta recette » ou « Moyenne Ciqual, à ajuster ».
+  Les avis reprochent aux concurrents des valeurs dont on ne sait pas d'où elles
+  viennent.
+- **Une boisson ?** Raccourcis Eau, Café, Thé, Lait, Jus d'orange, Cola avant de
+  taper.
+- **Les boissons se trouvent telles qu'on les boit** : « café » proposait d'abord
+  le café moulu (341 kcal pour 100 g), « thé » les feuilles, « lait » un yaourt,
+  « fromage » le fromage de tête. Le + sert un café ou un thé à la tasse.
+- **Le + sert une portion raisonnable** : « 1 portion » plutôt qu'une assiette
+  pleine, et 30 g pour un aliment très calorique sans mesure (chocolat,
+  biscuits, fruits secs) au lieu de 100 g.
+- Les noms de la table Ciqual ne contiennent plus de retour à la ligne (818 noms
+  concernés).
+- Vérifié : 15 ajouts à la suite dans le navigateur, processeur ralenti 4 fois,
+  environ 0,4 s par ajout, sans erreur.
+
+# V4.1.0 — 16 octobre 2026
+
+Chercher et ajouter un aliment en quelques secondes.
+
+- **Les propositions suivent la frappe** dès la 2e lettre : « po » propose pomme,
+  poireau, potiron. Ce que tu écris en premier passe devant.
+- **Un + sur chaque proposition** ajoute une portion courante (1 verre, 1 bol,
+  1 portion…) sans passer par l'étape de quantité. Un appui sur la ligne ouvre
+  toujours le choix de la quantité.
+- **Tes aliments récents** s'affichent dès l'ouverture, avant d'avoir tapé :
+  ce que tu as noté dans tes repas, puis tes aliments mémorisés.
+- **Ajouter son propre aliment** n'est plus caché en bas : « Mon aliment » est à
+  côté du scan, et « Ajouter « … » moi-même » termine chaque liste. Le formulaire
+  ne demande plus que le nom et les calories (une portion). Le « pour 100 g », les
+  macros et la mémoire sont derrière « Plus d'options ».
+- **Le total et « Enregistrer le repas » restent en bas de l'écran**, avec un
+  message à chaque ajout.
+- Le clavier s'ouvre tout seul sur la recherche.
+- Les textes d'explication (nombre d'aliments, source, avertissements) ne
+  s'affichent plus qu'en cas de besoin.
+- Correction : un aliment compté en portions (le tien, un plat maison) ne se voit
+  plus proposer de mesures en grammes (« 1 tranche », « 1 assiette ») qui
+  faussaient son total.
+
 # V4.0.2 — 14 octobre 2026
 
 La lecture des étiquettes sur un sachet courbé ou un petit tableau.

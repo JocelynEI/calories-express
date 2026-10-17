@@ -1,5 +1,7 @@
 import data from '../data/ciqual2025.json';
-import { SavedFood } from '../types';
+import { RecognizedFood, SavedFood } from '../types';
+import { familyOf, measuresFor, quantityFor, referenceForDisplay } from './measures';
+import { scaleReference } from './foods';
 
 export const CIQUAL_SOURCE = 'https://doi.org/10.57745/RDMHWY';
 type Row = [string, string, number, number | null, number | null, number | null];
@@ -13,24 +15,82 @@ const rows = data as Row[];
 const indexed = rows.map(row => ({ row, tokens: words(row[1]) }));
 // Rank familiar plain foods ahead of derived drinks or pastries. Selection is
 // always explicit, and each source name (including preparation) remains intact.
-const COMMON = new Set(['13005', '13039', '13396', '9104', '9811', '19593', '19600', '22010', '22000']);
+const COMMON = new Set(['13005', '13039', '13396', '9104', '9811', '19593', '19600', '22010', '22000',
+  // V4.2 — les boissons telles qu'on les boit : « café » donnait d'abord le café
+  // moulu (341 kcal/100 g), « thé » les feuilles et « lait » un yaourt.
+  '18004', '18020', '19033', '18066', '18063',
+  // « fromage » proposait d'abord le fromage de tête, une charcuterie.
+  '12999']);
+/** Ce qui s'achète en poudre ou en feuilles ne passe devant que si on le demande. */
+const RAW = new Set(['moulu', 'poudre', 'soluble', 'feuille', 'deshydrate', 'lyophilise']);
 export const CIQUAL_COUNT = rows.length;
 export function ciqualFood(row: Row): SavedFood {
   const [code, name, energy, protein, carbs, fat] = row;
-  return { id: `ciqual-${code}`, name, reference: { amount: 100, unit: 'g', calories: { min: energy, estimated: energy, max: energy }, macros: { protein: protein ?? 0, carbs: carbs ?? 0, fat: fat ?? 0 }, macrosComplete: [protein, carbs, fat].every(v => v !== null), source: 'ciqual', sourceUrl: CIQUAL_SOURCE, description: 'Composition moyenne Ciqual 2025 · 100 g de partie comestible. Vérifie la préparation et la quantité.' } };
+  // Certains noms de la table contiennent un retour à la ligne : on les remet sur une ligne.
+  return { id: `ciqual-${code}`, name: name.replace(/\s+/g, ' ').trim(), reference: { amount: 100, unit: 'g', calories: { min: energy, estimated: energy, max: energy }, macros: { protein: protein ?? 0, carbs: carbs ?? 0, fat: fat ?? 0 }, macrosComplete: [protein, carbs, fat].every(v => v !== null), source: 'ciqual', sourceUrl: CIQUAL_SOURCE, description: 'Composition moyenne Ciqual 2025 · 100 g de partie comestible. Vérifie la préparation et la quantité.' } };
 }
 export function searchFoods(query: string, personal: SavedFood[] = [], limit = 8): SavedFood[] {
   const tokens = words(query);
   if (!tokens.length) return personal.slice(0, limit);
-  const rank = (name: string[], boost = 0) => {
-    if (!tokens.every(token => name.some(w => w === token || (token.length >= 3 && w.startsWith(token))))) return -1;
-    return tokens.reduce((n, token) => n + (name.includes(token) ? 30 : 10), 0) + boost - name.length * 0.3;
+  const last = tokens.length - 1;
+  // V4.1 — l'autocomplétion : le mot en cours d'écriture compte dès sa 2e lettre
+  // (dès la 1re pour tes aliments), les mots déjà écrits dès la 3e.
+  const rank = (name: string[], boost: number, minPrefix: number) => {
+    if (tokens[last].length < minPrefix) return -1;
+    const found = tokens.every((token, index) => name.some(w => w === token || w.startsWith(token) && token.length >= (index === last ? minPrefix : 3)));
+    if (!found) return -1;
+    const start = name[0]?.startsWith(tokens[0]) ? 12 : 0;
+    const raw = name.some(w => RAW.has(w) && !tokens.includes(w)) ? 15 : 0;
+    return tokens.reduce((n, token) => n + (name.includes(token) ? 30 : 10), 0) + boost + start - raw - name.length * 0.3;
   };
   const found: { food?: SavedFood; row?: Row; score: number }[] = [];
-  for (const food of personal) { const score = rank(words(food.name), 5); if (score >= 0) found.push({ food, score }); }
-  for (const entry of indexed) { const score = rank(entry.tokens, COMMON.has(entry.row[0]) ? 15 : 0); if (score >= 0) found.push({ row: entry.row, score }); }
+  for (const food of personal) { const score = rank(words(food.name), 5, 1); if (score >= 0) found.push({ food, score }); }
+  for (const entry of indexed) { const score = rank(entry.tokens, COMMON.has(entry.row[0]) ? 15 : 0, 2); if (score >= 0) found.push({ row: entry.row, score }); }
   const seen = new Set<string>();
   return found.sort((a, b) => b.score - a.score).filter(hit => { const id = hit.food?.id ?? `ciqual-${hit.row![0]}`; if (seen.has(id)) return false; seen.add(id); return true; }).slice(0, limit).map(hit => hit.food ?? ciqualFood(hit.row!));
+}
+
+/**
+ * V4.1 — les aliments déjà mangés, du plus récent au plus ancien.
+ *
+ * Ouvrir l'ajout sur un champ vide ne dit pas quoi taper. On propose d'abord ce
+ * que la personne a vraiment noté dans ses repas, puis ses aliments mémorisés :
+ * le plus souvent, on remange la même chose.
+ */
+export function recentFoods(meals: { createdAt: string; items: RecognizedFood[] }[], saved: SavedFood[], limit = 6): SavedFood[] {
+  const out = new Map<string, SavedFood>();
+  const recent = [...meals].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  for (const meal of recent) {
+    for (const item of [...meal.items].reverse()) {
+      if (out.size >= limit) return [...out.values()];
+      if (!item.reference || out.has(item.foodId)) continue;
+      out.set(item.foodId, { id: item.foodId, name: item.name, reference: item.reference });
+    }
+  }
+  for (const food of saved) if (out.size < limit && !out.has(food.id)) out.set(food.id, food);
+  return [...out.values()];
+}
+
+/**
+ * V4.1 — « une portion », pour ajouter en un appui sans passer par l'étape de
+ * quantité : la première mesure courante de l'aliment (1 verre, 1 bol, 1 portion…),
+ * ou sa référence si elle est déjà en portion. L'étiquette dit laquelle, et la
+ * quantité reste modifiable dans le repas.
+ */
+export function quickPortion(food: SavedFood): { item: RecognizedFood; label: string } {
+  const reference = referenceForDisplay(food);
+  const measures = reference.unit === 'portion' ? [] : measuresFor(food.name);
+  // Un café, un thé se boivent à la tasse, pas au verre.
+  const hot = /^(caf|th[eé](\s|,|$)|tisane|infusion|chocolat chaud)/i.test(food.name.trim());
+  // Une « portion » parle mieux qu'une assiette pleine quand elle existe.
+  const measure = (hot && measures.find(m => m.id === 'tasse')) || measures.find(m => m.id === 'portion') || measures[0];
+  // Chocolat, biscuits, fruits secs : 100 g d'un coup, c'est une tablette entière.
+  // Pour ces aliments très denses sans mesure dédiée, le + sert 30 g.
+  const dense = reference.unit !== 'portion' && familyOf(food.name) === 'autre' && reference.calories.estimated * 100 / reference.amount > 350;
+  if (dense) return { item: scaleReference({ ...food, reference }, 30), label: `30 ${reference.unit}` };
+  const quantity = measure ? quantityFor(measure, 1) : reference.amount;
+  const label = measure ? measure.label : reference.unit === 'portion' ? '1 portion' : `${reference.amount} ${reference.unit}`;
+  return { item: scaleReference({ ...food, reference }, quantity), label };
 }
 
 export type FoodSegment = { text: string; query: string; quantity: number | null; unit: 'g' | 'ml' | 'piece' | null };
