@@ -1,6 +1,14 @@
-# Calories Express — V4.3
+# Calories Express — V5.0
 
-Version de test Expo Go · 14 octobre 2026.
+Version de test Expo Go · 17 octobre 2026.
+
+## Ce qui change en V5.0 — le premium
+
+- **Un achat unique « à vie »** (14,99 €), sans abonnement ni compte. Il ajoute :
+  - les **bilans** de la semaine et du mois (Progression) ;
+  - **tes propres objectifs de macros** (Profil), qui remplacent les repères automatiques.
+- **Rien de ce qui est gratuit n'est déplacé** : scan d'étiquette, recherche, plats maison, activités, poids, personnages et repères automatiques restent gratuits.
+- **Les achats ne sont pas encore branchés aux stores.** Dans Expo Go l'achat est simulé (mode test), dans une version publiée il est indisponible et l'écran le dit. Le vrai paiement se branchera dans `src/services/purchases.ts` à la publication.
 
 ## Ce qui change en V4.0 — l'accueil en cartes
 

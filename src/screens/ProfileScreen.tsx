@@ -4,6 +4,8 @@ import { AppIcon } from '../components/AppIcon';
 import { GuideAvatar } from '../components/GuideAvatar';
 import { GuideCard } from '../components/GuideCard';
 import { AvatarPicker } from '../components/AvatarPicker';
+import { MacroGoalsSection } from '../components/MacroGoalsSection';
+import { PremiumStatus } from '../components/PremiumStatus';
 import { avatarFor } from '../domain/activity-hero';
 import { calculateBmr } from '../domain/calories';
 import { useApp } from '../state/AppContext';
@@ -209,6 +211,13 @@ export function ProfileScreen({ onReplayWelcome, onReplayOnboarding }: { onRepla
       </MotionPressable>
       {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
       {saved && <Entrance><Text accessibilityLiveRegion="polite" style={styles.savedNotice}>C’est enregistré. Ton assiette utilise maintenant ces réglages.</Text></Entrance>}
+
+      {/* V5.0 — objectifs de macros (premium) et statut du premium. */}
+      <Text style={styles.sectionTitle}>Objectifs de macros</Text>
+      <MacroGoalsSection />
+
+      <Text style={styles.sectionTitle}>Premium</Text>
+      <PremiumStatus />
 
       <Text style={styles.sectionTitle}>Une application à ton rythme</Text>
       <View style={styles.formCard}>

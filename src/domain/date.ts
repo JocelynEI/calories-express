@@ -68,3 +68,7 @@ export const weekdayInitials = (day: string) => {
   const name = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(dayDate(day)).replace('.', '');
   return { name, number: dayDate(day).getDate() };
 };
+
+/** « 18 sept. », pour l'axe d'un graphique de 30 jours, où un jour de semaine seul prêterait à confusion. */
+export const shortDateLabel = (day: string) =>
+  new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(dayDate(day));
